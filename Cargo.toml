@@ -35,7 +35,9 @@ anyhow = "^1.0"
 argh = "^0.1.9"
 log = "^0.4"
 petgraph = { version = "^0.6", features = [ "serde-1" ] }
-rand = "^0.8.5"
+rand = "^0.8"
+rand_pcg = "^0.3"
+rand_seeder = "^0.2"
 rodio = { version = "^0.16", default-features = false }
 serde = { version = "^1", features = [ "derive" ] }
 simplelog = "^0.12.0"

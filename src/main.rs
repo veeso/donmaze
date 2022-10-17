@@ -10,6 +10,7 @@ mod audio;
 mod game;
 mod gfx;
 mod ui;
+mod utils;
 
 use args::Args;
 use game::Runtime;

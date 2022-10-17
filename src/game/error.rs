@@ -12,6 +12,8 @@ pub enum Error {
     Audio(AudioError),
     #[error("ui error: {0}")]
     Ui(UiError),
+    #[error("saved game has an incompatible version; you need to start a new game")]
+    UnsupportedVersion,
 }
 
 impl From<AudioError> for Error {

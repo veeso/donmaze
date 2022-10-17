@@ -18,6 +18,8 @@ pub enum Item {
     Armor,
     /// Makes you know the content of a potion in advance
     AlchemyBook,
+    /// Can OHKO a daemon or make you escape at 100% from DonMaze
+    Talisman,
 }
 
 /// Potion types

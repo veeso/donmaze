@@ -2,8 +2,12 @@
 //!
 //! The maze where the game is played
 
-mod node_data;
-use node_data::NodeData;
+mod generator;
+mod room;
+use std::collections::HashMap;
+
+use generator::Generator;
+use room::Room;
 
 use petgraph::graph::UnGraph;
 
@@ -11,7 +15,18 @@ use petgraph::graph::UnGraph;
 /// Game maze
 pub struct Maze {
     /// The node graph
-    graph: UnGraph<i32, NodeData>,
+    nodes: UnGraph<u32, u32>,
+    /// The data for the rooms
+    rooms: HashMap<u32, Room>,
     /// The player position
     player: i32,
+    /// Maze seed
+    seed: String,
+}
+
+impl Maze {
+    /// Generate a brand new maze
+    pub fn generate(seed: Option<String>) -> Self {
+        Generator::new(seed).generate()
+    }
 }

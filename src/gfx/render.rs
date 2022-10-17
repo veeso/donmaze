@@ -41,8 +41,8 @@ impl Render {
         }
     }
 
-    /// Render shape from star-shape
-    pub fn star_shape(&self, mut x: f64, mut y: f64, data: &str, color: Color) -> Vec<Shape> {
+    /// Render shape from ascii
+    pub fn ascii_art(&self, mut x: f64, mut y: f64, data: &str, color: Color) -> Vec<Shape> {
         let newline_x = x;
         let mut shapes = Vec::new();
         for line in data.lines() {
