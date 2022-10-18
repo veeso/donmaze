@@ -21,12 +21,13 @@ pub fn init_config_dir() -> anyhow::Result<Option<PathBuf>> {
         // Append donmaze dir
         p.push("donmaze/");
         // If directory doesn't exist, create it
-        match p.exists() {
-            true => Ok(Some(p)),
-            false => match std::fs::create_dir(p.as_path()) {
+        if p.exists() {
+            Ok(Some(p))
+        } else {
+            match std::fs::create_dir_all(p.as_path()) {
                 Ok(_) => Ok(Some(p)),
                 Err(err) => anyhow::bail!(err),
-            },
+            }
         }
     } else {
         Ok(None)

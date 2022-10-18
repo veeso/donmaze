@@ -10,6 +10,7 @@ use std::{fs::OpenOptions, path::Path};
 /// Setup logger
 pub fn setup_logger(log_level: LevelFilter, path: &Path) -> anyhow::Result<()> {
     let file = OpenOptions::new()
+        .create(true)
         .append(false)
         .truncate(true)
         .write(true)

@@ -3,8 +3,10 @@
 //! Ui related things
 
 use std::time::Duration;
+use tuirealm::tui::layout::{Constraint, Direction, Layout};
+use tuirealm::tui::widgets::Clear;
 use tuirealm::{
-    props::Shape, terminal::TerminalBridge, Application, EventListenerCfg, NoUserEvent,
+    props::Shape, terminal::TerminalBridge, Application, Attribute, EventListenerCfg, NoUserEvent,
 };
 
 mod components;
@@ -60,7 +62,7 @@ impl Ui {
         let application = Application::init(
             EventListenerCfg::default().default_input_listener(Duration::from_millis(10)),
         );
-        let mut ui = Self {
+        let ui = Self {
             application,
             terminal: TerminalBridge::new()?,
             view: View::None,
@@ -102,18 +104,102 @@ impl Ui {
         let _ = self.application.active(&id);
     }
 
+    /// Get seed from view if mounted
+    pub fn get_seed(&self) -> UiResult<Option<String>> {
+        let value = self
+            .application
+            .query(&Id::Menu(MenuId::Seed), Attribute::Value)?
+            .unwrap();
+        Ok(match value.unwrap_string() {
+            s if s.is_empty() => None,
+            s => Some(s),
+        })
+    }
+
+    /// Display ui to terminal
+    pub fn view(&mut self) -> UiResult<()> {
+        match self.view {
+            View::Game => self.view_game(),
+            View::GameOver => self.view_game_over(),
+            View::LoadGame => self.view_load_game(),
+            View::Menu => self.view_menu(),
+            View::Victory => self.view_victory(),
+            View::None => Ok(()),
+        }
+    }
+
+    fn view_game(&mut self) -> UiResult<()> {
+        todo!()
+    }
+
+    fn view_game_over(&mut self) -> UiResult<()> {
+        todo!()
+    }
+
+    fn view_load_game(&mut self) -> UiResult<()> {
+        todo!();
+    }
+
+    fn view_menu(&mut self) -> UiResult<()> {
+        self.terminal.raw_mut().draw(|f| {
+            // Prepare chunks
+            let body = Layout::default()
+                .direction(Direction::Vertical)
+                .horizontal_margin(30)
+                .constraints(
+                    [
+                        Constraint::Length(7), // Title
+                        Constraint::Length(3), // new game
+                        Constraint::Length(3), // seed
+                        Constraint::Length(3), // load game
+                        Constraint::Length(3), // quit
+                        Constraint::Length(1), // footer
+                    ]
+                    .as_ref(),
+                )
+                .split(f.size());
+            self.application.view(&Id::Menu(MenuId::Title), f, body[0]);
+            self.application
+                .view(&Id::Menu(MenuId::NewGame), f, body[1]);
+            self.application.view(&Id::Menu(MenuId::Seed), f, body[2]);
+            self.application
+                .view(&Id::Menu(MenuId::LoadGame), f, body[3]);
+            self.application.view(&Id::Menu(MenuId::Exit), f, body[4]);
+        })?;
+        Ok(())
+    }
+
+    fn view_victory(&mut self) -> UiResult<()> {
+        todo!()
+    }
+
+    // -- view loaders
+
+    pub fn load_game(&mut self) -> UiResult<()> {
+        todo!()
+    }
+
+    pub fn load_game_loader(&mut self, games: Vec<String>) -> UiResult<()> {
+        todo!()
+    }
+
     /// Load menu view
-    pub fn load_menu(&mut self, title: &[Shape]) -> UiResult<()> {
+    pub fn load_menu(&mut self) -> UiResult<()> {
         let (width, height) = self.sizes()?;
         self.application.umount_all();
         self.application.mount(
             Id::Menu(MenuId::Title),
-            Box::new(menu::Title::new(title, width, 5.0)),
+            Box::new(menu::Title::default()),
             vec![],
         )?;
         self.application.mount(
             Id::Menu(MenuId::NewGame),
             Box::new(menu::NewGame::default()),
+            vec![],
+        )?;
+        self.application.mount(
+            Id::Menu(MenuId::Seed),
+            Box::new(menu::Seed::default()),
             vec![],
         )?;
         self.application.mount(

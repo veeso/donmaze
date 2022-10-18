@@ -3,10 +3,12 @@
 //! Menu components
 
 mod buttons;
+mod input;
 mod title;
 
 use super::Msg;
 pub use buttons::{Exit, LoadGame, NewGame};
+pub use input::Seed;
 pub use title::Title;
 
 /// Menu ids
@@ -15,6 +17,7 @@ pub enum MenuId {
     Title,
     NewGame,
     LoadGame,
+    Seed,
     Exit,
 }
 
@@ -24,6 +27,7 @@ pub enum MenuMsg {
     ActiveNewGame,
     ActiveLoadGame,
     ActiveExit,
+    ActiveSeed,
     NewGame,
     LoadGame,
     Quit,

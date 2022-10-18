@@ -46,15 +46,14 @@ impl Runtime {
         };
         info!("audio OK");
         debug!("initializing Ui");
-        let ui = Ui::new()?;
+        let mut ui = Ui::new()?;
         info!("Ui OK");
         let (width, height) = ui.sizes()?;
         let render = Render::new(width, height);
         info!("Render engine configured to work on {}x{}", width, height);
         // loading menu
         debug!("loading menu");
-        let menu_title = render.ascii_art(0.0, render.origin_y(height), MAIN_TITLE, Color::Red);
-        ui.load_menu(&menu_title)?;
+        ui.load_menu()?;
         info!("menu loaded");
         Ok(Self {
             audio,
@@ -74,14 +73,14 @@ impl Runtime {
         self.play_theme(Theme::Menu);
         while self.running {
             // Run view
-            let mut redraw = false;
+            let mut redraw = true;
             let messages = self.ui.tick()?;
             for msg in messages.into_iter() {
                 self.update(msg)?;
                 redraw = true;
             }
             if redraw {
-                self.ui.view();
+                self.ui.view()?;
             }
         }
         // Finalize terminal and stop sound
@@ -89,7 +88,7 @@ impl Runtime {
         self.ui.finalize_terminal();
         debug!("stopping theme...");
         self.play_theme(Theme::None);
-        // TODO: check version compatible
+
         Ok(())
     }
 
@@ -105,6 +104,12 @@ impl Runtime {
         if let Some(audio) = self.audio.as_mut() {
             audio.play_theme(theme);
         }
+    }
+
+    /// load game
+    fn load_game(&mut self) -> GameResult<()> {
+        // TODO: check version compatible
+        todo!()
     }
 
     fn update(&mut self, msg: Msg) -> GameResult<()> {
@@ -130,14 +135,19 @@ impl Runtime {
             MenuMsg::ActiveNewGame => {
                 self.ui.active(Id::Menu(MenuId::NewGame));
             }
+            MenuMsg::ActiveSeed => {
+                self.ui.active(Id::Menu(MenuId::Seed));
+            }
             MenuMsg::LoadGame => {
                 self.load_game()?;
-                self.ui.load_game_loader()?;
+                let saved_games = todo!();
+                self.ui.load_game_loader(saved_games)?;
             }
             MenuMsg::NewGame => {
                 // create a new session
-                // TODO: session seed
-                self.session = Some(Session::new(None));
+                let seed = self.ui.get_seed()?;
+                debug!("initializing new session with seed {:?}", seed);
+                self.session = Some(Session::new(seed));
                 self.ui.load_game()?;
             }
             MenuMsg::Quit => {

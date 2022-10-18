@@ -2,25 +2,30 @@
 
 use super::Msg;
 
-use tui_realm_stdlib::Canvas;
-use tuirealm::props::Shape;
-use tuirealm::tui::symbols::Marker;
+use tui_realm_stdlib::Paragraph;
+use tuirealm::props::{Alignment, BorderSides, Borders, Color, TextSpan};
 use tuirealm::NoUserEvent;
 use tuirealm::{Component, Event, MockComponent};
 
 #[derive(MockComponent)]
 pub struct Title {
-    component: Canvas,
+    component: Paragraph,
 }
 
-impl Title {
-    pub fn new(shapes: &[Shape], width: f64, height: f64) -> Self {
+impl Default for Title {
+    fn default() -> Self {
         Self {
-            component: Canvas::default()
-                .data(shapes)
-                .marker(Marker::Block)
-                .x_bounds((-width / 2.0, width / 2.0))
-                .y_bounds((0.0, height)),
+            component: Paragraph::default()
+                .borders(Borders::default().sides(BorderSides::NONE))
+                .foreground(Color::Red)
+                .alignment(Alignment::Left)
+                .text(&[
+                    TextSpan::from("                              ███    █████  █    █     █    █  ███   █████  █████"),
+                    TextSpan::from("                              █  █   █   █  █ █  █     ██  ██ █   █     █   █    "),
+                    TextSpan::from("                              █   █  █   █  █  █ █     █ ██ █ █████    █    █████"),
+                    TextSpan::from("                              █  █   █   █  █   ██     █    █ █   █   █     █    "),
+                    TextSpan::from("                              ███    █████  █    █     █    █ █   █  █████  █████"),
+                ]),
         }
     }
 }

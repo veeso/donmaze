@@ -12,6 +12,8 @@ pub enum UiError {
     FailedToGetSize,
     #[error("application error: {0}")]
     Application(ApplicationError),
+    #[error("io error: {0}")]
+    Io(std::io::Error),
     #[error("terminal error: {0}")]
     Terminal(TerminalError),
 }
@@ -19,6 +21,12 @@ pub enum UiError {
 impl From<ApplicationError> for UiError {
     fn from(e: ApplicationError) -> Self {
         Self::Application(e)
+    }
+}
+
+impl From<std::io::Error> for UiError {
+    fn from(e: std::io::Error) -> Self {
+        Self::Io(e)
     }
 }
 
