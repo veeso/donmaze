@@ -82,3 +82,9 @@ impl AudioEngine {
         Ok(())
     }
 }
+
+impl Drop for AudioEngine {
+    fn drop(&mut self) {
+        self.stop_thread().expect("failed to stop theme thread");
+    }
+}

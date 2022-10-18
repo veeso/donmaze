@@ -1,9 +1,9 @@
 #[macro_use]
+extern crate lazy_static;
+#[macro_use]
 extern crate log;
 #[macro_use]
 extern crate serde;
-
-use log::LevelFilter;
 
 mod args;
 mod audio;
@@ -13,7 +13,9 @@ mod ui;
 mod utils;
 
 use args::Args;
-use game::Runtime;
+use game::{Options, Runtime};
+
+use log::LevelFilter;
 
 const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
 const APP_AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
@@ -25,6 +27,9 @@ fn main() -> anyhow::Result<()> {
     if args.version {
         anyhow::bail!("donmaze {} - developed by {}", APP_VERSION, APP_AUTHORS)
     }
+    // setup config dir
+    let config_dir =
+        utils::dirs::init_config_dir()?.expect("your system doesn't support config directory");
     // setup logging
     let log_level = if args.debug {
         LevelFilter::Debug
@@ -33,9 +38,16 @@ fn main() -> anyhow::Result<()> {
     } else {
         LevelFilter::Off
     };
-    todo!("setup logger");
-
+    if log_level != LevelFilter::Off {
+        utils::setup_logger(log_level, &utils::dirs::get_log_path(&config_dir))?;
+    }
     // run Game
-    Runtime::setup()?.run()?;
+    Runtime::setup(
+        Options::default()
+            .muted(args.muted)
+            .saved_games_dir(utils::dirs::get_saves_path(&config_dir))
+            .ticks(args.ticks.unwrap_or(10)),
+    )?
+    .run()?;
     Ok(())
 }

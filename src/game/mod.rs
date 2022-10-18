@@ -9,9 +9,11 @@ mod entity;
 mod error;
 mod inventory;
 mod maze;
+mod options;
 mod session;
 
 pub use error::Error as GameError;
+pub use options::Options;
 use session::Session;
 
 pub type GameResult<T> = Result<T, GameError>;
@@ -28,7 +30,7 @@ pub struct Runtime {
 
 impl Runtime {
     /// Setup game runtime
-    pub fn setup() -> GameResult<Self> {
+    pub fn setup(options: Options) -> GameResult<Self> {
         todo!()
     }
 
