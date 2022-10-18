@@ -149,8 +149,7 @@ impl Ui {
                 .constraints(
                     [
                         Constraint::Length(7), // Title
-                        Constraint::Length(3), // new game
-                        Constraint::Length(3), // seed
+                        Constraint::Length(3), // new game + seed
                         Constraint::Length(3), // load game
                         Constraint::Length(3), // quit
                         Constraint::Length(1), // footer
@@ -158,13 +157,18 @@ impl Ui {
                     .as_ref(),
                 )
                 .split(f.size());
+            let new_game_chunks = Layout::default()
+                .direction(Direction::Horizontal)
+                .constraints([Constraint::Percentage(30), Constraint::Percentage(70)].as_ref())
+                .split(body[1]);
             self.application.view(&Id::Menu(MenuId::Title), f, body[0]);
             self.application
-                .view(&Id::Menu(MenuId::NewGame), f, body[1]);
-            self.application.view(&Id::Menu(MenuId::Seed), f, body[2]);
+                .view(&Id::Menu(MenuId::NewGame), f, new_game_chunks[0]);
             self.application
-                .view(&Id::Menu(MenuId::LoadGame), f, body[3]);
-            self.application.view(&Id::Menu(MenuId::Exit), f, body[4]);
+                .view(&Id::Menu(MenuId::Seed), f, new_game_chunks[1]);
+            self.application
+                .view(&Id::Menu(MenuId::LoadGame), f, body[2]);
+            self.application.view(&Id::Menu(MenuId::Exit), f, body[3]);
         })?;
         Ok(())
     }

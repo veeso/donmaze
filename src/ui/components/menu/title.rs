@@ -20,7 +20,7 @@ impl Default for Title {
                 .foreground(Color::Red)
                 .alignment(Alignment::Left)
                 .text(&[
-                    TextSpan::from("                              ███    █████  █    █     █    █  ███   █████  █████"),
+                    TextSpan::from("                              ███    █████  █▅   █     █    █  ███   █████  █████"),
                     TextSpan::from("                              █  █   █   █  █ █  █     ██  ██ █   █     █   █    "),
                     TextSpan::from("                              █   █  █   █  █  █ █     █ ██ █ █████    █    █████"),
                     TextSpan::from("                              █  █   █   █  █   ██     █    █ █   █   █     █    "),

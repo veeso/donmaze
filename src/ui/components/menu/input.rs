@@ -7,7 +7,7 @@ use super::{MenuMsg, Msg};
 use tui_realm_stdlib::Input;
 use tuirealm::props::{Alignment, BorderType, Borders, Color, Style};
 use tuirealm::{
-    command::{Cmd, Direction, Position},
+    command::{Cmd, Position},
     NoUserEvent,
 };
 use tuirealm::{
@@ -50,16 +50,7 @@ impl Component<Msg, NoUserEvent> for Seed {
             }
             Event::Keyboard(KeyEvent {
                 code: Key::Left, ..
-            }) => {
-                self.perform(Cmd::Move(Direction::Left));
-                Some(Msg::None)
-            }
-            Event::Keyboard(KeyEvent {
-                code: Key::Right, ..
-            }) => {
-                self.perform(Cmd::Move(Direction::Right));
-                Some(Msg::None)
-            }
+            }) => Some(Msg::Menu(MenuMsg::ActiveNewGame)),
             Event::Keyboard(KeyEvent {
                 code: Key::Backspace,
                 ..
@@ -83,9 +74,7 @@ impl Component<Msg, NoUserEvent> for Seed {
                 self.perform(Cmd::GoTo(Position::Begin));
                 Some(Msg::None)
             }
-            Event::Keyboard(KeyEvent { code: Key::Up, .. }) => {
-                Some(Msg::Menu(MenuMsg::ActiveNewGame))
-            }
+            Event::Keyboard(KeyEvent { code: Key::Up, .. }) => Some(Msg::Menu(MenuMsg::ActiveExit)),
             Event::Keyboard(KeyEvent {
                 code: Key::Down, ..
             }) => Some(Msg::Menu(MenuMsg::ActiveLoadGame)),

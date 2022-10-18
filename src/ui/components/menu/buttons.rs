@@ -47,8 +47,11 @@ impl Component<Msg, NoUserEvent> for NewGame {
             }) => Some(Msg::Menu(MenuMsg::NewGame)),
             Event::Keyboard(KeyEvent { code: Key::Up, .. }) => Some(Msg::Menu(MenuMsg::ActiveExit)),
             Event::Keyboard(KeyEvent {
-                code: Key::Down, ..
+                code: Key::Right, ..
             }) => Some(Msg::Menu(MenuMsg::ActiveSeed)),
+            Event::Keyboard(KeyEvent {
+                code: Key::Down, ..
+            }) => Some(Msg::Menu(MenuMsg::ActiveLoadGame)),
             _ => None,
         }
     }
@@ -82,7 +85,9 @@ impl Component<Msg, NoUserEvent> for LoadGame {
             Event::Keyboard(KeyEvent {
                 code: Key::Enter, ..
             }) => Some(Msg::Menu(MenuMsg::LoadGame)),
-            Event::Keyboard(KeyEvent { code: Key::Up, .. }) => Some(Msg::Menu(MenuMsg::ActiveSeed)),
+            Event::Keyboard(KeyEvent { code: Key::Up, .. }) => {
+                Some(Msg::Menu(MenuMsg::ActiveNewGame))
+            }
             Event::Keyboard(KeyEvent {
                 code: Key::Down, ..
             }) => Some(Msg::Menu(MenuMsg::ActiveExit)),
