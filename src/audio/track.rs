@@ -2,7 +2,10 @@
 //!
 //! Audio track
 
+mod sound;
 mod theme;
+
+pub use sound::Sound;
 pub use theme::Theme;
 
 use rodio::source::{Amplify, SineWave, Source, TakeDuration};

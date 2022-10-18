@@ -33,7 +33,7 @@ fn main() -> anyhow::Result<()> {
     } else {
         LevelFilter::Off
     };
-    // TODO: setup logger
+    todo!("setup logger");
 
     // run Game
     Runtime::setup()?.run()?;

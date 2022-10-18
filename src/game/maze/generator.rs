@@ -2,7 +2,7 @@
 //!
 //! Random maze generator
 
-use crate::game::entity::{Daemon, Enemy, Item, Potion};
+use crate::game::entity::{Daemon, Enemy, Item, Potion, Shadow};
 use crate::utils::random;
 
 use petgraph::graph::UnGraph;
@@ -64,6 +64,7 @@ impl Generator {
         // place enemies in maze
         todo!();
         // place exit
+        todo!("EXIT MUST BE PLACED IN A ROOM WITH LESS THAN 4 ADJACENT NODES");
         let exit = self.rand.gen_range(40..rooms_amount) as u32;
         let exit_node = rooms.get_mut(&exit).unwrap();
         exit_node.is_exit = true;
@@ -76,10 +77,15 @@ impl Generator {
     fn enemies_to_place(&mut self) -> Vec<Enemy> {
         debug!("generating enemies to place...");
         let mut enemies = vec![Enemy::DonMaze];
-        let daemons_to_place = self.rand.gen_range(10..18);
+        let daemons_to_place = self.rand.gen_range(5..15);
         debug!("generating {} daemons...", daemons_to_place);
         for _ in 0..daemons_to_place {
             enemies.push(Enemy::Daemon(self.generate_daemon()));
+        }
+        let shadows_to_place = self.rand.gen_range(10..20);
+        debug!("generating {} shadows...", shadows_to_place);
+        for _ in 0..shadows_to_place {
+            enemies.push(Enemy::Shadow(self.generate_shadow()));
         }
         debug!("shuffling enemies...");
         enemies.shuffle(&mut self.rand);
@@ -92,10 +98,23 @@ impl Generator {
         Daemon::new(hp)
     }
 
+    fn generate_shadow(&mut self) -> Shadow {
+        let hp = self.rand.gen_range(2..6);
+        Shadow::new(hp)
+    }
+
     /// generate items to place in the maze; the amount is variable, exception made for some items which are always there
     fn items_to_place(&mut self) -> Vec<Item> {
         debug!("generating items to place...");
-        let mut items = vec![Item::Map, Item::MazeKey, Item::Sonar, Item::AlchemyBook];
+        let mut items = vec![
+            Item::MazeKey,
+            Item::Sonar,
+            Item::Sonar,
+            Item::Sonar,
+            Item::Sonar,
+            Item::Sonar,
+            Item::AlchemyBook,
+        ];
         let potions_amount = self.rand.gen_range(8..17);
         let armors_amount = self.rand.gen_range(4..9);
         let talismans_amount = self.rand.gen_range(2..5);

@@ -10,25 +10,41 @@ mod error;
 
 pub use error::UiError;
 
+use components::{
+    game::{GameId, GameMsg},
+    menu::{MenuId, MenuMsg},
+};
+
 /// UI module result
 pub type UiResult<T> = Result<T, UiError>;
 
 /// Application ID
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Id {
-    Game(components::game::GameId),
+    Game(GameId),
+    Menu(MenuId),
 }
 
 /// Application MSG
 #[derive(PartialEq, Eq)]
 pub enum Msg {
-    Game(components::game::GameMsg),
+    Game(GameMsg),
+    Menu(MenuMsg),
+}
+
+/// Current UI view
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+enum View {
+    Game,
+    LoadGame,
+    Menu,
 }
 
 /// Donmaze UI
 pub struct Ui {
     application: Application<Id, Msg, NoUserEvent>,
     terminal: TerminalBridge,
+    view: View,
 }
 
 impl Ui {
@@ -40,8 +56,9 @@ impl Ui {
         let mut ui = Self {
             application,
             terminal: TerminalBridge::new()?,
+            view: View::Menu,
         };
-        todo!("setup activity");
+        ui.load_menu()?;
         Ok(ui)
     }
 
@@ -63,5 +80,10 @@ impl Ui {
         let _ = self.terminal.disable_raw_mode();
         let _ = self.terminal.leave_alternate_screen();
         let _ = self.terminal.clear_screen();
+    }
+
+    /// Load menu view
+    pub fn load_menu(&mut self) -> UiResult<()> {
+        todo!()
     }
 }

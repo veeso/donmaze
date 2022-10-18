@@ -6,6 +6,6 @@ mod enemy;
 mod items;
 mod player;
 
-pub use enemy::{Daemon, Enemy};
+pub use enemy::{Daemon, Enemy, Shadow};
 pub use items::{Item, Potion};
-pub use player::Player;
+pub use player::{Player, State as PlayerState};

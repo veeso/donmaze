@@ -19,7 +19,7 @@ pub struct Maze {
     /// The data for the rooms
     rooms: HashMap<u32, Room>,
     /// The player position
-    player: i32,
+    pub player: u32,
     /// Maze seed
     seed: String,
 }
@@ -28,5 +28,15 @@ impl Maze {
     /// Generate a brand new maze
     pub fn generate(seed: Option<String>) -> Self {
         Generator::new(seed).generate()
+    }
+
+    /// Check whether provided room is adjacent to room player
+    pub fn room_adjacent(&self, room: u32) -> bool {
+        self.nodes.contains_edge(self.player.into(), room.into())
+    }
+
+    /// Returns adjacent rooms to `room`
+    pub fn adjacent_rooms(&self, room: u32) -> Vec<u32> {
+        self.nodes.edges(room.into()).map(|x| *x.weight()).collect()
     }
 }

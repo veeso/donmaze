@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
-        run: sudo apt update && sudo apt install -y libdbus-1-dev
+        run: sudo apt update && sudo apt install -y libasound2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -22,7 +22,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --no-default-features --features github-actions --no-fail-fast
+          args: --features github-actions --no-fail-fast
       - name: Format
         run: cargo fmt --all -- --check
       - name: Clippy

@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
-        run: sudo apt update && sudo apt install -y libdbus-1-dev libssh2-1-dev libssl-dev
+        run: sudo apt update && sudo apt install -y libasound2
       - name: Setup nightly toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -22,7 +22,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --no-default-features --features github-actions --no-fail-fast
+          args: --features github-actions --no-fail-fast
         env:
           CARGO_INCREMENTAL: "0"
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests"

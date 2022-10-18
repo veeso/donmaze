@@ -8,8 +8,8 @@ mod track;
 
 pub use error::AudioError;
 use theme_thread::ThemeThread;
-pub use track::Theme;
 use track::Track;
+pub use track::{Sound, Theme};
 
 use rodio::{OutputStream, Sink};
 use std::sync::{
