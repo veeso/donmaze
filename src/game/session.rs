@@ -35,6 +35,17 @@ pub struct Session {
 }
 
 impl Session {
+    /// Create a new session
+    pub fn new(seed: Option<String>) -> Self {
+        Self {
+            maze: Maze::generate(seed),
+            last_room: None,
+            player: Player::default(),
+            turn: 0,
+            version: Version::V010,
+        }
+    }
+
     /// Returns whether session version is compatible with game
     pub fn is_version_compatible(&self) -> bool {
         self.version.is_compatible()

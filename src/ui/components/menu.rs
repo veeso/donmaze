@@ -2,7 +2,12 @@
 //!
 //! Menu components
 
+mod buttons;
+mod title;
+
 use super::Msg;
+pub use buttons::{Exit, LoadGame, NewGame};
+pub use title::Title;
 
 /// Menu ids
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]

@@ -8,6 +8,8 @@ use tuirealm::{terminal::TerminalError, ApplicationError};
 /// Ui error
 #[derive(Debug, Error)]
 pub enum UiError {
+    #[error("failed to get terminal size")]
+    FailedToGetSize,
     #[error("application error: {0}")]
     Application(ApplicationError),
     #[error("terminal error: {0}")]

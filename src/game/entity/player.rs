@@ -26,9 +26,9 @@ pub enum State {
 impl Default for Player {
     fn default() -> Self {
         Player {
-            health: 3,
+            health: 5,
             inventory: Inventory::default(),
-            max_health: 3,
+            max_health: 5,
             state: State::Explore,
             sleep_counter: 0,
         }

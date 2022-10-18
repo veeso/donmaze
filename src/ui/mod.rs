@@ -3,14 +3,17 @@
 //! Ui related things
 
 use std::time::Duration;
-use tuirealm::{terminal::TerminalBridge, Application, EventListenerCfg, NoUserEvent};
+use tuirealm::{
+    props::Shape, terminal::TerminalBridge, Application, EventListenerCfg, NoUserEvent,
+};
 
 mod components;
 mod error;
 
 pub use error::UiError;
 
-use components::{
+use components::{game, menu};
+pub use components::{
     game::{GameId, GameMsg},
     menu::{MenuId, MenuMsg},
 };
@@ -30,14 +33,18 @@ pub enum Id {
 pub enum Msg {
     Game(GameMsg),
     Menu(MenuMsg),
+    None,
 }
 
 /// Current UI view
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum View {
     Game,
+    GameOver,
     LoadGame,
     Menu,
+    Victory,
+    None,
 }
 
 /// Donmaze UI
@@ -56,9 +63,8 @@ impl Ui {
         let mut ui = Self {
             application,
             terminal: TerminalBridge::new()?,
-            view: View::Menu,
+            view: View::None,
         };
-        ui.load_menu()?;
         Ok(ui)
     }
 
@@ -82,8 +88,46 @@ impl Ui {
         let _ = self.terminal.clear_screen();
     }
 
+    /// Get sizes (wxh)
+    pub fn sizes(&self) -> UiResult<(f64, f64)> {
+        self.terminal
+            .raw()
+            .size()
+            .map_err(|_| UiError::FailedToGetSize)
+            .map(|rect| (rect.width as f64, rect.height as f64))
+    }
+
+    /// Active focus
+    pub fn active(&mut self, id: Id) {
+        let _ = self.application.active(&id);
+    }
+
     /// Load menu view
-    pub fn load_menu(&mut self) -> UiResult<()> {
-        todo!()
+    pub fn load_menu(&mut self, title: &[Shape]) -> UiResult<()> {
+        let (width, height) = self.sizes()?;
+        self.application.umount_all();
+        self.application.mount(
+            Id::Menu(MenuId::Title),
+            Box::new(menu::Title::new(title, width, 5.0)),
+            vec![],
+        )?;
+        self.application.mount(
+            Id::Menu(MenuId::NewGame),
+            Box::new(menu::NewGame::default()),
+            vec![],
+        )?;
+        self.application.mount(
+            Id::Menu(MenuId::LoadGame),
+            Box::new(menu::LoadGame::default()),
+            vec![],
+        )?;
+        self.application.mount(
+            Id::Menu(MenuId::Exit),
+            Box::new(menu::Exit::default()),
+            vec![],
+        )?;
+        self.application.active(&Id::Menu(MenuId::NewGame))?;
+        self.view = View::Menu;
+        Ok(())
     }
 }
