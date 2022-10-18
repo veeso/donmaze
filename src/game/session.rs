@@ -10,12 +10,14 @@ use crate::audio::Sound;
 
 mod action;
 mod action_replay;
+mod cpu;
 mod effect;
 mod version;
 
 pub use action::{Action, ExploreAction, FightAction};
 use action_replay::ActionReplay;
-pub use effect::{Effect, Message};
+use cpu::Cpu;
+pub use effect::{Effect, Message, Reveal};
 use version::Version;
 
 /// The session contains all the game states.
@@ -49,11 +51,7 @@ impl Session {
         debug!("playing turn {}...", self.turn);
         let mut effect = Effect::default();
         ActionReplay::new(self).play(action, &mut effect);
-        self.play_cpu_turn(&mut effect);
+        Cpu::new(self).play(&mut effect);
         effect
-    }
-
-    fn play_cpu_turn(&mut self, effect: &mut Effect) {
-        todo!()
     }
 }

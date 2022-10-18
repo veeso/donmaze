@@ -20,10 +20,12 @@ pub enum Action {
 /// Defines the action which can be performed while state is `Explore`
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExploreAction {
-    /// Go to previous room
-    GoToPreviousRoom,
     /// Change room to provided node
     ChangeRoom(u32),
+    /// Collect the item in the room
+    CollectItem,
+    /// Go to previous room
+    GoToPreviousRoom,
     /// Use item
     UseItem(Item),
 }

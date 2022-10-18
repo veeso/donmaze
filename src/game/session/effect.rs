@@ -4,7 +4,10 @@
 
 use crate::{
     audio::Sound,
-    game::{entity::Item, Hp},
+    game::{
+        entity::{Enemy, Item, Potion},
+        Hp,
+    },
 };
 
 /// Defines the effect of a turn
@@ -19,16 +22,33 @@ pub struct Effect {
 #[derive(Debug, Clone, PartialEq, Eq)]
 /// Defines a message to report to the UI
 pub enum Message {
-    /// Item used by the user
+    ArmorEquipped,
+    /// Item collected by the player
+    ItemCollected(Item),
+    /// Item used by the player
     ItemUsed(Item),
     /// A damage in HP inflicted by the player to the enemy
     DamageDealt(Hp),
-    /// A damage in HP inflicted by the enemy to the player
-    DamageSuffered(Hp),
+    /// A damage in HP inflicted by the enemy to the player; bool (is critical?)
+    DamageSuffered(Hp, bool),
+    /// An enemy has approached the player in his room
+    EnemyApproaching,
     /// The enemy has been defeated
     EnemyDefeated,
+    /// Enemy died or moved due to talisman
+    EnemyVanished,
+    /// Escape try failed
+    EscapeFailed,
+    /// Escape try succeeded
+    EscapeSucceeded,
+    /// Player falls asleep
     FallAsleep,
+    /// pleayer is dead
     PlayerDead,
+    /// A potion has been drunk
+    PotionDrunk(Potion),
+    /// Sonar reveal
+    Reveal(u32, Reveal),
     Sleeping,
     /// Wake up from sleeping
     WakeUp,
@@ -44,4 +64,11 @@ impl Effect {
     pub(super) fn message(&mut self, m: Message) {
         self.messages.push(m);
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+/// A sonar reveal
+pub enum Reveal {
+    Item(Item),
+    Enemy(Enemy),
 }

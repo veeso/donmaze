@@ -36,7 +36,25 @@ impl Maze {
     }
 
     /// Returns adjacent rooms to `room`
-    pub fn adjacent_rooms(&self, room: u32) -> Vec<u32> {
-        self.nodes.edges(room.into()).map(|x| *x.weight()).collect()
+    pub fn adjacent_rooms(&self, room: u32) -> Vec<(u32, &Room)> {
+        self.nodes
+            .edges(room.into())
+            .map(|x| (*x.weight(), self.rooms.get(x.weight()).unwrap()))
+            .collect()
+    }
+
+    /// Get list of rooms
+    pub fn rooms(&self) -> Vec<(u32, &Room)> {
+        self.rooms.iter().map(|(key, room)| (*key, room)).collect()
+    }
+
+    /// Get reference to room by node
+    pub fn room(&self, room: u32) -> Option<&Room> {
+        self.rooms.get(&room)
+    }
+
+    /// Get mutable reference to room by node
+    pub fn room_mut(&mut self, room: u32) -> Option<&mut Room> {
+        self.rooms.get_mut(&room)
     }
 }

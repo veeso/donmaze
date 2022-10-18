@@ -2,7 +2,7 @@
 //!
 //! Random utilities
 
-use rand::{distributions::Alphanumeric, rngs::ThreadRng, Rng};
+use rand::{distributions::Alphanumeric, rngs::ThreadRng, thread_rng, Rng};
 
 /// Choose a random element from `choices`
 pub fn choice<'a, T>(rng: &'a mut ThreadRng, choices: &'a [T]) -> &'a T {
@@ -25,31 +25,31 @@ pub fn random_alphanumeric_with_len(rng: &mut ThreadRng, len: usize) -> String {
         .collect()
 }
 
+/// Get random generator
+pub fn rng() -> ThreadRng {
+    thread_rng()
+}
+
 #[cfg(test)]
 mod tests {
 
     use super::*;
 
     use pretty_assertions::assert_eq;
-    use rand::thread_rng;
 
     #[test]
     fn should_tell_whether_event_happens() {
-        let mut rand = thread_rng();
-        assert!(happens(&mut rand, 100));
-        assert_eq!(happens(&mut rand, 0), false);
+        assert!(happens(&mut rng(), 100));
+        assert_eq!(happens(&mut rng(), 0), false);
     }
 
     #[test]
     fn should_make_choice() {
-        assert!(&[1, 2, 3].contains(&choice(&mut thread_rng(), &[1, 2, 3])));
+        assert!(&[1, 2, 3].contains(&choice(&mut rng(), &[1, 2, 3])));
     }
 
     #[test]
     fn should_generate_random_alphanumeric_with_len() {
-        assert_eq!(
-            random_alphanumeric_with_len(&mut thread_rng(), 256).len(),
-            256
-        );
+        assert_eq!(random_alphanumeric_with_len(&mut rng(), 256).len(), 256);
     }
 }

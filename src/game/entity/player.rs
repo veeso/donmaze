@@ -127,8 +127,8 @@ impl Player {
         self.max_health
     }
 
-    /// Returns whether is game over
-    pub fn game_over(&self) -> bool {
+    /// Returns whether is dead
+    pub fn is_dead(&self) -> bool {
         self.health == 0
     }
 }
