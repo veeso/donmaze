@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 /// Main game core engine and logics
 use crate::audio::{AudioEngine, Sound, Theme};
 use crate::gfx::Render;
-use crate::ui::{GameId, GameMsg, Id, LoadGameMsg, MenuId, MenuMsg, Msg, Ui};
+use crate::ui::{GameMsg, Id, LoadGameMsg, MenuId, MenuMsg, Msg, Ui};
 use crate::utils::saved_games::SavedGameFiles;
 
 pub mod entity;
@@ -15,7 +15,6 @@ mod maze;
 mod options;
 pub mod session;
 
-use entity::Item;
 pub use error::Error as GameError;
 pub use options::Options;
 pub use session::Session;
@@ -123,7 +122,7 @@ impl Runtime {
         debug!("loading game {}", game_file.display());
         let session = match SavedGameFiles::load_game(game_file) {
             Ok(s) if s.is_version_compatible() => s,
-            Ok(s) => {
+            Ok(_) => {
                 self.ui.show_load_game_error("incompatible game version")?;
                 return Ok(());
             }
@@ -154,11 +153,21 @@ impl Runtime {
             self.play_sound(sound);
         }
         // show messages
+        debug!("updating messages: {:?}", effect.messages);
         self.ui
-            .update_messages(&effect.messages, self.session.as_ref().unwrap())?;
-        todo!("reload possible actions");
-        todo!("update canvas");
-        todo!("update health");
+            .update_game_messages(&effect.messages, self.session.as_ref().unwrap())?;
+        debug!("updating player health");
+        self.ui
+            .update_game_player_health(self.session.as_ref().unwrap().player().health())?;
+        let fighting_enemy = self.session.as_ref().unwrap().get_fighting_enemy();
+        if let Some(enemy) = fighting_enemy {
+            debug!("updating enemy data: {:?}", enemy);
+            self.ui
+                .update_game_enemy_data(enemy.health(), enemy.name())?;
+        } else {
+            debug!("hiding enemy data");
+            self.ui.hide_game_enemy_data()?;
+        }
         if self.session.as_ref().unwrap().game_over() {
             info!("player is dead; show game over");
             self.ui.show_game_gameover_popup()?;
@@ -167,9 +176,21 @@ impl Runtime {
             info!("player has won; show victory");
             self.ui.load_victory()?;
         }
+        // update actions
+        let possible_actions = self.session.as_ref().unwrap().available_actions();
+        debug!("updating possible actions: {:?}", possible_actions);
+        self.ui
+            .update_game_actions(possible_actions, self.session.as_ref().unwrap())?;
+        // update canvas
+        self.render_shapes()?;
         Ok(())
     }
 
+    fn render_shapes(&mut self) -> GameResult<()> {
+        todo!()
+    }
+
+    /// Custom implementation of the Update trait
     fn update(&mut self, msg: Msg) -> GameResult<()> {
         match msg {
             Msg::None => Ok(()),
@@ -223,7 +244,7 @@ impl Runtime {
             }
             GameMsg::ShowInventory => {
                 if let Some(session) = self.session.as_ref() {
-                    self.ui.show_game_inventory(session.player_inventory())?;
+                    self.ui.show_game_inventory(session)?;
                 }
             }
             GameMsg::ShowQuitPopup => {
@@ -231,6 +252,9 @@ impl Runtime {
             }
             GameMsg::ShowSaveFileName => {
                 self.ui.show_game_save_file_name()?;
+            }
+            GameMsg::UseItem(item) => {
+                self.play_action(Action::UseItem(item))?;
             }
         }
         Ok(())

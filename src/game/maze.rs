@@ -62,4 +62,14 @@ impl Maze {
     pub fn room_mut(&mut self, room: u32) -> Option<&mut Room> {
         self.rooms.get_mut(&room)
     }
+
+    /// Returns whether current player's room is exit
+    pub fn is_exit(&self) -> bool {
+        self.rooms.get(&self.player).unwrap().is_exit
+    }
+
+    /// Returns whether current player's room has item
+    pub fn has_item(&self) -> bool {
+        self.rooms.get(&self.player).unwrap().item.is_some()
+    }
 }

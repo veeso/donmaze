@@ -2,9 +2,8 @@
 //!
 //! Ui related things
 
-use crate::game::inventory::Inventory;
 use crate::game::session::{Action, Message};
-use crate::game::Session;
+use crate::game::{Hp, Session};
 use crate::utils::ui::draw_area_in;
 
 use chrono::{DateTime, Local};
@@ -388,8 +387,14 @@ impl Ui {
         Ok(())
     }
 
-    pub fn show_game_inventory(&mut self, inventory: &Inventory) -> UiResult<()> {
-        todo!()
+    pub fn show_game_inventory(&mut self, session: &Session) -> UiResult<()> {
+        self.application.remount(
+            Id::Game(GameId::Inventory),
+            Box::new(game::Inventory::new(session)),
+            vec![],
+        )?;
+        self.application.active(&Id::Game(GameId::Inventory))?;
+        Ok(())
     }
 
     /// Close game inventory
@@ -433,7 +438,11 @@ impl Ui {
     }
 
     /// Update messages in view
-    pub fn update_messages(&mut self, messages: &[Message], session: &Session) -> UiResult<()> {
+    pub fn update_game_messages(
+        &mut self,
+        messages: &[Message],
+        session: &Session,
+    ) -> UiResult<()> {
         self.application.remount(
             Id::Game(GameId::Messages),
             Box::new(game::Messages::new(messages, session)),
@@ -443,7 +452,7 @@ impl Ui {
     }
 
     /// Update actions
-    pub fn update_actions(&mut self, actions: Vec<Action>, session: &Session) -> UiResult<()> {
+    pub fn update_game_actions(&mut self, actions: Vec<Action>, session: &Session) -> UiResult<()> {
         self.application.remount(
             Id::Game(GameId::AvailableActions),
             Box::new(game::AvailableActions::new(actions, session)),
@@ -451,6 +460,53 @@ impl Ui {
         )?;
         self.application
             .active(&Id::Game(GameId::AvailableActions))?;
+        Ok(())
+    }
+
+    /// Update actions
+    pub fn update_game_canvas(
+        &mut self,
+        shapes: &[Shape],
+        width: f64,
+        height: f64,
+    ) -> UiResult<()> {
+        self.application.remount(
+            Id::Game(GameId::Canvas),
+            Box::new(game::Canvas::new(shapes, width, height)),
+            vec![],
+        )?;
+        Ok(())
+    }
+
+    /// Update player health component
+    pub fn update_game_player_health(&mut self, hp: Hp) -> UiResult<()> {
+        self.application.remount(
+            Id::Game(GameId::PlayerHp),
+            Box::new(game::PlayerHp::new(hp)),
+            vec![],
+        )?;
+        Ok(())
+    }
+
+    pub fn update_game_enemy_data(&mut self, hp: Hp, name: &str) -> UiResult<()> {
+        self.application.remount(
+            Id::Game(GameId::EnemyHp),
+            Box::new(game::EnemyHp::new(hp)),
+            vec![],
+        )?;
+        self.application.remount(
+            Id::Game(GameId::EnemyName),
+            Box::new(game::EnemyName::new(name)),
+            vec![],
+        )?;
+        Ok(())
+    }
+
+    pub fn hide_game_enemy_data(&mut self) -> UiResult<()> {
+        if self.application.mounted(&Id::Game(GameId::EnemyHp)) {
+            self.application.umount(&Id::Game(GameId::EnemyName))?;
+            self.application.umount(&Id::Game(GameId::EnemyHp))?;
+        }
         Ok(())
     }
 }

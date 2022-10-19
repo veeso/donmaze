@@ -41,14 +41,13 @@ impl AvailableActions {
     fn action_name(action: &Action, session: &Session) -> &'static str {
         match action {
             Action::Die => "Game over",
+            Action::UseItem(_) => panic!("ACCESS VIOLATION"),
             Action::Explore(ExploreAction::ChangeRoom(room)) => Self::room_direction(room, session),
             Action::Explore(ExploreAction::CollectItem) => "Gather item",
             Action::Explore(ExploreAction::GoToPreviousRoom) => "Go back",
             Action::Explore(ExploreAction::LeaveMaze) => "Leave the labyrinth",
-            Action::Explore(ExploreAction::UseItem(_)) => panic!("ACCESS VIOLATION"),
             Action::Fight(FightAction::Escape) => "Escape fight",
             Action::Fight(FightAction::Fight) => "Fight",
-            Action::Fight(FightAction::UseItem(_)) => panic!("ACCESS VIOLATION"),
             Action::Sleep => "Sleep",
         }
     }

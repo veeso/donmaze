@@ -29,7 +29,7 @@ impl Item {
     }
 
     /// Returns the item description
-    pub fn description(&self) -> &str {
+    pub fn description(&self, has_alchemy_book: bool) -> &str {
         todo!()
     }
 

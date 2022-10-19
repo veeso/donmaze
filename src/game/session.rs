@@ -3,7 +3,7 @@
 //! A game session. Contains all the current states for the game
 
 use super::{
-    entity::{Player, PlayerState},
+    entity::{Enemy, Item, Player, PlayerState},
     inventory::Inventory,
     maze::Maze,
 };
@@ -89,6 +89,16 @@ impl Session {
         self.player.is_dead()
     }
 
+    /// Get read only player
+    pub fn player(&self) -> &Player {
+        &self.player
+    }
+
+    /// Get fighting enemy
+    pub fn get_fighting_enemy(&self) -> Option<Enemy> {
+        self.maze.room(self.maze.player).map(|x| x.enemy).flatten()
+    }
+
     /// Play next turn
     pub fn play_turn(&mut self, action: Action) -> Effect {
         self.turn += 1;
@@ -98,5 +108,52 @@ impl Session {
         ActionReplay::new(self).play(action, &mut effect);
         Cpu::new(self).play(&mut effect);
         effect
+    }
+
+    /// Returns player's available actions for the current turn
+    pub fn available_actions(&self) -> Vec<Action> {
+        // game over
+        if self.game_over() {
+            return vec![Action::Die];
+        }
+        // win if in exit with maze key and not fighting or sleeping
+        if self.maze.is_exit()
+            && self.player.state() == PlayerState::Explore
+            && self.player_inventory().has(Item::MazeKey)
+        {
+            return vec![Action::Explore(ExploreAction::LeaveMaze)];
+        }
+        // normal cases
+        match self.player.state() {
+            PlayerState::Asleep => vec![Action::Sleep],
+            PlayerState::Explore => self.available_exploring_actions(),
+            PlayerState::Fight => vec![
+                Action::Fight(FightAction::Escape),
+                Action::Fight(FightAction::Fight),
+            ],
+        }
+    }
+
+    /// Returns available exploring actions
+    /// Does not include actions related to victory or loss
+    fn available_exploring_actions(&self) -> Vec<Action> {
+        let mut actions = Vec::with_capacity(6);
+        if self.is_previous_room_set() {
+            actions.push(Action::Explore(ExploreAction::GoToPreviousRoom));
+        }
+        if self.maze.has_item() {
+            actions.push(Action::Explore(ExploreAction::CollectItem));
+        }
+        // push adjacent rooms, except last room
+        for (node, _) in self
+            .maze
+            .adjacent_rooms(self.maze.player)
+            .iter()
+            .filter(|(node, _)| Some(*node) != self.last_room)
+        {
+            actions.push(Action::Explore(ExploreAction::ChangeRoom(*node)));
+        }
+
+        actions
     }
 }

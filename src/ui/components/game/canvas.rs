@@ -7,10 +7,7 @@ use super::Msg;
 use tui_realm_stdlib::Canvas as TuiCanvas;
 use tuirealm::props::Shape;
 use tuirealm::tui::symbols::Marker;
-use tuirealm::{
-    event::{Key, KeyEvent},
-    Component, Event, MockComponent, NoUserEvent,
-};
+use tuirealm::{Component, Event, MockComponent, NoUserEvent};
 
 /// Main game canvas
 #[derive(MockComponent)]
@@ -31,7 +28,7 @@ impl Canvas {
 }
 
 impl Component<Msg, NoUserEvent> for Canvas {
-    fn on(&mut self, ev: Event<NoUserEvent>) -> Option<Msg> {
-        todo!();
+    fn on(&mut self, _ev: Event<NoUserEvent>) -> Option<Msg> {
+        None
     }
 }

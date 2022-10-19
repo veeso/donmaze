@@ -28,6 +28,7 @@ impl<'a> ActionReplay<'a> {
             Action::Explore(explore) => self.play_explore_action(explore, effect),
             Action::Fight(fight) => self.play_fight_action(fight, effect),
             Action::Sleep => self.sleep(effect),
+            Action::UseItem(item) => self.use_item(item, effect),
         }
     }
 
@@ -47,7 +48,6 @@ impl<'a> ActionReplay<'a> {
             ExploreAction::CollectItem => self.collect_item(effect),
             ExploreAction::GoToPreviousRoom => self.go_to_previous_room(effect),
             ExploreAction::LeaveMaze => self.leave_maze(effect),
-            ExploreAction::UseItem(item) => self.use_item(item, effect),
         }
     }
 
@@ -58,7 +58,6 @@ impl<'a> ActionReplay<'a> {
         match action {
             FightAction::Escape => self.escape(effect),
             FightAction::Fight => self.fight(effect),
-            FightAction::UseItem(item) => self.use_item(item, effect),
         }
     }
 
@@ -164,6 +163,7 @@ impl<'a> ActionReplay<'a> {
             }
             Potion::UnicornElixir => {
                 self.session.player.incr_max_health(2);
+                self.session.player.heal_max();
             }
             Potion::Vinegar => {
                 self.session.player.damage(1);

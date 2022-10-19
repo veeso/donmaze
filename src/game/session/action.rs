@@ -7,10 +7,12 @@ use crate::game::entity::Item;
 /// Defines the action performed by the player in a turn
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Action {
-    /// Action usable in exploration
+    /// Action usable only in exploration
     Explore(ExploreAction),
-    /// Action usable in fight
+    /// Action usable only in fight
     Fight(FightAction),
+    /// Use item
+    UseItem(Item),
     /// Sleep, don't do anything. Can be used only when state is `Sleep`
     Sleep,
     /// Ends game
@@ -28,8 +30,6 @@ pub enum ExploreAction {
     LeaveMaze,
     /// Go to previous room
     GoToPreviousRoom,
-    /// Use item
-    UseItem(Item),
 }
 
 /// Defines the action which can be performed while state is `Explore`
@@ -39,6 +39,4 @@ pub enum FightAction {
     Fight,
     /// Try to escape from fight
     Escape,
-    /// Use item
-    UseItem(Item),
 }

@@ -2,7 +2,7 @@
 //!
 //! Player's inventory
 
-use std::collections::HashMap;
+use std::collections::{hash_map::Iter, HashMap};
 
 use super::entity::Item;
 
@@ -38,5 +38,10 @@ impl Inventory {
     /// Returns whether inventory contains item
     pub fn has(&self, item: Item) -> bool {
         self.items.contains_key(&item)
+    }
+
+    /// Get an iterator over inventory
+    pub fn items(&self) -> Iter<'_, Item, u8> {
+        self.items.iter()
     }
 }
