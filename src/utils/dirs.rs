@@ -111,10 +111,11 @@ mod tests {
 
     #[test]
     #[serial]
-    fn test_system_environment_get_save_games_path() {
-        assert_eq!(
-            get_saves_path(Path::new("/home/omar/.config/donmaze/")).unwrap(),
-            PathBuf::from("/home/omar/.config/donmaze/saves/"),
-        );
+    fn should_get_save_paths() {
+        let conf_dir: PathBuf = init_config_dir().ok().unwrap().unwrap();
+        let mut expected = conf_dir.clone();
+        expected.push("saves/");
+        assert_eq!(get_saves_path(&conf_dir).unwrap(), expected);
+        assert!(std::fs::remove_dir_all(&conf_dir).is_ok());
     }
 }

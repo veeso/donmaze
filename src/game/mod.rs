@@ -204,18 +204,23 @@ impl Runtime {
         match msg {
             GameMsg::ActionSelected(action) => {
                 self.play_action(action)?;
+                self.play_sound(Sound::Input);
             }
             GameMsg::CloseErrorPopup => {
                 self.ui.close_game_error_popup()?;
+                self.play_sound(Sound::Input);
             }
             GameMsg::CloseInventory => {
                 self.ui.close_game_inventory()?;
+                self.play_sound(Sound::Input);
             }
             GameMsg::CloseQuitPopup => {
                 self.ui.close_game_quit_popup()?;
+                self.play_sound(Sound::Input);
             }
             GameMsg::CloseSaveFileName => {
                 self.ui.close_game_save_file_name()?;
+                self.play_sound(Sound::Input);
             }
             GameMsg::GameOver => {
                 info!("game over; destroy session and show game over");
@@ -223,6 +228,7 @@ impl Runtime {
                 self.ui.load_game_over()?;
             }
             GameMsg::Quit(save) => {
+                self.play_sound(Sound::Input);
                 if save {
                     if let Err(err) = self.save_game("autosave") {
                         error!("failed to save game: {}", err);
@@ -236,6 +242,7 @@ impl Runtime {
             }
             GameMsg::SaveGame(name) => {
                 self.ui.close_game_save_file_name()?;
+                self.play_sound(Sound::Input);
                 if let Err(err) = self.save_game(&name) {
                     error!("failed to save game: {}", err);
                     self.ui
@@ -243,17 +250,21 @@ impl Runtime {
                 }
             }
             GameMsg::ShowInventory => {
+                self.play_sound(Sound::Input);
                 if let Some(session) = self.session.as_ref() {
                     self.ui.show_game_inventory(session)?;
                 }
             }
             GameMsg::ShowQuitPopup => {
+                self.play_sound(Sound::Input);
                 self.ui.show_game_quit_popup()?;
             }
             GameMsg::ShowSaveFileName => {
+                self.play_sound(Sound::Input);
                 self.ui.show_game_save_file_name()?;
             }
             GameMsg::UseItem(item) => {
+                self.play_sound(Sound::Input);
                 self.play_action(Action::UseItem(item))?;
             }
         }
@@ -263,17 +274,21 @@ impl Runtime {
     fn update_load_game(&mut self, msg: LoadGameMsg) -> GameResult<()> {
         match msg {
             LoadGameMsg::CloseErrorPopup => {
+                self.play_sound(Sound::Input);
                 self.ui.close_load_game_error()?;
             }
             LoadGameMsg::GoToMenu => {
+                self.play_sound(Sound::Input);
                 self.ui.load_menu()?;
             }
             LoadGameMsg::GameChanged(p) => match SavedGameFiles::load_game(&p) {
                 Err(e) => {
+                    self.play_sound(Sound::Input);
                     self.ui
                         .show_load_game_error(format!("failed to load game: {}", e))?;
                 }
                 Ok(session) => {
+                    self.play_sound(Sound::Input);
                     self.ui.set_load_game_save_metadata(
                         session.last_turn,
                         session.maze_seed().to_string(),
@@ -282,6 +297,7 @@ impl Runtime {
                 }
             },
             LoadGameMsg::LoadGame(game_file) => {
+                self.play_sound(Sound::Input);
                 self.load_game(&game_file)?;
             }
         }
@@ -291,38 +307,50 @@ impl Runtime {
     fn update_menu(&mut self, msg: MenuMsg) -> GameResult<()> {
         match msg {
             MenuMsg::ActiveExit => {
+                self.play_sound(Sound::Input);
                 self.ui.active(Id::Menu(MenuId::Exit));
             }
             MenuMsg::ActiveLoadGame => {
+                self.play_sound(Sound::Input);
                 self.ui.active(Id::Menu(MenuId::LoadGame));
             }
             MenuMsg::ActiveNewGame => {
+                self.play_sound(Sound::Input);
                 self.ui.active(Id::Menu(MenuId::NewGame));
             }
             MenuMsg::ActiveSeed => {
+                self.play_sound(Sound::Input);
                 self.ui.active(Id::Menu(MenuId::Seed));
             }
             MenuMsg::LoadGame => {
                 let saved_games = SavedGameFiles::saved_games(&self.saved_games_dir)?;
-                let game_0 = match saved_games.get(0) {
-                    None => None,
-                    Some(p) => SavedGameFiles::load_game(p).ok().map(|session| {
-                        (
-                            session.last_turn,
-                            session.maze_seed().to_string(),
-                            session.turn,
-                        )
-                    }),
-                };
-                self.ui.load_game_loader(&saved_games, game_0)?;
+                if saved_games.is_empty() {
+                    self.play_sound(Sound::Error);
+                    self.play_sound(Sound::Input);
+                } else {
+                    let game_0 = match saved_games.get(0) {
+                        None => None,
+                        Some(p) => SavedGameFiles::load_game(p).ok().map(|session| {
+                            (
+                                session.last_turn,
+                                session.maze_seed().to_string(),
+                                session.turn,
+                            )
+                        }),
+                    };
+                    self.ui.load_game_loader(&saved_games, game_0)?;
+                }
             }
             MenuMsg::NewGame => {
+                self.play_sound(Sound::Input);
                 // create a new session
                 let seed = self.ui.get_menu_seed()?;
                 debug!("initializing new session with seed {:?}", seed);
                 self.start_maze(Session::new(seed))?;
             }
             MenuMsg::Quit => {
+                self.play_sound(Sound::Input);
+                self.play_theme(Theme::None)?;
                 self.running = false;
             }
         }

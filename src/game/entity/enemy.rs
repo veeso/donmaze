@@ -71,3 +71,49 @@ impl Shadow {
         Self { health }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn should_get_enemy_name() {
+        assert_eq!(Enemy::Daemon(Daemon { health: 2 }).name(), "Daemon");
+        assert_eq!(Enemy::DonMaze.name(), "Don Maze");
+        assert_eq!(Enemy::Shadow(Shadow { health: 3 }).name(), "Shadow");
+    }
+
+    #[test]
+    fn should_get_health() {
+        assert_eq!(Enemy::Daemon(Daemon { health: 2 }).health(), 2);
+        assert_eq!(Enemy::DonMaze.health(), 255);
+        assert_eq!(Enemy::Shadow(Shadow { health: 3 }).health(), 3);
+    }
+
+    #[test]
+    fn should_damage_daemon() {
+        let mut daemon = Enemy::Daemon(Daemon { health: 2 });
+        daemon.damage(1);
+        assert_eq!(daemon.health(), 1);
+        daemon.damage(4);
+        assert_eq!(daemon.health(), 0);
+    }
+
+    #[test]
+    fn should_damage_shadow() {
+        let mut shadow = Enemy::Shadow(Shadow { health: 2 });
+        shadow.damage(1);
+        assert_eq!(shadow.health(), 1);
+        shadow.damage(4);
+        assert_eq!(shadow.health(), 0);
+    }
+
+    #[test]
+    fn should_not_damage_don_maze() {
+        let mut don_maze = Enemy::DonMaze;
+        don_maze.damage(255);
+        assert_eq!(don_maze.health(), 255);
+    }
+}

@@ -20,6 +20,7 @@ use tuirealm::{Component, Event, MockComponent, NoUserEvent, State};
 
 struct ItemState {
     item: Item,
+    consumable: bool,
     description: String,
     quantity: u8,
     name: String,
@@ -41,6 +42,7 @@ impl Inventory {
             .items()
             .map(|(i, q)| ItemState {
                 item: *i,
+                consumable: i.consumable(),
                 description: i.description(has_alchemy_book).to_string(),
                 name: i.name(has_alchemy_book).to_string(),
                 quantity: *q,
@@ -135,7 +137,11 @@ impl MockComponent for Inventory {
                 } else {
                     Style::default().add_modifier(TextModifiers::CROSSED_OUT)
                 };
-                let cols = Span::styled(format!("{} ({}x)", item.name, item.quantity), item_style);
+                let cols = if item.consumable {
+                    Span::styled(format!("{} ({}x)", item.name, item.quantity), item_style)
+                } else {
+                    Span::styled(format!("{}", item.name), item_style)
+                };
                 ListItem::new(Spans::from(cols))
             })
             .collect();

@@ -4,20 +4,24 @@
 
 use super::PlayerState;
 
+mod potions;
+
+pub use potions::Potion;
+
 /// Game items
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Deserialize, Serialize, Hash)]
 #[serde(tag = "type")]
 pub enum Item {
-    /// Sonar: tells you if there are items or enemies in the adjacent rooms
-    Sonar,
+    /// Makes you know the content of a potion in advance
+    AlchemyBook,
+    /// Increase max HP and current hp by one
+    Armor,
     /// Required to leave the maze
     MazeKey,
     /// A potion with an effect, but you cannot know what it does until you drink it
     Potion(Potion),
-    /// Increase max HP and current hp by one
-    Armor,
-    /// Makes you know the content of a potion in advance
-    AlchemyBook,
+    /// Sonar: tells you if there are items or enemies in the adjacent rooms
+    Sonar,
     /// Kill any enemy except don maze, which will vanish
     Talisman,
 }
@@ -97,68 +101,116 @@ impl Item {
     }
 }
 
-/// Potion types
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Deserialize, Serialize, Hash)]
-pub enum Potion {
-    // -- bonus
-    /// Heals 1 HP
-    Mead,
-    /// Heals 3 HP
-    RedPotion,
-    /// Heals all HP and increase max HP by 2; kinda rare though
-    UnicornElixir,
-    // -- malus
-    /// Decrease HP by 1
-    Vinegar,
-    /// Decrease max HP and HP by 1
-    DaemonsBlood,
-    /// Makes you sleep for 3 turns, but restores 1 HP
-    Chamomille,
-    /// Decrease HP by 2
-    SnakePoison,
-    /// it's game over; very rare though
-    DeadlyPoison,
-}
+#[cfg(test)]
+mod test {
 
-impl Potion {
-    pub fn name(&self) -> &str {
-        match self {
-            Potion::Mead => "Mead",
-            Potion::RedPotion => "Red potion",
-            Potion::UnicornElixir => "Unicorn elixir",
-            Potion::Vinegar => "Vinegar",
-            Potion::DaemonsBlood => "Daemon's blood",
-            Potion::Chamomille => "Chamomille",
-            Potion::SnakePoison => "Snake poison",
-            Potion::DeadlyPoison => "Deadly poison",
-        }
+    use super::*;
+
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn should_get_item_name() {
+        assert_eq!(Item::AlchemyBook.name(false), "Alchemy book");
+        assert_eq!(Item::Armor.name(false), "Armor");
+        assert_eq!(Item::MazeKey.name(false), "Maze key");
+        assert_eq!(Item::Potion(Potion::Chamomille).name(false), "Potion (???)");
+        assert_eq!(
+            Item::Potion(Potion::Chamomille).name(true),
+            Potion::Chamomille.name()
+        );
+        assert_eq!(Item::Sonar.name(false), "Sonar");
+        assert_eq!(Item::Talisman.name(false), "Talisman");
     }
 
-    pub fn description(&self) -> &str {
-        match self {
-            Potion::Mead => "Restores 1HP",
-            Potion::RedPotion => "Restores 3HP",
-            Potion::UnicornElixir => "Restores all HP and increase max HP by 2",
-            Potion::Vinegar => "Decrease HP by 1",
-            Potion::DaemonsBlood => "Decrease HP and max HP by 1",
-            Potion::Chamomille => "Put you asleep for 3 turns, but restores 1HP",
-            Potion::SnakePoison => "Decrease HP by 2",
-            Potion::DeadlyPoison => "Drink it and you will die",
-        }
+    #[test]
+    fn should_get_item_description() {
+        assert_eq!(
+            Item::AlchemyBook.description(false),
+            "Makes you able to know the content of a potion"
+        );
+        assert_eq!(Item::Armor.description(false), "Increase max HP by 1");
+        assert_eq!(
+            Item::MazeKey.description(false),
+            "Allows you to leave the maze... once you'll find the exit"
+        );
+        assert_eq!(
+            Item::Potion(Potion::Chamomille).description(false),
+            "If only I had an alchemy book or something like that..."
+        );
+        assert_eq!(
+            Item::Potion(Potion::Chamomille).description(true),
+            Potion::Chamomille.description()
+        );
+        assert_eq!(
+            Item::Sonar.description(false),
+            "Tells you if there are enemies or items in the adjacent rooms"
+        );
+        assert_eq!(
+            Item::Talisman.description(false),
+            "Instantly kills an enemy except for don maze, but it seems it will make him disappear"
+        );
     }
 
-    pub fn effect(&self) -> &str {
-        match self {
-            Self::Chamomille => "You suddenly feel sleepy, but restored at the same time",
-            Self::DaemonsBlood => "Uuugh, that sucks, tastes of iron and rotten flesh, you immediately feel bad",
-            Self::DeadlyPoison => {
-                "That tastes weirdly..............suddenly you feel a terrible chest pain. You fall on the ground. You start to spit blood from your mouth. And you're dead now"
-            }
-            Self::Mead => "Slightly alcoholic, but you feel immediately better",
-            Self::RedPotion => "Suddenly some legends about a sword and time fill your mind. You immediately feel much better",
-            Self::SnakePoison => "The taste of evilness fills your mouth and you feel much worse now",
-            Self::UnicornElixir => "That potion tastes like heaven. You feel invincible now",
-            Self::Vinegar => "UUugh, it's vinegar. Probably I should have smelled it before drinking it..."
-        }
+    #[test]
+    fn should_get_item_effect() {
+        assert_eq!(Item::AlchemyBook.effect(), "");
+        assert_eq!(
+            Item::Armor.effect(),
+            "You worn the armor. Your max HP has been increased by 1"
+        );
+        assert_eq!(Item::MazeKey.effect(), "");
+        assert_eq!(
+            Item::Potion(Potion::Chamomille).effect(),
+            Potion::Chamomille.effect()
+        );
+        assert_eq!(
+            Item::Sonar.effect(),
+            "The content of the adjacent rooms is revealed"
+        );
+        assert_eq!(
+            Item::Talisman.effect(),
+            "You used the ancient power beneath the talisman"
+        );
+    }
+
+    #[test]
+    fn should_get_whether_item_is_consumable() {
+        assert_eq!(Item::AlchemyBook.consumable(), false);
+        assert_eq!(Item::Armor.consumable(), true);
+        assert_eq!(Item::MazeKey.consumable(), false);
+        assert_eq!(Item::Potion(Potion::Chamomille).consumable(), true);
+        assert_eq!(Item::Sonar.consumable(), true);
+        assert_eq!(Item::Talisman.consumable(), true);
+    }
+
+    #[test]
+    fn should_get_whether_item_is_usable() {
+        assert_eq!(Item::AlchemyBook.usable(PlayerState::Asleep), false);
+        assert_eq!(Item::AlchemyBook.usable(PlayerState::Explore), false);
+        assert_eq!(Item::AlchemyBook.usable(PlayerState::Fight), false);
+        assert_eq!(Item::Armor.usable(PlayerState::Asleep), false);
+        assert_eq!(Item::Armor.usable(PlayerState::Explore), true);
+        assert_eq!(Item::Armor.usable(PlayerState::Fight), true);
+        assert_eq!(Item::MazeKey.usable(PlayerState::Asleep), false);
+        assert_eq!(Item::MazeKey.usable(PlayerState::Explore), false);
+        assert_eq!(Item::MazeKey.usable(PlayerState::Fight), false);
+        assert_eq!(
+            Item::Potion(Potion::Chamomille).usable(PlayerState::Asleep),
+            false
+        );
+        assert_eq!(
+            Item::Potion(Potion::Chamomille).usable(PlayerState::Explore),
+            true
+        );
+        assert_eq!(
+            Item::Potion(Potion::Chamomille).usable(PlayerState::Fight),
+            true
+        );
+        assert_eq!(Item::Sonar.usable(PlayerState::Asleep), false);
+        assert_eq!(Item::Sonar.usable(PlayerState::Explore), true);
+        assert_eq!(Item::Sonar.usable(PlayerState::Fight), false);
+        assert_eq!(Item::Talisman.usable(PlayerState::Asleep), false);
+        assert_eq!(Item::Talisman.usable(PlayerState::Explore), false);
+        assert_eq!(Item::Talisman.usable(PlayerState::Fight), true);
     }
 }

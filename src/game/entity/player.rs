@@ -4,6 +4,8 @@
 
 use crate::game::{inventory::Inventory, Hp};
 
+const BASE_PLAYER_HEALTH: Hp = 5;
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Player {
     /// Player's inventory
@@ -26,9 +28,9 @@ pub enum State {
 impl Default for Player {
     fn default() -> Self {
         Player {
-            health: 5,
+            health: BASE_PLAYER_HEALTH,
             inventory: Inventory::default(),
-            max_health: 5,
+            max_health: BASE_PLAYER_HEALTH,
             state: State::Explore,
             sleep_counter: 0,
         }
@@ -130,5 +132,70 @@ impl Player {
     /// Returns whether is dead
     pub fn is_dead(&self) -> bool {
         self.health == 0
+    }
+}
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn should_init_player() {
+        let player = Player::default();
+        assert_eq!(player.health(), BASE_PLAYER_HEALTH);
+        assert_eq!(player.inventory.items().count(), 0);
+        assert_eq!(player.max_health(), BASE_PLAYER_HEALTH);
+        assert_eq!(player.state(), State::Explore);
+        assert_eq!(player.sleep_counter, 0);
+    }
+
+    #[test]
+    fn should_heal_and_damage() {
+        let mut player = Player::default();
+        assert_eq!(player.health(), BASE_PLAYER_HEALTH);
+        player.heal(3);
+        assert_eq!(player.health(), BASE_PLAYER_HEALTH);
+        player.incr_max_health(3);
+        assert_eq!(player.health(), 6);
+        assert_eq!(player.max_health(), 8);
+        player.damage(5);
+        assert_eq!(player.health(), 1);
+        assert_eq!(player.max_health(), 8);
+        player.heal_max();
+        assert_eq!(player.health(), player.max_health());
+        player.decr_max_health(4);
+        assert_eq!(player.health(), 4);
+        assert_eq!(player.max_health(), 4);
+        player.damage(9);
+        assert_eq!(player.health(), 0);
+    }
+
+    #[test]
+    fn should_tell_whether_is_game_over() {
+        let mut player = Player::default();
+        assert_eq!(player.is_dead(), false);
+        player.damage(255);
+        assert_eq!(player.is_dead(), true);
+    }
+
+    #[test]
+    fn should_change_status() {
+        let mut player = Player::default();
+        player.start_fighting();
+        assert_eq!(player.state(), State::Fight);
+        player.start_exploring();
+        assert_eq!(player.state(), State::Explore);
+        player.start_sleeping(2);
+        assert_eq!(player.sleep_counter, 2);
+        assert_eq!(player.state(), State::Asleep);
+        player.decr_sleep_counter();
+        assert_eq!(player.state(), State::Asleep);
+        assert_eq!(player.sleep_counter, 1);
+        player.decr_sleep_counter();
+        assert_eq!(player.state(), State::Explore);
+        assert_eq!(player.sleep_counter, 0);
     }
 }
