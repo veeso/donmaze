@@ -24,6 +24,8 @@ pub enum ExploreAction {
     ChangeRoom(u32),
     /// Collect the item in the room
     CollectItem,
+    /// Leave maze and win
+    LeaveMaze,
     /// Go to previous room
     GoToPreviousRoom,
     /// Use item

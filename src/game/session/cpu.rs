@@ -42,7 +42,8 @@ impl<'a> Cpu<'a> {
         };
         // if player state is NOT FIGHTING; it means the player has just joined; so no damage has to be dealt
         if self.session.player.state() != PlayerState::Fight {
-            self.start_player_fight(effect);
+            let fighting_enemy = enemy.clone();
+            self.start_player_fight(fighting_enemy, effect);
             return;
         }
         // calculate damage to deal, based on enemy type
@@ -140,15 +141,14 @@ impl<'a> Cpu<'a> {
             // check if enemy has joined player
             if new_enemy_room == self.session.maze.player {
                 debug!("enemy {:?} has joined the room of the player", enemy);
-                self.start_player_fight(effect);
+                self.start_player_fight(enemy, effect);
             }
         }
-        todo!();
     }
 
     /// Start player fight
-    fn start_player_fight(&mut self, effect: &mut Effect) {
-        effect.message(Message::EnemyApproaching);
+    fn start_player_fight(&mut self, enemy: Enemy, effect: &mut Effect) {
+        effect.message(Message::EnemyApproaching(enemy));
         effect.sound(Sound::EnemyApproaching);
         // put player into fight
         self.session.player.start_fighting();

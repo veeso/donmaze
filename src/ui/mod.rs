@@ -2,6 +2,11 @@
 //!
 //! Ui related things
 
+use crate::game::inventory::Inventory;
+use crate::game::session::{Action, Message};
+use crate::game::Session;
+use crate::utils::ui::draw_area_in;
+
 use chrono::{DateTime, Local};
 use std::path::PathBuf;
 use std::time::Duration;
@@ -109,42 +114,7 @@ impl Ui {
         let _ = self.application.active(&id);
     }
 
-    /// Get seed from view if mounted
-    pub fn get_seed(&self) -> UiResult<Option<String>> {
-        let value = self
-            .application
-            .query(&Id::Menu(MenuId::Seed), Attribute::Value)?
-            .unwrap();
-        Ok(match value.unwrap_string() {
-            s if s.is_empty() => None,
-            s => Some(s),
-        })
-    }
-
-    /// Set save file metadata
-    pub fn set_save_metadata(
-        &mut self,
-        last_turn: DateTime<Local>,
-        seed: String,
-        turn: usize,
-    ) -> UiResult<()> {
-        self.application.remount(
-            Id::LoadGame(LoadGameId::LastTurn),
-            Box::new(load_game::LastTurn::new(last_turn)),
-            vec![],
-        )?;
-        self.application.remount(
-            Id::LoadGame(LoadGameId::Seed),
-            Box::new(load_game::Seed::new(seed)),
-            vec![],
-        )?;
-        self.application.remount(
-            Id::LoadGame(LoadGameId::Turn),
-            Box::new(load_game::Turn::new(turn)),
-            vec![],
-        )?;
-        Ok(())
-    }
+    // @! view
 
     /// Display ui to terminal
     pub fn view(&mut self) -> UiResult<()> {
@@ -196,6 +166,17 @@ impl Ui {
                 .view(&Id::LoadGame(LoadGameId::Seed), f, metadata_chunks[1]);
             self.application
                 .view(&Id::LoadGame(LoadGameId::Turn), f, metadata_chunks[2]);
+            // popups
+            if self
+                .application
+                .mounted(&Id::LoadGame(LoadGameId::ErrorPopup))
+            {
+                let popup = draw_area_in(f.size(), 50, 10);
+                f.render_widget(Clear, popup);
+                // make popup
+                self.application
+                    .view(&Id::LoadGame(LoadGameId::ErrorPopup), f, popup);
+            }
         })?;
         Ok(())
     }
@@ -234,11 +215,10 @@ impl Ui {
     }
 
     fn view_victory(&mut self) -> UiResult<()> {
-        todo!();
-        self.view = View::Victory;
+        todo!()
     }
 
-    // -- view loaders
+    // -- @! view loaders
 
     pub fn load_game(&mut self) -> UiResult<()> {
         todo!();
@@ -314,6 +294,163 @@ impl Ui {
         )?;
         self.application.active(&Id::Menu(MenuId::NewGame))?;
         self.view = View::Menu;
+        Ok(())
+    }
+
+    pub fn load_victory(&mut self) -> UiResult<()> {
+        todo!();
+        self.view = View::Victory;
+    }
+
+    // @! component update
+
+    /// Get seed from view if mounted
+    pub fn get_menu_seed(&self) -> UiResult<Option<String>> {
+        let value = self
+            .application
+            .query(&Id::Menu(MenuId::Seed), Attribute::Value)?
+            .unwrap();
+        Ok(match value.unwrap_string() {
+            s if s.is_empty() => None,
+            s => Some(s),
+        })
+    }
+
+    /// Close menu error
+    pub fn close_load_game_error(&mut self) -> UiResult<()> {
+        self.application
+            .umount(&Id::LoadGame(LoadGameId::ErrorPopup))?;
+        Ok(())
+    }
+
+    /// Show menu error
+    pub fn show_load_game_error<S: AsRef<str>>(&mut self, text: S) -> UiResult<()> {
+        self.application.remount(
+            Id::LoadGame(LoadGameId::ErrorPopup),
+            Box::new(load_game::ErrorPopup::new(text)),
+            vec![],
+        )?;
+        self.application
+            .active(&Id::LoadGame(LoadGameId::ErrorPopup))?;
+        Ok(())
+    }
+
+    /// Set save file metadata
+    pub fn set_load_game_save_metadata(
+        &mut self,
+        last_turn: DateTime<Local>,
+        seed: String,
+        turn: usize,
+    ) -> UiResult<()> {
+        self.application.remount(
+            Id::LoadGame(LoadGameId::LastTurn),
+            Box::new(load_game::LastTurn::new(last_turn)),
+            vec![],
+        )?;
+        self.application.remount(
+            Id::LoadGame(LoadGameId::Seed),
+            Box::new(load_game::Seed::new(seed)),
+            vec![],
+        )?;
+        self.application.remount(
+            Id::LoadGame(LoadGameId::Turn),
+            Box::new(load_game::Turn::new(turn)),
+            vec![],
+        )?;
+        Ok(())
+    }
+
+    /// Show game error
+    pub fn show_game_error_popup<S: AsRef<str>>(&mut self, text: S) -> UiResult<()> {
+        self.application.remount(
+            Id::Game(GameId::ErrorPopup),
+            Box::new(game::ErrorPopup::new(text)),
+            vec![],
+        )?;
+        self.application.active(&Id::Game(GameId::ErrorPopup))?;
+        Ok(())
+    }
+
+    /// Close game error
+    pub fn close_game_error_popup(&mut self) -> UiResult<()> {
+        self.application.umount(&Id::Game(GameId::ErrorPopup))?;
+        Ok(())
+    }
+
+    /// Show game over
+    pub fn show_game_gameover_popup(&mut self) -> UiResult<()> {
+        self.application.remount(
+            Id::Game(GameId::GameOverPopup),
+            Box::new(game::GameOverPopup::default()),
+            vec![],
+        )?;
+        self.application.active(&Id::Game(GameId::GameOverPopup))?;
+        Ok(())
+    }
+
+    pub fn show_game_inventory(&mut self, inventory: &Inventory) -> UiResult<()> {
+        todo!()
+    }
+
+    /// Close game inventory
+    pub fn close_game_inventory(&mut self) -> UiResult<()> {
+        self.application.umount(&Id::Game(GameId::Inventory))?;
+        Ok(())
+    }
+
+    pub fn show_game_quit_popup(&mut self) -> UiResult<()> {
+        self.application.remount(
+            Id::Game(GameId::QuitPopup),
+            Box::new(game::QuitPopup::new()),
+            vec![],
+        )?;
+        self.application.active(&Id::Game(GameId::QuitPopup))?;
+        Ok(())
+    }
+
+    /// Close game quit
+    pub fn close_game_quit_popup(&mut self) -> UiResult<()> {
+        self.application.umount(&Id::Game(GameId::QuitPopup))?;
+        Ok(())
+    }
+
+    pub fn show_game_save_file_name(&mut self) -> UiResult<()> {
+        self.application.remount(
+            Id::Game(GameId::SaveFileNamePopup),
+            Box::new(game::SaveFileNamePopup::new()),
+            vec![],
+        )?;
+        self.application
+            .active(&Id::Game(GameId::SaveFileNamePopup))?;
+        Ok(())
+    }
+
+    /// Close game save game
+    pub fn close_game_save_file_name(&mut self) -> UiResult<()> {
+        self.application
+            .umount(&Id::Game(GameId::SaveFileNamePopup))?;
+        Ok(())
+    }
+
+    /// Update messages in view
+    pub fn update_messages(&mut self, messages: &[Message], session: &Session) -> UiResult<()> {
+        self.application.remount(
+            Id::Game(GameId::Messages),
+            Box::new(game::Messages::new(messages, session)),
+            vec![],
+        )?;
+        Ok(())
+    }
+
+    /// Update actions
+    pub fn update_actions(&mut self, actions: Vec<Action>, session: &Session) -> UiResult<()> {
+        self.application.remount(
+            Id::Game(GameId::AvailableActions),
+            Box::new(game::AvailableActions::new(actions, session)),
+            vec![],
+        )?;
+        self.application
+            .active(&Id::Game(GameId::AvailableActions))?;
         Ok(())
     }
 }

@@ -24,7 +24,7 @@ pub enum Item {
 
 impl Item {
     /// Return the item name
-    pub fn name(&self) -> &str {
+    pub fn name(&self, has_alchemy_book: bool) -> &str {
         todo!()
     }
 
@@ -93,4 +93,10 @@ pub enum Potion {
     SnakePoison,
     /// it's game over; very rare though
     DeadlyPoison,
+}
+
+impl Potion {
+    pub fn effect(&self) -> &str {
+        todo!()
+    }
 }

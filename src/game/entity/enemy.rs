@@ -13,6 +13,14 @@ pub enum Enemy {
 }
 
 impl Enemy {
+    pub fn name(&self) -> &str {
+        match self {
+            Self::DonMaze => "Don Maze",
+            Self::Daemon(_) => "Daemon",
+            Self::Shadow(_) => "Shadow",
+        }
+    }
+
     /// Get enemy health
     pub fn health(&self) -> Hp {
         match self {

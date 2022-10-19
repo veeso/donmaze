@@ -46,6 +46,7 @@ impl<'a> ActionReplay<'a> {
             ExploreAction::ChangeRoom(room) => self.change_room(room, effect),
             ExploreAction::CollectItem => self.collect_item(effect),
             ExploreAction::GoToPreviousRoom => self.go_to_previous_room(effect),
+            ExploreAction::LeaveMaze => self.leave_maze(effect),
             ExploreAction::UseItem(item) => self.use_item(item, effect),
         }
     }
@@ -96,6 +97,13 @@ impl<'a> ActionReplay<'a> {
         self.change_room(self.session.last_room.unwrap(), effect);
     }
 
+    fn leave_maze(&mut self, effect: &mut Effect) {
+        assert!(self.session.player_inventory().has(Item::MazeKey));
+        effect.message(Message::LeaveMaze);
+        effect.sound(Sound::LeaveMaze);
+        self.session.leave_maze();
+    }
+
     /// Use item in inventory
     fn use_item(&mut self, item: Item, effect: &mut Effect) {
         assert!(self.session.player.inventory.has(item));
@@ -134,6 +142,7 @@ impl<'a> ActionReplay<'a> {
             Potion::Chamomille if self.session.player.state() == PlayerState::Explore => {
                 self.session.player.start_sleeping(3);
                 self.session.player.heal(1);
+                effect.message(Message::FallAsleep);
             }
             Potion::Chamomille => {
                 self.session.player.heal(1);
@@ -218,7 +227,6 @@ impl<'a> ActionReplay<'a> {
         self.session.player.start_exploring();
         effect.sound(Sound::EnemyScream);
         effect.message(Message::EnemyVanished);
-        todo!()
     }
 
     /// Try to escape (50% chance) to the first adjacent room, but not previous room.
@@ -244,7 +252,7 @@ impl<'a> ActionReplay<'a> {
             debug!("escape succeeded; new room {}", new_room);
             self.session.last_room = Some(self.session.maze.player);
             self.session.maze.player = new_room;
-            effect.message(Message::EscapeSucceeded);
+            effect.message(Message::EscapeSucceeded(new_room));
             effect.sound(Sound::Rush);
         } else {
             debug!("escape failed");

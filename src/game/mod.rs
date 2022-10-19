@@ -8,16 +8,19 @@ use crate::gfx::Render;
 use crate::ui::{GameId, GameMsg, Id, LoadGameMsg, MenuId, MenuMsg, Msg, Ui};
 use crate::utils::saved_games::SavedGameFiles;
 
-mod entity;
+pub mod entity;
 mod error;
-mod inventory;
+pub mod inventory;
 mod maze;
 mod options;
-mod session;
+pub mod session;
 
+use entity::Item;
 pub use error::Error as GameError;
 pub use options::Options;
 pub use session::Session;
+
+use self::session::Action;
 
 pub type GameResult<T> = Result<T, GameError>;
 /// Health points
@@ -121,15 +124,50 @@ impl Runtime {
         let session = match SavedGameFiles::load_game(game_file) {
             Ok(s) if s.is_version_compatible() => s,
             Ok(s) => {
-                todo!("mount error popup");
+                self.ui.show_load_game_error("incompatible game version")?;
                 return Ok(());
             }
             Err(e) => {
-                todo!("mount error popup");
+                self.ui
+                    .show_load_game_error(format!("failed to load game: {}", e))?;
                 return Ok(());
             }
         };
         self.start_maze(session)
+    }
+
+    /// Save game as name
+    fn save_game(&mut self, name: &str) -> GameResult<()> {
+        if let Some(session) = self.session.as_ref() {
+            debug!("saving game as {}", name);
+            SavedGameFiles::save_game(name, &self.saved_games_dir, &session)?;
+        }
+        Ok(())
+    }
+
+    /// Play action in game
+    fn play_action(&mut self, action: Action) -> GameResult<()> {
+        debug!("playing action {:?}", action);
+        let effect = self.session.as_mut().unwrap().play_turn(action);
+        // play sounds
+        for sound in effect.sounds {
+            self.play_sound(sound);
+        }
+        // show messages
+        self.ui
+            .update_messages(&effect.messages, self.session.as_ref().unwrap())?;
+        todo!("reload possible actions");
+        todo!("update canvas");
+        todo!("update health");
+        if self.session.as_ref().unwrap().game_over() {
+            info!("player is dead; show game over");
+            self.ui.show_game_gameover_popup()?;
+        }
+        if self.session.as_ref().unwrap().has_won() {
+            info!("player has won; show victory");
+            self.ui.load_victory()?;
+        }
+        Ok(())
     }
 
     fn update(&mut self, msg: Msg) -> GameResult<()> {
@@ -142,20 +180,77 @@ impl Runtime {
     }
 
     fn update_game(&mut self, msg: GameMsg) -> GameResult<()> {
-        todo!()
+        match msg {
+            GameMsg::ActionSelected(action) => {
+                self.play_action(action)?;
+            }
+            GameMsg::CloseErrorPopup => {
+                self.ui.close_game_error_popup()?;
+            }
+            GameMsg::CloseInventory => {
+                self.ui.close_game_inventory()?;
+            }
+            GameMsg::CloseQuitPopup => {
+                self.ui.close_game_quit_popup()?;
+            }
+            GameMsg::CloseSaveFileName => {
+                self.ui.close_game_save_file_name()?;
+            }
+            GameMsg::GameOver => {
+                info!("game over; destroy session and show game over");
+                self.session = None;
+                self.ui.load_game_over()?;
+            }
+            GameMsg::Quit(save) => {
+                if save {
+                    if let Err(err) = self.save_game("autosave") {
+                        error!("failed to save game: {}", err);
+                        self.ui
+                            .show_game_error_popup(format!("failed to save game: {}", err))?;
+                        return Ok(());
+                    }
+                }
+                self.session = None;
+                self.ui.load_menu()?;
+            }
+            GameMsg::SaveGame(name) => {
+                self.ui.close_game_save_file_name()?;
+                if let Err(err) = self.save_game(&name) {
+                    error!("failed to save game: {}", err);
+                    self.ui
+                        .show_game_error_popup(format!("failed to save game: {}", err))?;
+                }
+            }
+            GameMsg::ShowInventory => {
+                if let Some(session) = self.session.as_ref() {
+                    self.ui.show_game_inventory(session.player_inventory())?;
+                }
+            }
+            GameMsg::ShowQuitPopup => {
+                self.ui.show_game_quit_popup()?;
+            }
+            GameMsg::ShowSaveFileName => {
+                self.ui.show_game_save_file_name()?;
+            }
+        }
+        Ok(())
     }
 
     fn update_load_game(&mut self, msg: LoadGameMsg) -> GameResult<()> {
         match msg {
+            LoadGameMsg::CloseErrorPopup => {
+                self.ui.close_load_game_error()?;
+            }
             LoadGameMsg::GoToMenu => {
                 self.ui.load_menu()?;
             }
             LoadGameMsg::GameChanged(p) => match SavedGameFiles::load_game(&p) {
                 Err(e) => {
-                    todo!("show popup");
+                    self.ui
+                        .show_load_game_error(format!("failed to load game: {}", e))?;
                 }
                 Ok(session) => {
-                    self.ui.set_save_metadata(
+                    self.ui.set_load_game_save_metadata(
                         session.last_turn,
                         session.maze_seed().to_string(),
                         session.turn,
@@ -199,7 +294,7 @@ impl Runtime {
             }
             MenuMsg::NewGame => {
                 // create a new session
-                let seed = self.ui.get_seed()?;
+                let seed = self.ui.get_menu_seed()?;
                 debug!("initializing new session with seed {:?}", seed);
                 self.start_maze(Session::new(seed))?;
             }

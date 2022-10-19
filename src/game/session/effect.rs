@@ -32,7 +32,7 @@ pub enum Message {
     /// A damage in HP inflicted by the enemy to the player; bool (is critical?)
     DamageSuffered(Hp, bool),
     /// An enemy has approached the player in his room
-    EnemyApproaching,
+    EnemyApproaching(Enemy),
     /// The enemy has been defeated
     EnemyDefeated,
     /// Enemy died or moved due to talisman
@@ -40,9 +40,11 @@ pub enum Message {
     /// Escape try failed
     EscapeFailed,
     /// Escape try succeeded
-    EscapeSucceeded,
+    EscapeSucceeded(u32),
     /// Player falls asleep
     FallAsleep,
+    /// Leave maze and win
+    LeaveMaze,
     /// pleayer is dead
     PlayerDead,
     /// A potion has been drunk

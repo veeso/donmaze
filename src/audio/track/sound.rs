@@ -13,6 +13,7 @@ pub enum Sound {
     EnemyAttack,
     EnemyScream,
     ItemCollected,
+    LeaveMaze,
     PlayerAttack,
     PlayerDead,
     Rush,

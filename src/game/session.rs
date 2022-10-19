@@ -4,6 +4,7 @@
 
 use super::{
     entity::{Player, PlayerState},
+    inventory::Inventory,
     maze::Maze,
 };
 use crate::audio::Sound;
@@ -36,6 +37,7 @@ pub struct Session {
     pub turn: usize,
     /// Game version; used to check whether this version loaded is compatible
     version: Version,
+    won: bool,
 }
 
 impl Session {
@@ -48,6 +50,7 @@ impl Session {
             player: Player::default(),
             turn: 0,
             version: Version::V010,
+            won: false,
         }
     }
 
@@ -64,6 +67,26 @@ impl Session {
     /// Get maze seed
     pub fn maze_seed(&self) -> &str {
         self.maze.seed()
+    }
+
+    /// Get player inventory
+    pub fn player_inventory(&self) -> &Inventory {
+        &self.player.inventory
+    }
+
+    /// Leave maze
+    fn leave_maze(&mut self) {
+        self.won = true;
+    }
+
+    /// Report player has won
+    pub fn has_won(&self) -> bool {
+        self.won
+    }
+
+    /// Returns whether is game over
+    pub fn game_over(&self) -> bool {
+        self.player.is_dead()
     }
 
     /// Play next turn
