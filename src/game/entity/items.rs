@@ -18,24 +18,49 @@ pub enum Item {
     Armor,
     /// Makes you know the content of a potion in advance
     AlchemyBook,
-    /// Can OHKO a daemon or make you escape at 100% from DonMaze
+    /// Kill any enemy except don maze, which will vanish
     Talisman,
 }
 
 impl Item {
     /// Return the item name
     pub fn name(&self, has_alchemy_book: bool) -> &str {
-        todo!()
+        match self {
+            Self::AlchemyBook => "Alchemy book",
+            Self::Armor => "Armor",
+            Self::MazeKey => "Maze key",
+            Self::Potion(_) if !has_alchemy_book => "Potion (???)",
+            Self::Potion(potion) => potion.name(),
+            Self::Sonar => "Sonar",
+            Self::Talisman => "Talisman",
+        }
     }
 
     /// Returns the item description
     pub fn description(&self, has_alchemy_book: bool) -> &str {
-        todo!()
+        match self {
+            Self::AlchemyBook => "Makes you able to know the content of a potion",
+            Self::Armor => "Increase max HP by 1",
+            Self::MazeKey => "Allows you to leave the maze... once you'll find the exit",
+            Self::Potion(_) if !has_alchemy_book => {
+                "If only I had an alchemy book or something like that..."
+            }
+            Self::Potion(potion) => potion.description(),
+            Self::Sonar => "Tells you if there are enemies or items in the adjacent rooms",
+            Self::Talisman => "Instantly kills an enemy except for don maze, but it seems it will make him disappear",
+        }
     }
 
     /// Returns the effect string
     pub fn effect(&self) -> &str {
-        todo!()
+        match self {
+            Self::AlchemyBook => "",
+            Self::Armor => "You worn the armor. Your max HP has been increased by 1",
+            Self::MazeKey => "",
+            Self::Potion(potion) => potion.effect(),
+            Self::Sonar => "The content of the adjacent rooms is revealed",
+            Self::Talisman => "You used the ancient power beneath the talisman",
+        }
     }
 
     /// Returns whether the item is consumable
@@ -96,7 +121,44 @@ pub enum Potion {
 }
 
 impl Potion {
+    pub fn name(&self) -> &str {
+        match self {
+            Potion::Mead => "Mead",
+            Potion::RedPotion => "Red potion",
+            Potion::UnicornElixir => "Unicorn elixir",
+            Potion::Vinegar => "Vinegar",
+            Potion::DaemonsBlood => "Daemon's blood",
+            Potion::Chamomille => "Chamomille",
+            Potion::SnakePoison => "Snake poison",
+            Potion::DeadlyPoison => "Deadly poison",
+        }
+    }
+
+    pub fn description(&self) -> &str {
+        match self {
+            Potion::Mead => "Restores 1HP",
+            Potion::RedPotion => "Restores 3HP",
+            Potion::UnicornElixir => "Restores all HP and increase max HP by 2",
+            Potion::Vinegar => "Decrease HP by 1",
+            Potion::DaemonsBlood => "Decrease HP and max HP by 1",
+            Potion::Chamomille => "Put you asleep for 3 turns, but restores 1HP",
+            Potion::SnakePoison => "Decrease HP by 2",
+            Potion::DeadlyPoison => "Drink it and you will die",
+        }
+    }
+
     pub fn effect(&self) -> &str {
-        todo!()
+        match self {
+            Self::Chamomille => "You suddenly feel sleepy, but restored at the same time",
+            Self::DaemonsBlood => "Uuugh, that sucks, tastes of iron and rotten flesh, you immediately feel bad",
+            Self::DeadlyPoison => {
+                "That tastes weirdly..............suddenly you feel a terrible chest pain. You fall on the ground. You start to spit blood from your mouth. And you're dead now"
+            }
+            Self::Mead => "Slightly alcoholic, but you feel immediately better",
+            Self::RedPotion => "Suddenly some legends about a sword and time fill your mind. You immediately feel much better",
+            Self::SnakePoison => "The taste of evilness fills your mouth and you feel much worse now",
+            Self::UnicornElixir => "That potion tastes like heaven. You feel invincible now",
+            Self::Vinegar => "UUugh, it's vinegar. Probably I should have smelled it before drinking it..."
+        }
     }
 }

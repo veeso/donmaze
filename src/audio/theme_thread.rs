@@ -12,25 +12,27 @@ use std::thread;
 
 pub struct ThemeThread {
     running: Arc<AtomicBool>,
-    stream: Sink,
+    sink: Sink,
+    _stream: OutputStream,
     theme: Track,
 }
 
 impl ThemeThread {
     pub fn new(running: Arc<AtomicBool>, theme: Theme) -> Self {
-        let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+        let (stream, stream_handle) = OutputStream::try_default().unwrap();
         let sink = Sink::try_new(&stream_handle).unwrap();
         Self {
             running,
-            stream: sink,
+            sink,
+            _stream: stream,
             theme: theme.track(),
         }
     }
 
-    pub fn run(mut self) {
+    pub fn run(self) {
         while self.running.load(Ordering::Relaxed) {
             for tone in self.theme.clone().tones {
-                self.stream.append(tone);
+                self.sink.append(tone);
             }
             thread::sleep(self.theme.duration());
         }
