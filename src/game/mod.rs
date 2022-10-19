@@ -1,11 +1,12 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 ///! # Game
 ///
 /// Main game core engine and logics
 use crate::audio::{AudioEngine, Sound, Theme};
-use crate::gfx::{ascii_art::MAIN_TITLE, Render};
-use crate::ui::{GameId, GameMsg, Id, MenuId, MenuMsg, Msg, Ui};
+use crate::gfx::Render;
+use crate::ui::{GameId, GameMsg, Id, LoadGameMsg, MenuId, MenuMsg, Msg, Ui};
+use crate::utils::saved_games::SavedGameFiles;
 
 mod entity;
 mod error;
@@ -16,9 +17,7 @@ mod session;
 
 pub use error::Error as GameError;
 pub use options::Options;
-use session::Session;
-
-use tuirealm::props::Color;
+pub use session::Session;
 
 pub type GameResult<T> = Result<T, GameError>;
 /// Health points
@@ -27,7 +26,7 @@ pub type Hp = u8;
 /// Game runtime
 pub struct Runtime {
     audio: Option<AudioEngine>,
-    load_game: Option<PathBuf>,
+    saved_games_dir: PathBuf,
     render: Render,
     running: bool,
     session: Option<Session>,
@@ -57,7 +56,7 @@ impl Runtime {
         info!("menu loaded");
         Ok(Self {
             audio,
-            load_game: None,
+            saved_games_dir: options.saved_games_dir,
             render,
             running: true,
             session: None,
@@ -70,7 +69,7 @@ impl Runtime {
         debug!("initializing terminal...");
         self.ui.init_terminal();
         debug!("playing Menu theme...");
-        self.play_theme(Theme::Menu);
+        self.play_theme(Theme::Menu)?;
         while self.running {
             // Run view
             let mut redraw = true;
@@ -87,7 +86,7 @@ impl Runtime {
         debug!("finalizing terminal...");
         self.ui.finalize_terminal();
         debug!("stopping theme...");
-        self.play_theme(Theme::None);
+        self.play_theme(Theme::None)?;
 
         Ok(())
     }
@@ -100,28 +99,74 @@ impl Runtime {
     }
 
     /// Play theme
-    fn play_theme(&mut self, theme: Theme) {
+    fn play_theme(&mut self, theme: Theme) -> GameResult<()> {
         if let Some(audio) = self.audio.as_mut() {
-            audio.play_theme(theme);
+            audio.play_theme(theme)?;
         }
+        Ok(())
     }
 
-    /// load game
-    fn load_game(&mut self) -> GameResult<()> {
-        // TODO: check version compatible
-        todo!()
+    /// Start gameplay in the maze
+    fn start_maze(&mut self, session: Session) -> GameResult<()> {
+        self.session = Some(session);
+        self.play_theme(Theme::Maze)?;
+        self.ui.load_game()?;
+
+        Ok(())
+    }
+
+    /// load saved game
+    fn load_game(&mut self, game_file: &Path) -> GameResult<()> {
+        debug!("loading game {}", game_file.display());
+        let session = match SavedGameFiles::load_game(game_file) {
+            Ok(s) if s.is_version_compatible() => s,
+            Ok(s) => {
+                todo!("mount error popup");
+                return Ok(());
+            }
+            Err(e) => {
+                todo!("mount error popup");
+                return Ok(());
+            }
+        };
+        self.start_maze(session)
     }
 
     fn update(&mut self, msg: Msg) -> GameResult<()> {
         match msg {
             Msg::None => Ok(()),
             Msg::Game(msg) => self.update_game(msg),
+            Msg::LoadGame(msg) => self.update_load_game(msg),
             Msg::Menu(msg) => self.update_menu(msg),
         }
     }
 
     fn update_game(&mut self, msg: GameMsg) -> GameResult<()> {
         todo!()
+    }
+
+    fn update_load_game(&mut self, msg: LoadGameMsg) -> GameResult<()> {
+        match msg {
+            LoadGameMsg::GoToMenu => {
+                self.ui.load_menu()?;
+            }
+            LoadGameMsg::GameChanged(p) => match SavedGameFiles::load_game(&p) {
+                Err(e) => {
+                    todo!("show popup");
+                }
+                Ok(session) => {
+                    self.ui.set_save_metadata(
+                        session.last_turn,
+                        session.maze_seed().to_string(),
+                        session.turn,
+                    )?;
+                }
+            },
+            LoadGameMsg::LoadGame(game_file) => {
+                self.load_game(&game_file)?;
+            }
+        }
+        Ok(())
     }
 
     fn update_menu(&mut self, msg: MenuMsg) -> GameResult<()> {
@@ -139,16 +184,24 @@ impl Runtime {
                 self.ui.active(Id::Menu(MenuId::Seed));
             }
             MenuMsg::LoadGame => {
-                self.load_game()?;
-                let saved_games = todo!();
-                self.ui.load_game_loader(saved_games)?;
+                let saved_games = SavedGameFiles::saved_games(&self.saved_games_dir)?;
+                let game_0 = match saved_games.get(0) {
+                    None => None,
+                    Some(p) => SavedGameFiles::load_game(p).ok().map(|session| {
+                        (
+                            session.last_turn,
+                            session.maze_seed().to_string(),
+                            session.turn,
+                        )
+                    }),
+                };
+                self.ui.load_game_loader(&saved_games, game_0)?;
             }
             MenuMsg::NewGame => {
                 // create a new session
                 let seed = self.ui.get_seed()?;
                 debug!("initializing new session with seed {:?}", seed);
-                self.session = Some(Session::new(seed));
-                self.ui.load_game()?;
+                self.start_maze(Session::new(seed))?;
             }
             MenuMsg::Quit => {
                 self.running = false;

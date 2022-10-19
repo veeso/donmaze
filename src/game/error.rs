@@ -2,6 +2,7 @@
 //!
 //! Game error types
 
+use crate::utils::saved_games::SavedGameError;
 use crate::{audio::AudioError, ui::UiError};
 use thiserror::Error;
 
@@ -10,6 +11,8 @@ use thiserror::Error;
 pub enum Error {
     #[error("audio error: {0}")]
     Audio(AudioError),
+    #[error("game save error: {0}")]
+    SaveGame(SavedGameError),
     #[error("ui error: {0}")]
     Ui(UiError),
     #[error("saved game has an incompatible version; you need to start a new game")]
@@ -19,6 +22,12 @@ pub enum Error {
 impl From<AudioError> for Error {
     fn from(e: AudioError) -> Self {
         Self::Audio(e)
+    }
+}
+
+impl From<SavedGameError> for Error {
+    fn from(e: SavedGameError) -> Self {
+        Self::SaveGame(e)
     }
 }
 

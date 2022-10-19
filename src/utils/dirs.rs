@@ -42,12 +42,21 @@ pub fn get_log_path(config_dir: &Path) -> PathBuf {
 }
 
 /// Get paths for theme provider
-/// Returns: path of theme.toml
-pub fn get_saves_path(config_dir: &Path) -> PathBuf {
+/// Returns: path of saves dir
+/// If dir doesn't exist, it is created
+pub fn get_saves_path(config_dir: &Path) -> anyhow::Result<PathBuf> {
     // Prepare paths
     let mut saves_path: PathBuf = PathBuf::from(config_dir);
     saves_path.push("saves/");
-    saves_path
+    // Create dir
+    if saves_path.exists() {
+        Ok(saves_path)
+    } else {
+        match std::fs::create_dir_all(&saves_path) {
+            Ok(_) => Ok(saves_path),
+            Err(err) => anyhow::bail!(err),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -104,7 +113,7 @@ mod tests {
     #[serial]
     fn test_system_environment_get_save_games_path() {
         assert_eq!(
-            get_saves_path(Path::new("/home/omar/.config/donmaze/")),
+            get_saves_path(Path::new("/home/omar/.config/donmaze/")).unwrap(),
             PathBuf::from("/home/omar/.config/donmaze/saves/"),
         );
     }

@@ -8,6 +8,8 @@ use super::{
 };
 use crate::audio::Sound;
 
+use chrono::{DateTime, Local};
+
 mod action;
 mod action_replay;
 mod cpu;
@@ -28,8 +30,10 @@ pub struct Session {
     /// The last room the player's been
     last_room: Option<u32>,
     player: Player,
+    /// Last turn played datetime
+    pub last_turn: DateTime<Local>,
     /// Turn number
-    turn: usize,
+    pub turn: usize,
     /// Game version; used to check whether this version loaded is compatible
     version: Version,
 }
@@ -39,6 +43,7 @@ impl Session {
     pub fn new(seed: Option<String>) -> Self {
         Self {
             maze: Maze::generate(seed),
+            last_turn: Local::now(),
             last_room: None,
             player: Player::default(),
             turn: 0,
@@ -56,9 +61,15 @@ impl Session {
         self.last_room.is_some()
     }
 
+    /// Get maze seed
+    pub fn maze_seed(&self) -> &str {
+        self.maze.seed()
+    }
+
     /// Play next turn
     pub fn play_turn(&mut self, action: Action) -> Effect {
         self.turn += 1;
+        self.last_turn = Local::now();
         debug!("playing turn {}...", self.turn);
         let mut effect = Effect::default();
         ActionReplay::new(self).play(action, &mut effect);

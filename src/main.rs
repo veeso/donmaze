@@ -30,6 +30,7 @@ fn main() -> anyhow::Result<()> {
     // setup config dir
     let config_dir =
         utils::dirs::init_config_dir()?.expect("your system doesn't support config directory");
+    let game_saves_dir = utils::dirs::get_saves_path(&config_dir)?;
     // setup logging
     let log_level = if args.debug {
         LevelFilter::Debug
@@ -41,11 +42,12 @@ fn main() -> anyhow::Result<()> {
     if log_level != LevelFilter::Off {
         utils::setup_logger(log_level, &utils::dirs::get_log_path(&config_dir))?;
     }
+    info!("starting donmaze {}", APP_VERSION);
     // run Game
     Runtime::setup(
         Options::default()
             .muted(args.muted)
-            .saved_games_dir(utils::dirs::get_saves_path(&config_dir))
+            .saved_games_dir(game_saves_dir)
             .ticks(args.ticks.unwrap_or(10)),
     )?
     .run()?;

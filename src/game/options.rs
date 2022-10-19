@@ -5,7 +5,7 @@
 use std::path::PathBuf;
 
 pub struct Options {
-    saved_games_dir: PathBuf,
+    pub saved_games_dir: PathBuf,
     /// Is audio muted
     pub muted: bool,
     /// Ui refresh (ms)

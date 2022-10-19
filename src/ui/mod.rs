@@ -2,6 +2,8 @@
 //!
 //! Ui related things
 
+use chrono::{DateTime, Local};
+use std::path::PathBuf;
 use std::time::Duration;
 use tuirealm::tui::layout::{Constraint, Direction, Layout};
 use tuirealm::tui::widgets::Clear;
@@ -14,9 +16,10 @@ mod error;
 
 pub use error::UiError;
 
-use components::{game, menu};
+use components::{game, load_game, menu};
 pub use components::{
     game::{GameId, GameMsg},
+    load_game::{LoadGameId, LoadGameMsg},
     menu::{MenuId, MenuMsg},
 };
 
@@ -27,6 +30,7 @@ pub type UiResult<T> = Result<T, UiError>;
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Id {
     Game(GameId),
+    LoadGame(LoadGameId),
     Menu(MenuId),
 }
 
@@ -34,6 +38,7 @@ pub enum Id {
 #[derive(PartialEq, Eq)]
 pub enum Msg {
     Game(GameMsg),
+    LoadGame(LoadGameMsg),
     Menu(MenuMsg),
     None,
 }
@@ -116,6 +121,31 @@ impl Ui {
         })
     }
 
+    /// Set save file metadata
+    pub fn set_save_metadata(
+        &mut self,
+        last_turn: DateTime<Local>,
+        seed: String,
+        turn: usize,
+    ) -> UiResult<()> {
+        self.application.remount(
+            Id::LoadGame(LoadGameId::LastTurn),
+            Box::new(load_game::LastTurn::new(last_turn)),
+            vec![],
+        )?;
+        self.application.remount(
+            Id::LoadGame(LoadGameId::Seed),
+            Box::new(load_game::Seed::new(seed)),
+            vec![],
+        )?;
+        self.application.remount(
+            Id::LoadGame(LoadGameId::Turn),
+            Box::new(load_game::Turn::new(turn)),
+            vec![],
+        )?;
+        Ok(())
+    }
+
     /// Display ui to terminal
     pub fn view(&mut self) -> UiResult<()> {
         match self.view {
@@ -137,7 +167,37 @@ impl Ui {
     }
 
     fn view_load_game(&mut self) -> UiResult<()> {
-        todo!();
+        self.terminal.raw_mut().draw(|f| {
+            // Prepare chunks
+            let body = Layout::default()
+                .direction(Direction::Horizontal)
+                .horizontal_margin(30)
+                .constraints(
+                    [
+                        Constraint::Percentage(70), // List
+                        Constraint::Percentage(30), // List
+                    ]
+                    .as_ref(),
+                )
+                .split(f.size());
+            let metadata_chunks = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([
+                    Constraint::Length(1), // last turn
+                    Constraint::Length(1), // seed
+                    Constraint::Length(1), // turn
+                ])
+                .split(body[1]);
+            self.application
+                .view(&Id::LoadGame(LoadGameId::Games), f, body[0]);
+            self.application
+                .view(&Id::LoadGame(LoadGameId::LastTurn), f, metadata_chunks[0]);
+            self.application
+                .view(&Id::LoadGame(LoadGameId::Seed), f, metadata_chunks[1]);
+            self.application
+                .view(&Id::LoadGame(LoadGameId::Turn), f, metadata_chunks[2]);
+        })?;
+        Ok(())
     }
 
     fn view_menu(&mut self) -> UiResult<()> {
@@ -174,22 +234,58 @@ impl Ui {
     }
 
     fn view_victory(&mut self) -> UiResult<()> {
-        todo!()
+        todo!();
+        self.view = View::Victory;
     }
 
     // -- view loaders
 
     pub fn load_game(&mut self) -> UiResult<()> {
-        todo!()
+        todo!();
+        self.view = View::Game;
     }
 
-    pub fn load_game_loader(&mut self, games: Vec<String>) -> UiResult<()> {
-        todo!()
+    /// load game loader
+    pub fn load_game_loader(
+        &mut self,
+        games: &[PathBuf],
+        game0: Option<(DateTime<Local>, String, usize)>,
+    ) -> UiResult<()> {
+        self.application.umount_all();
+        self.application.mount(
+            Id::LoadGame(LoadGameId::Games),
+            Box::new(load_game::Games::new(games)),
+            vec![],
+        )?;
+        if let Some((last_turn, seed, turn)) = game0 {
+            self.application.mount(
+                Id::LoadGame(LoadGameId::LastTurn),
+                Box::new(load_game::LastTurn::new(last_turn)),
+                vec![],
+            )?;
+            self.application.mount(
+                Id::LoadGame(LoadGameId::Seed),
+                Box::new(load_game::Seed::new(seed)),
+                vec![],
+            )?;
+            self.application.mount(
+                Id::LoadGame(LoadGameId::Turn),
+                Box::new(load_game::Turn::new(turn)),
+                vec![],
+            )?;
+        }
+        self.application.active(&Id::LoadGame(LoadGameId::Games))?;
+        self.view = View::LoadGame;
+        Ok(())
+    }
+
+    pub fn load_game_over(&mut self) -> UiResult<()> {
+        todo!();
+        self.view = View::GameOver;
     }
 
     /// Load menu view
     pub fn load_menu(&mut self) -> UiResult<()> {
-        let (width, height) = self.sizes()?;
         self.application.umount_all();
         self.application.mount(
             Id::Menu(MenuId::Title),
@@ -219,5 +315,11 @@ impl Ui {
         self.application.active(&Id::Menu(MenuId::NewGame))?;
         self.view = View::Menu;
         Ok(())
+    }
+}
+
+impl Drop for Ui {
+    fn drop(&mut self) {
+        self.finalize_terminal();
     }
 }

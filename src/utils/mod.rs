@@ -2,6 +2,8 @@
 
 pub mod dirs;
 pub mod random;
+pub mod saved_games;
+pub mod ui;
 
 use log::LevelFilter;
 use simplelog::{ConfigBuilder, WriteLogger};

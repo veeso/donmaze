@@ -30,6 +30,11 @@ impl Maze {
         Generator::new(seed).generate()
     }
 
+    /// Get maze seed
+    pub fn seed(&self) -> &str {
+        &self.seed
+    }
+
     /// Check whether provided room is adjacent to room player
     pub fn room_adjacent(&self, room: u32) -> bool {
         self.nodes.contains_edge(self.player.into(), room.into())
