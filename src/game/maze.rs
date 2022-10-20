@@ -84,6 +84,11 @@ impl Maze {
         self.room(self.player).unwrap().item.is_some()
     }
 
+    /// Get reference to item in the current room (if any)
+    pub fn item_in_room(&self) -> Option<&Item> {
+        self.room(self.player).map(|x| x.item.as_ref()).flatten()
+    }
+
     /// Take the item from the player's room
     pub fn take_item(&mut self) -> Option<Item> {
         self.room_mut(self.player).as_mut().unwrap().item.take()
@@ -135,7 +140,7 @@ mod test {
 
     #[test]
     fn should_tell_whether_room_is_adjacent() {
-        let maze = fake_maze();
+        let maze = Maze::mocked();
         assert_eq!(maze.room_adjacent(1), true);
         assert_eq!(maze.room_adjacent(2), true);
         assert_eq!(maze.room_adjacent(3), false);
@@ -143,7 +148,7 @@ mod test {
 
     #[test]
     fn should_get_adjacent_rooms() {
-        let maze = fake_maze();
+        let maze = Maze::mocked();
         let mut adjacent_rooms = maze.adjacent_rooms(4);
         adjacent_rooms.sort_by_key(|(node, _)| *node);
         assert_eq!(adjacent_rooms.len(), 4);
@@ -175,13 +180,13 @@ mod test {
 
     #[test]
     fn should_get_rooms() {
-        let maze = fake_maze();
+        let maze = Maze::mocked();
         assert_eq!(maze.rooms().len(), 9);
     }
 
     #[test]
     fn should_mut_rooms() {
-        let mut maze = fake_maze();
+        let mut maze = Maze::mocked();
         let room = maze.room_mut(6).unwrap();
         room.item = Some(Item::Sonar);
         let room = maze.room(6).unwrap();
@@ -191,7 +196,7 @@ mod test {
 
     #[test]
     fn should_tell_whether_is_exit() {
-        let mut maze = fake_maze();
+        let mut maze = Maze::mocked();
         assert_eq!(maze.is_exit(), false);
         maze.player = 7;
         assert_eq!(maze.is_exit(), true);
@@ -199,15 +204,17 @@ mod test {
 
     #[test]
     fn should_tell_whether_room_has_item() {
-        let mut maze = fake_maze();
+        let mut maze = Maze::mocked();
         assert_eq!(maze.has_item(), false);
+        assert_eq!(maze.item_in_room(), None);
         maze.player = 1;
         assert_eq!(maze.has_item(), true);
+        assert_eq!(maze.item_in_room().unwrap(), &Item::Armor);
     }
 
     #[test]
     fn should_take_item() {
-        let mut maze = fake_maze();
+        let mut maze = Maze::mocked();
         assert_eq!(maze.take_item(), None);
         maze.player = 1;
         assert_eq!(maze.take_item(), Some(Item::Armor));
@@ -216,7 +223,7 @@ mod test {
 
     #[test]
     fn should_take_enemy() {
-        let mut maze = fake_maze();
+        let mut maze = Maze::mocked();
         assert_eq!(maze.take_enemy(), None);
         maze.player = 2;
         assert_eq!(
@@ -228,7 +235,7 @@ mod test {
 
     #[test]
     fn should_get_fighting_enemy() {
-        let mut maze = fake_maze();
+        let mut maze = Maze::mocked();
         assert_eq!(maze.fighting_enemy(), None);
         maze.player = 2;
         assert_eq!(
@@ -242,8 +249,48 @@ mod test {
             Some(&Enemy::Daemon(crate::game::entity::Daemon::new(3)))
         );
     }
+}
 
-    fn fake_maze() -> Maze {
+#[cfg(test)]
+impl Maze {
+    pub fn mocked() -> Maze {
+        fn fake_maze_graph() -> UnGraph<u32, u32> {
+            /*
+             * 0
+             *  - 1
+             *  \
+             *   -> 3
+             *
+             * - 2
+             *  \
+             *   -> 4
+             *    \ -> 5
+             *    \ -> 6
+             *    \ -> 7
+             *         \
+             *          -> 8
+             *          -> exit
+             */
+            let mut nodes: UnGraph<u32, u32> = UnGraph::default();
+            nodes.add_node(0);
+            nodes.add_node(1);
+            nodes.add_node(2);
+            nodes.add_node(3);
+            nodes.add_node(4);
+            nodes.add_node(5);
+            nodes.add_node(6);
+            nodes.add_node(7);
+            nodes.add_node(8);
+            nodes.add_edge(0.into(), 1.into(), 0);
+            nodes.add_edge(0.into(), 2.into(), 0);
+            nodes.add_edge(1.into(), 3.into(), 0);
+            nodes.add_edge(2.into(), 4.into(), 0);
+            nodes.add_edge(4.into(), 5.into(), 0);
+            nodes.add_edge(4.into(), 6.into(), 0);
+            nodes.add_edge(4.into(), 7.into(), 0);
+            nodes.add_edge(7.into(), 8.into(), 0);
+            nodes
+        }
         let nodes = fake_maze_graph();
         // add rooms
         let mut rooms = HashMap::new();
@@ -284,43 +331,5 @@ mod test {
             player: 0,
             seed: String::from("test"),
         }
-    }
-
-    fn fake_maze_graph() -> UnGraph<u32, u32> {
-        /*
-         * 0
-         *  - 1
-         *  \
-         *   -> 3
-         *
-         * - 2
-         *  \
-         *   -> 4
-         *    \ -> 5
-         *    \ -> 6
-         *    \ -> 7
-         *         \
-         *          -> 8
-         *          -> exit
-         */
-        let mut nodes: UnGraph<u32, u32> = UnGraph::default();
-        nodes.add_node(0);
-        nodes.add_node(1);
-        nodes.add_node(2);
-        nodes.add_node(3);
-        nodes.add_node(4);
-        nodes.add_node(5);
-        nodes.add_node(6);
-        nodes.add_node(7);
-        nodes.add_node(8);
-        nodes.add_edge(0.into(), 1.into(), 0);
-        nodes.add_edge(0.into(), 2.into(), 0);
-        nodes.add_edge(1.into(), 3.into(), 0);
-        nodes.add_edge(2.into(), 4.into(), 0);
-        nodes.add_edge(4.into(), 5.into(), 0);
-        nodes.add_edge(4.into(), 6.into(), 0);
-        nodes.add_edge(4.into(), 7.into(), 0);
-        nodes.add_edge(7.into(), 8.into(), 0);
-        nodes
     }
 }

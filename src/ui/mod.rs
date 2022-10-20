@@ -464,15 +464,12 @@ impl Ui {
     }
 
     /// Update actions
-    pub fn update_game_canvas(
-        &mut self,
-        shapes: &[Shape],
-        width: f64,
-        height: f64,
-    ) -> UiResult<()> {
+    pub fn update_game_canvas(&mut self, shapes: &[Shape]) -> UiResult<()> {
+        let (width, height) = self.sizes()?;
+        todo!("check height");
         self.application.remount(
             Id::Game(GameId::Canvas),
-            Box::new(game::Canvas::new(shapes, width, height)),
+            Box::new(game::Canvas::new(shapes, width - 2.0, height)),
             vec![],
         )?;
         Ok(())

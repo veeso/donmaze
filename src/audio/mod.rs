@@ -24,6 +24,7 @@ pub type AudioResult<T> = Result<T, AudioError>;
 pub struct AudioEngine {
     sink: Sink,
     _stream: OutputStream,
+    theme_playing: Theme,
     theme_running: Arc<AtomicBool>,
     theme_thread: Option<JoinHandle<()>>,
 }
@@ -39,6 +40,7 @@ impl AudioEngine {
         let mut engine = AudioEngine {
             sink,
             _stream: stream,
+            theme_playing: theme,
             theme_running,
             theme_thread: None,
         };
@@ -50,11 +52,12 @@ impl AudioEngine {
     /// Stop current theme and start new theme
     pub fn play_theme(&mut self, theme: Theme) -> AudioResult<()> {
         self.stop_thread()?;
+        self.theme_playing = theme;
         if theme != Theme::None {
             debug!("thread stopped; starting thread");
             self.theme_running.store(true, Ordering::Relaxed);
             let thread_running = Arc::clone(&self.theme_running);
-            let thread = thread::spawn(|| ThemeThread::new(thread_running, theme).run());
+            let thread = thread::spawn(move || ThemeThread::new(thread_running, theme).run());
             debug!("theme thread started");
             self.theme_thread = Some(thread);
         } else {
@@ -71,6 +74,11 @@ impl AudioEngine {
         self.sink.sleep_until_end();
     }
 
+    /// Get theme being played
+    pub fn theme(&self) -> Theme {
+        self.theme_playing
+    }
+
     // -- private
 
     fn stop_thread(&mut self) -> AudioResult<()> {
@@ -80,6 +88,7 @@ impl AudioEngine {
             debug!("waiting for thread to finish");
             thread.join().map_err(|_| AudioError::ThreadNotStopped)?;
         }
+        self.theme_playing = Theme::None;
         Ok(())
     }
 }
@@ -102,6 +111,7 @@ mod test {
         let audio = AudioEngine::new(Theme::None).unwrap();
         assert_eq!(audio.theme_running.load(Ordering::Relaxed), false);
         assert!(audio.theme_thread.is_none());
+        assert_eq!(audio.theme_playing, Theme::None);
     }
 
     #[test]
@@ -109,6 +119,7 @@ mod test {
         let audio = AudioEngine::new(Theme::Menu).unwrap();
         assert_eq!(audio.theme_running.load(Ordering::Relaxed), true);
         assert!(audio.theme_thread.is_some());
+        assert_eq!(audio.theme_playing, Theme::Menu);
     }
 
     #[test]
@@ -123,5 +134,15 @@ mod test {
         audio.play_theme(Theme::Menu).unwrap();
         assert_eq!(audio.theme_running.load(Ordering::Relaxed), true);
         assert!(audio.theme_thread.is_some());
+        assert_eq!(audio.theme_playing, Theme::Menu);
+    }
+
+    #[test]
+    fn should_change_theme() {
+        let mut audio = AudioEngine::new(Theme::Menu).unwrap();
+        audio.play_theme(Theme::Maze).unwrap();
+        assert_eq!(audio.theme_running.load(Ordering::Relaxed), true);
+        assert!(audio.theme_thread.is_some());
+        assert_eq!(audio.theme_playing, Theme::Maze);
     }
 }

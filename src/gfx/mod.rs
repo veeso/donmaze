@@ -5,4 +5,4 @@
 pub mod ascii_art;
 mod render;
 
-pub use render::Render;
+pub use render::{Render, Room};

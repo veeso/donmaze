@@ -100,6 +100,10 @@ impl Session {
         self.maze.fighting_enemy()
     }
 
+    pub fn get_item_in_the_room(&self) -> Option<&Item> {
+        self.maze.item_in_room()
+    }
+
     /// Play next turn
     pub fn play_turn(&mut self, action: Action) -> Effect {
         self.turn += 1;
@@ -163,5 +167,18 @@ impl Session {
         }
 
         actions
+    }
+
+    #[cfg(test)]
+    pub fn mock() -> Self {
+        Self {
+            maze: Maze::mocked(),
+            last_turn: Local::now(),
+            last_room: None,
+            player: Player::default(),
+            turn: 0,
+            version: Version::V010,
+            won: false,
+        }
     }
 }

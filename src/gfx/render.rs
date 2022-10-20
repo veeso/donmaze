@@ -14,6 +14,18 @@ const Y_SIZE_MEDIUM: f64 = 4.0;
 const X_SIZE_SMALL: f64 = 1.0;
 const Y_SIZE_SMALL: f64 = 3.0;
 
+/// Render room type.
+/// Back way is not rendered
+#[derive(Debug)]
+pub enum Room {
+    /// One exit (front)
+    Corridor,
+    CorridorWithMazeExit,
+    TwoExit,
+    TwoExitWithMazeExit,
+    ThreeExit,
+}
+
 /// Render engine
 pub struct Render {
     x_scale: f64,
@@ -68,6 +80,11 @@ impl Render {
         shapes
     }
 
+    /// Render room
+    pub fn render_room(&self, room: Room) -> Vec<Shape> {
+        todo!();
+    }
+
     /// Stack shapes into a stack where each vector is divided by a new layer
     pub fn stack(&self, layers: Vec<Vec<Shape>>) -> Vec<Shape> {
         let mut stack = Vec::new();
@@ -80,6 +97,7 @@ impl Render {
 
     /// Get canvas Y-origin
     pub fn origin_y(&self, canvas_height: f64) -> f64 {
+        // 4 should be block height I guess
         (canvas_height * self.y_scale) - (4.0 * self.y_scale)
     }
 }

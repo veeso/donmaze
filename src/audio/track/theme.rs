@@ -5,7 +5,7 @@
 use super::Track;
 
 /// Donmaze theme type
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum Theme {
     Fight,
     GameOver,

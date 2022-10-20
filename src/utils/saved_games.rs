@@ -79,25 +79,24 @@ impl SavedGameFiles {
 mod test {
 
     use super::*;
-    use crate::utils::dirs;
 
     use pretty_assertions::assert_eq;
+    use tempfile::TempDir;
 
     #[test]
     fn should_save_game() {
-        let session = Session::new(None);
-        let cfg_dir = dirs::init_config_dir().unwrap().unwrap();
-        let games_dir = dirs::get_saves_path(&cfg_dir).unwrap();
-        assert!(SavedGameFiles::save_game("mygame", &games_dir, &session).is_ok());
+        let session = Session::mock();
+        let games_dir = TempDir::new().unwrap();
+        assert!(SavedGameFiles::save_game("mygame", games_dir.path(), &session).is_ok());
     }
 
     #[test]
     fn should_load_game() {
-        let session = Session::new(None);
-        let cfg_dir = dirs::init_config_dir().unwrap().unwrap();
-        let games_dir = dirs::get_saves_path(&cfg_dir).unwrap();
-        SavedGameFiles::save_game("mygame", &games_dir, &session).expect("failed to save game");
-        let mut path = cfg_dir.clone();
+        let session = Session::mock();
+        let games_dir = TempDir::new().unwrap();
+        SavedGameFiles::save_game("mygame", games_dir.path(), &session)
+            .expect("failed to save game");
+        let mut path = games_dir.path().to_path_buf();
         path.push("mygame");
         assert_eq!(
             SavedGameFiles::load_game(&path).unwrap().maze_seed(),
@@ -107,11 +106,15 @@ mod test {
 
     #[test]
     fn should_get_games_list() {
-        let session = Session::new(None);
-        let cfg_dir = dirs::init_config_dir().unwrap().unwrap();
-        let games_dir = dirs::get_saves_path(&cfg_dir).unwrap();
-        SavedGameFiles::save_game("mygame", &games_dir, &session).expect("failed to save game");
-        SavedGameFiles::save_game("mygame2", &games_dir, &session).expect("failed to save game");
-        assert_eq!(SavedGameFiles::saved_games(&games_dir).unwrap().len(), 2);
+        let session = Session::mock();
+        let games_dir = TempDir::new().unwrap();
+        SavedGameFiles::save_game("mygame", games_dir.path(), &session)
+            .expect("failed to save game");
+        SavedGameFiles::save_game("mygame2", games_dir.path(), &session)
+            .expect("failed to save game");
+        assert_eq!(
+            SavedGameFiles::saved_games(games_dir.path()).unwrap().len(),
+            2
+        );
     }
 }

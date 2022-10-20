@@ -1,12 +1,13 @@
 //! # Game runtime
 
-use super::{session::Action, GameResult, Options, Session};
+use super::{entity::Enemy, session::Action, GameResult, Options, Session};
 use crate::audio::{AudioEngine, Sound, Theme};
-use crate::gfx::Render;
+use crate::gfx::{ascii_art, Render, Room as RoomToRender};
 use crate::ui::{GameMsg, Id, LoadGameMsg, MenuId, MenuMsg, Msg, Ui};
 use crate::utils::saved_games::SavedGameFiles;
 
 use std::path::{Path, PathBuf};
+use tuirealm::props::{Color, Shape};
 
 /// Game runtime
 pub struct Runtime {
@@ -151,13 +152,17 @@ impl Runtime {
             debug!("hiding enemy data");
             self.ui.hide_game_enemy_data()?;
         }
+        // change theme if state changed
+        self.switch_maze_theme()?;
         if self.session.as_ref().unwrap().game_over() {
             info!("player is dead; show game over");
             self.ui.show_game_gameover_popup()?;
+            self.play_theme(Theme::GameOver)?;
         }
         if self.session.as_ref().unwrap().has_won() {
             info!("player has won; show victory");
             self.ui.load_victory()?;
+            self.play_theme(Theme::Victory)?;
         }
         // update actions
         let possible_actions = self.session.as_ref().unwrap().available_actions();
@@ -169,8 +174,65 @@ impl Runtime {
         Ok(())
     }
 
+    /// render shapes in canvas
     fn render_shapes(&mut self) -> GameResult<()> {
+        debug!("rendering shapes");
+        let room = self.render.render_room(self.room_to_render());
+        debug!("room rendered");
+        let entity = if let Some(enemy) = self.session.as_ref().unwrap().get_fighting_enemy() {
+            debug!("rendering enemy {:?}", enemy);
+            self.render_enemy(enemy)?
+        } else if let Some(item) = self.session.as_ref().unwrap().get_item_in_the_room() {
+            debug!("rendering item {:?}", item);
+            self.render
+                .ascii_art(0.0, 0.0, ascii_art::CHEST, Color::Yellow)
+        } else {
+            vec![]
+        };
+        let shapes = self.render.stack(vec![room, entity]);
+        self.ui.update_game_canvas(&shapes)?;
+        Ok(())
+    }
+
+    fn room_to_render(&self) -> RoomToRender {
+        todo!();
+    }
+
+    fn render_enemy(&self, enemy: &Enemy) -> GameResult<Vec<Shape>> {
         todo!()
+    }
+
+    fn switch_maze_theme(&mut self) -> GameResult<()> {
+        if self
+            .session
+            .as_ref()
+            .unwrap()
+            .get_fighting_enemy()
+            .is_some()
+            && self
+                .audio
+                .as_ref()
+                .map(|x| x.theme())
+                .unwrap_or(Theme::Fight)
+                != Theme::Fight
+        {
+            self.play_theme(Theme::Fight)?;
+        } else if self
+            .session
+            .as_ref()
+            .unwrap()
+            .get_fighting_enemy()
+            .is_none()
+            && self
+                .audio
+                .as_ref()
+                .map(|x| x.theme())
+                .unwrap_or(Theme::Maze)
+                != Theme::Maze
+        {
+            self.play_theme(Theme::Maze)?;
+        }
+        Ok(())
     }
 
     /// Custom implementation of the Update trait
