@@ -29,14 +29,7 @@ impl<'a> Cpu<'a> {
     /// Take enemy in the same room of the player
     /// and deal damage to player
     fn fight_player(&mut self, effect: &mut Effect) {
-        let enemy = match self
-            .session
-            .maze
-            .room_mut(self.session.maze.player)
-            .unwrap()
-            .enemy
-            .as_mut()
-        {
+        let enemy = match self.session.maze.fighting_enemy() {
             None => return,
             Some(e) => e,
         };

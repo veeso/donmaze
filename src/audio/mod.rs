@@ -23,7 +23,7 @@ pub type AudioResult<T> = Result<T, AudioError>;
 /// Donmaze audio engine
 pub struct AudioEngine {
     sink: Sink,
-    stream: OutputStream,
+    _stream: OutputStream,
     theme_running: Arc<AtomicBool>,
     theme_thread: Option<JoinHandle<()>>,
 }
@@ -38,7 +38,7 @@ impl AudioEngine {
         debug!("audio stream OK");
         let mut engine = AudioEngine {
             sink,
-            stream,
+            _stream: stream,
             theme_running,
             theme_thread: None,
         };
@@ -68,6 +68,7 @@ impl AudioEngine {
         for tone in track.tones {
             self.sink.append(tone);
         }
+        self.sink.sleep_until_end();
     }
 
     // -- private
@@ -86,5 +87,41 @@ impl AudioEngine {
 impl Drop for AudioEngine {
     fn drop(&mut self) {
         self.stop_thread().expect("failed to stop theme thread");
+    }
+}
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn should_init_audio_without_theme() {
+        let audio = AudioEngine::new(Theme::None).unwrap();
+        assert_eq!(audio.theme_running.load(Ordering::Relaxed), false);
+        assert!(audio.theme_thread.is_none());
+    }
+
+    #[test]
+    fn should_init_audio_with_theme() {
+        let audio = AudioEngine::new(Theme::Menu).unwrap();
+        assert_eq!(audio.theme_running.load(Ordering::Relaxed), true);
+        assert!(audio.theme_thread.is_some());
+    }
+
+    #[test]
+    fn should_play_sound() {
+        let audio = AudioEngine::new(Theme::None).unwrap();
+        audio.play(Sound::ArmorEquipped.track());
+    }
+
+    #[test]
+    fn should_play_theme() {
+        let mut audio = AudioEngine::new(Theme::None).unwrap();
+        audio.play_theme(Theme::Menu).unwrap();
+        assert_eq!(audio.theme_running.load(Ordering::Relaxed), true);
+        assert!(audio.theme_thread.is_some());
     }
 }

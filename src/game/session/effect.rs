@@ -74,3 +74,20 @@ pub enum Reveal {
     Item(Item),
     Enemy(Enemy),
 }
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn should_make_effect() {
+        let mut effect = Effect::default();
+        effect.message(Message::ArmorEquipped);
+        effect.sound(Sound::DrinkPotion);
+        assert_eq!(effect.messages, vec![Message::ArmorEquipped]);
+        assert_eq!(effect.sounds, vec![Sound::DrinkPotion]);
+    }
+}

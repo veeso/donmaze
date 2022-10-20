@@ -37,6 +37,7 @@ pub struct Session {
     pub turn: usize,
     /// Game version; used to check whether this version loaded is compatible
     version: Version,
+    /// has the player won
     won: bool,
 }
 
@@ -95,8 +96,8 @@ impl Session {
     }
 
     /// Get fighting enemy
-    pub fn get_fighting_enemy(&self) -> Option<Enemy> {
-        self.maze.room(self.maze.player).map(|x| x.enemy).flatten()
+    pub fn get_fighting_enemy(&self) -> Option<&Enemy> {
+        self.maze.fighting_enemy()
     }
 
     /// Play next turn
@@ -106,7 +107,14 @@ impl Session {
         debug!("playing turn {}...", self.turn);
         let mut effect = Effect::default();
         ActionReplay::new(self).play(action, &mut effect);
-        Cpu::new(self).play(&mut effect);
+        // Check whether player has won
+        if action == Action::Explore(ExploreAction::LeaveMaze) {
+            self.won = true;
+        }
+        // if player has won, doon't play turn for cpu
+        if !self.has_won() {
+            Cpu::new(self).play(&mut effect);
+        }
         effect
     }
 

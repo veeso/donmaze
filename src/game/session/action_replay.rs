@@ -76,14 +76,7 @@ impl<'a> ActionReplay<'a> {
     /// Collect item at room and put it into the inventory
     fn collect_item(&mut self, effect: &mut Effect) {
         // get item in room
-        let item = self
-            .session
-            .maze
-            .room_mut(self.session.maze.player)
-            .unwrap()
-            .item
-            .take()
-            .unwrap();
+        let item = self.session.maze.take_item().unwrap();
         debug!("found item {:?} in room {}", item, self.session.maze.player);
         self.session.player.inventory.add(item);
         effect.sound(Sound::ItemCollected);
@@ -192,14 +185,7 @@ impl<'a> ActionReplay<'a> {
     /// Use talisman to kill enemy or vanish donmaze
     fn use_talisman(&mut self, effect: &mut Effect) {
         // get current room enemy and remove from it
-        let enemy = self
-            .session
-            .maze
-            .room_mut(self.session.maze.player)
-            .unwrap()
-            .enemy
-            .take()
-            .unwrap();
+        let enemy = self.session.maze.take_enemy().unwrap();
         debug!(
             "enemy {:?} removed from room {}",
             enemy, self.session.maze.player
@@ -263,14 +249,7 @@ impl<'a> ActionReplay<'a> {
     /// Fight enemy
     fn fight(&mut self, effect: &mut Effect) {
         // get current room enemy and remove from it
-        let enemy = self
-            .session
-            .maze
-            .room_mut(self.session.maze.player)
-            .unwrap()
-            .enemy
-            .as_mut()
-            .unwrap();
+        let enemy = self.session.maze.fighting_enemy_mut().unwrap();
         let damage_dealt = if matches!(enemy, Enemy::DonMaze) {
             debug!("you can't deal with donmaze");
             0

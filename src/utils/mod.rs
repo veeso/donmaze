@@ -1,6 +1,7 @@
 //! # Utils
 
 pub mod dirs;
+pub mod graphq;
 pub mod random;
 pub mod saved_games;
 pub mod ui;

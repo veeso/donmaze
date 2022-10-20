@@ -10,3 +10,16 @@ impl Version {
         [Self::V010].contains(self)
     }
 }
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn should_tell_whether_version_is_compatible() {
+        assert_eq!(Version::V010.is_compatible(), true);
+    }
+}

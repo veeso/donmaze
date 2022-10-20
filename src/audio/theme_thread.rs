@@ -8,7 +8,6 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
-use std::thread;
 
 pub struct ThemeThread {
     running: Arc<AtomicBool>,
@@ -34,7 +33,7 @@ impl ThemeThread {
             for tone in self.theme.clone().tones {
                 self.sink.append(tone);
             }
-            thread::sleep(self.theme.duration());
+            self.sink.sleep_until_end();
         }
     }
 }

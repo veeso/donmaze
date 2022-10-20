@@ -45,3 +45,45 @@ impl Inventory {
         self.items.iter()
     }
 }
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn should_make_inventory() {
+        let mut inventory = Inventory::default();
+        assert!(inventory.items.is_empty());
+        assert_eq!(inventory.has(Item::AlchemyBook), false);
+        inventory.add(Item::AlchemyBook);
+        assert_eq!(inventory.has(Item::AlchemyBook), true);
+        // consumable
+        inventory.add(Item::Talisman);
+        assert_eq!(*inventory.items.get(&Item::Talisman).unwrap(), 1);
+        inventory.add(Item::Talisman);
+        assert_eq!(*inventory.items.get(&Item::Talisman).unwrap(), 2);
+        inventory.consume(Item::Talisman);
+        assert_eq!(*inventory.items.get(&Item::Talisman).unwrap(), 1);
+        inventory.consume(Item::Talisman);
+        assert!(inventory.items.get(&Item::Talisman).is_none());
+    }
+
+    #[test]
+    fn should_iter_inventory() {
+        let mut inventory = Inventory::default();
+        inventory.add(Item::Talisman);
+        inventory.add(Item::Talisman);
+        inventory.add(Item::MazeKey);
+        assert_eq!(inventory.items().count(), 2);
+    }
+
+    #[test]
+    #[should_panic]
+    fn should_panic_if_consuming_unexisting_inventory() {
+        let mut inventory = Inventory::default();
+        inventory.consume(Item::Armor);
+    }
+}

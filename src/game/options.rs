@@ -38,3 +38,24 @@ impl Options {
         self
     }
 }
+
+#[cfg(test)]
+mod test {
+
+    use std::path::Path;
+
+    use super::*;
+
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn should_create_options() {
+        let opts = Options::default()
+            .muted(true)
+            .saved_games_dir(PathBuf::from("/tmp"))
+            .ticks(30);
+        assert_eq!(opts.muted, true);
+        assert_eq!(opts.saved_games_dir.as_path(), Path::new("/tmp"));
+        assert_eq!(opts.ticks, 30);
+    }
+}
