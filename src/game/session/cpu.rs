@@ -46,6 +46,7 @@ impl<'a> Cpu<'a> {
             damage_to_deal, critical_hit
         );
         self.session.player.damage(damage_to_deal);
+        self.session.stats.damage_suffered += damage_to_deal as u64;
         // report damage
         effect.message(Message::DamageSuffered(damage_to_deal, critical_hit));
         effect.sound(Sound::EnemyAttack);

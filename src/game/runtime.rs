@@ -334,11 +334,7 @@ impl Runtime {
                 }
                 Ok(session) => {
                     self.play_sound(Sound::Input);
-                    self.ui.set_load_game_save_metadata(
-                        session.last_turn,
-                        session.maze_seed().to_string(),
-                        session.turn,
-                    )?;
+                    self.ui.set_load_game_save_metadata(&session)?;
                 }
             },
             LoadGameMsg::LoadGame(game_file) => {
@@ -375,15 +371,9 @@ impl Runtime {
                 } else {
                     let game_0 = match saved_games.get(0) {
                         None => None,
-                        Some(p) => SavedGameFiles::load_game(p).ok().map(|session| {
-                            (
-                                session.last_turn,
-                                session.maze_seed().to_string(),
-                                session.turn,
-                            )
-                        }),
+                        Some(p) => SavedGameFiles::load_game(p).ok(),
                     };
-                    self.ui.load_game_loader(&saved_games, game_0)?;
+                    self.ui.load_game_loader(&saved_games, game_0.as_ref())?;
                 }
             }
             MenuMsg::NewGame => {

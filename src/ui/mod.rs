@@ -6,7 +6,6 @@ use crate::game::session::{Action, Message};
 use crate::game::{Hp, Session};
 use crate::utils::ui::draw_area_in;
 
-use chrono::{DateTime, Local};
 use std::path::PathBuf;
 use std::time::Duration;
 use tuirealm::tui::layout::{Constraint, Direction, Layout};
@@ -152,19 +151,13 @@ impl Ui {
             let metadata_chunks = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints([
-                    Constraint::Length(1), // last turn
-                    Constraint::Length(1), // seed
-                    Constraint::Length(1), // turn
+                    Constraint::Length(10), // metadata
                 ])
                 .split(body[1]);
             self.application
                 .view(&Id::LoadGame(LoadGameId::Games), f, body[0]);
             self.application
-                .view(&Id::LoadGame(LoadGameId::LastTurn), f, metadata_chunks[0]);
-            self.application
-                .view(&Id::LoadGame(LoadGameId::Seed), f, metadata_chunks[1]);
-            self.application
-                .view(&Id::LoadGame(LoadGameId::Turn), f, metadata_chunks[2]);
+                .view(&Id::LoadGame(LoadGameId::Metadata), f, metadata_chunks[0]);
             // popups
             if self
                 .application
@@ -225,31 +218,17 @@ impl Ui {
     }
 
     /// load game loader
-    pub fn load_game_loader(
-        &mut self,
-        games: &[PathBuf],
-        game0: Option<(DateTime<Local>, String, usize)>,
-    ) -> UiResult<()> {
+    pub fn load_game_loader(&mut self, games: &[PathBuf], game0: Option<&Session>) -> UiResult<()> {
         self.application.umount_all();
         self.application.mount(
             Id::LoadGame(LoadGameId::Games),
             Box::new(load_game::Games::new(games)),
             vec![],
         )?;
-        if let Some((last_turn, seed, turn)) = game0 {
+        if let Some(session) = game0 {
             self.application.mount(
-                Id::LoadGame(LoadGameId::LastTurn),
-                Box::new(load_game::LastTurn::new(last_turn)),
-                vec![],
-            )?;
-            self.application.mount(
-                Id::LoadGame(LoadGameId::Seed),
-                Box::new(load_game::Seed::new(seed)),
-                vec![],
-            )?;
-            self.application.mount(
-                Id::LoadGame(LoadGameId::Turn),
-                Box::new(load_game::Turn::new(turn)),
+                Id::LoadGame(LoadGameId::Metadata),
+                Box::new(load_game::Metadata::new(session)),
                 vec![],
             )?;
         }
@@ -335,25 +314,10 @@ impl Ui {
     }
 
     /// Set save file metadata
-    pub fn set_load_game_save_metadata(
-        &mut self,
-        last_turn: DateTime<Local>,
-        seed: String,
-        turn: usize,
-    ) -> UiResult<()> {
+    pub fn set_load_game_save_metadata(&mut self, session: &Session) -> UiResult<()> {
         self.application.remount(
-            Id::LoadGame(LoadGameId::LastTurn),
-            Box::new(load_game::LastTurn::new(last_turn)),
-            vec![],
-        )?;
-        self.application.remount(
-            Id::LoadGame(LoadGameId::Seed),
-            Box::new(load_game::Seed::new(seed)),
-            vec![],
-        )?;
-        self.application.remount(
-            Id::LoadGame(LoadGameId::Turn),
-            Box::new(load_game::Turn::new(turn)),
+            Id::LoadGame(LoadGameId::Metadata),
+            Box::new(load_game::Metadata::new(session)),
             vec![],
         )?;
         Ok(())

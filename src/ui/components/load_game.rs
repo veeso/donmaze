@@ -10,7 +10,7 @@ use std::path::PathBuf;
 
 use super::Msg;
 pub use games::Games;
-pub use metadata::{LastTurn, Seed, Turn};
+pub use metadata::Metadata;
 pub use popup::ErrorPopup;
 
 /// Menu ids
@@ -18,9 +18,7 @@ pub use popup::ErrorPopup;
 pub enum LoadGameId {
     Games,
     ErrorPopup,
-    LastTurn,
-    Seed,
-    Turn,
+    Metadata,
 }
 
 /// Messages related to main menu

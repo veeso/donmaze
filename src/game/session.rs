@@ -9,18 +9,20 @@ use super::{
 };
 use crate::audio::Sound;
 
-use chrono::{DateTime, Local};
+use chrono::Local;
 
 mod action;
 mod action_replay;
 mod cpu;
 mod effect;
+mod stats;
 mod version;
 
 pub use action::{Action, ExploreAction, FightAction};
 use action_replay::ActionReplay;
 use cpu::Cpu;
 pub use effect::{Effect, Message, Reveal};
+pub use stats::Stats;
 use version::Version;
 
 /// The session contains all the game states.
@@ -31,10 +33,8 @@ pub struct Session {
     /// The last room the player's been
     last_room: Option<u32>,
     player: Player,
-    /// Last turn played datetime
-    pub last_turn: DateTime<Local>,
-    /// Turn number
-    pub turn: usize,
+    /// Game stats
+    stats: Stats,
     /// Game version; used to check whether this version loaded is compatible
     version: Version,
     /// has the player won
@@ -46,10 +46,9 @@ impl Session {
     pub fn new(seed: Option<String>) -> Self {
         Self {
             maze: Maze::generate(seed),
-            last_turn: Local::now(),
             last_room: None,
             player: Player::default(),
-            turn: 0,
+            stats: Stats::default(),
             version: Version::V010,
             won: false,
         }
@@ -95,6 +94,11 @@ impl Session {
         &self.player
     }
 
+    /// Get game stats
+    pub fn stats(&self) -> &Stats {
+        &self.stats
+    }
+
     /// Get fighting enemy
     pub fn get_fighting_enemy(&self) -> Option<&Enemy> {
         self.maze.fighting_enemy()
@@ -106,9 +110,9 @@ impl Session {
 
     /// Play next turn
     pub fn play_turn(&mut self, action: Action) -> Effect {
-        self.turn += 1;
-        self.last_turn = Local::now();
-        debug!("playing turn {}...", self.turn);
+        self.stats.turn += 1;
+        self.stats.last_turn = Local::now();
+        debug!("playing turn {}...", self.stats.turn);
         let mut effect = Effect::default();
         ActionReplay::new(self).play(action, &mut effect);
         // Check whether player has won
@@ -173,10 +177,9 @@ impl Session {
     pub fn mock() -> Self {
         Self {
             maze: Maze::mocked(),
-            last_turn: Local::now(),
             last_room: None,
             player: Player::default(),
-            turn: 0,
+            stats: Stats::default(),
             version: Version::V010,
             won: false,
         }

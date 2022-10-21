@@ -70,6 +70,7 @@ impl<'a> ActionReplay<'a> {
         );
         self.session.last_room = Some(self.session.maze.player);
         self.session.maze.player = room;
+        self.session.stats.rooms_explored += 1;
         effect.sound(Sound::Steps);
     }
 
@@ -100,6 +101,7 @@ impl<'a> ActionReplay<'a> {
     fn use_item(&mut self, item: Item, effect: &mut Effect) {
         assert!(self.session.player.inventory.has(item));
         assert!(item.usable(self.session.player.state()));
+        self.session.stats.items_used += 1;
         debug!("using item {:?}", item);
         match item {
             Item::Armor => self.wear_armor(effect),
@@ -208,6 +210,8 @@ impl<'a> ActionReplay<'a> {
             );
             let room = self.session.maze.room_mut(new_enemy_room).unwrap();
             room.enemy = Some(enemy);
+        } else {
+            self.session.stats.enemies_killed += 1;
         }
         // leave fight
         self.session.player.start_exploring();
@@ -238,6 +242,7 @@ impl<'a> ActionReplay<'a> {
             debug!("escape succeeded; new room {}", new_room);
             self.session.last_room = Some(self.session.maze.player);
             self.session.maze.player = new_room;
+            self.session.stats.fights_escaped += 1;
             effect.message(Message::EscapeSucceeded(new_room));
             effect.sound(Sound::Rush);
         } else {
@@ -265,6 +270,7 @@ impl<'a> ActionReplay<'a> {
         };
         debug!("player dealt {} HP to {:?}", damage_dealt, enemy);
         enemy.damage(damage_dealt);
+        self.session.stats.damage_inflicted += damage_dealt as u64;
         effect.message(Message::DamageDealt(damage_dealt));
         // check if enemy has died
         if enemy.health() == 0 {
@@ -276,6 +282,7 @@ impl<'a> ActionReplay<'a> {
                 .room_mut(self.session.maze.player)
                 .unwrap();
             room.enemy = None;
+            self.session.stats.enemies_killed += 1;
             self.session.player.start_exploring();
             effect.message(Message::EnemyDefeated);
             effect.sound(Sound::PlayerAttack);
@@ -290,6 +297,7 @@ impl<'a> ActionReplay<'a> {
     fn sleep(&mut self, effect: &mut Effect) {
         assert_eq!(self.session.player.state(), PlayerState::Asleep);
         self.session.player.decr_sleep_counter();
+        self.session.stats.slept_for_turns += 1;
         if self.session.player.state() == PlayerState::Asleep {
             debug!("zzzzzz you're sleeping");
             effect.message(Message::Sleeping);
