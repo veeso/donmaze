@@ -3,7 +3,7 @@
 use super::{entity::Enemy, session::Action, GameResult, Options, Session};
 use crate::audio::{AudioEngine, Sound, Theme};
 use crate::gfx::{ascii_art, Render, Room as RoomToRender};
-use crate::ui::{GameMsg, Id, LoadGameMsg, MenuId, MenuMsg, Msg, Ui};
+use crate::ui::{GameMsg, Id, LoadGameMsg, MenuId, MenuMsg, Msg, Ui, VictoryMsg};
 use crate::utils::saved_games::SavedGameFiles;
 
 use std::path::{Path, PathBuf};
@@ -161,8 +161,10 @@ impl Runtime {
         }
         if self.session.as_ref().unwrap().has_won() {
             info!("player has won; show victory");
-            self.ui.load_victory()?;
+            let session = self.session.take().unwrap();
+            self.ui.load_victory(&session)?;
             self.play_theme(Theme::Victory)?;
+            return Ok(());
         }
         // update actions
         let possible_actions = self.session.as_ref().unwrap().available_actions();
@@ -242,6 +244,7 @@ impl Runtime {
             Msg::Game(msg) => self.update_game(msg),
             Msg::LoadGame(msg) => self.update_load_game(msg),
             Msg::Menu(msg) => self.update_menu(msg),
+            Msg::Victory(msg) => self.update_victory(msg),
         }
     }
 
@@ -387,6 +390,17 @@ impl Runtime {
                 self.play_sound(Sound::Input);
                 self.play_theme(Theme::None)?;
                 self.running = false;
+            }
+        }
+        Ok(())
+    }
+
+    fn update_victory(&mut self, msg: VictoryMsg) -> GameResult<()> {
+        match msg {
+            VictoryMsg::GoToMenu => {
+                self.play_sound(Sound::Input);
+                self.play_theme(Theme::Menu)?;
+                self.ui.load_menu()?;
             }
         }
         Ok(())

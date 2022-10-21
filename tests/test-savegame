@@ -1,1 +1,138 @@
-{"maze":{"nodes":{"nodes":[0,1,2,3,4,5,6,7,8],"node_holes":[],"edge_property":"undirected","edges":[[0,1,0],[0,2,0],[1,3,0],[2,4,0],[4,5,0],[4,6,0],[4,7,0],[7,8,0]]},"rooms":{"1":{"enemy":null,"is_exit":false,"item":{"type":"Armor"}},"5":{"enemy":null,"is_exit":false,"item":null},"2":{"enemy":{"type":"Daemon","health":4},"is_exit":false,"item":null},"7":{"enemy":null,"is_exit":true,"item":null},"4":{"enemy":null,"is_exit":false,"item":null},"0":{"enemy":null,"is_exit":false,"item":null},"3":{"enemy":null,"is_exit":false,"item":null},"6":{"enemy":null,"is_exit":false,"item":null},"8":{"enemy":null,"is_exit":false,"item":null}},"player":0,"seed":"test"},"last_room":null,"player":{"inventory":{"items":{}},"health":5,"max_health":5,"state":"Explore","sleep_counter":0},"last_turn":"2022-10-20T18:24:40.433089+02:00","turn":0,"version":"V010","won":false}
+{
+  "maze": {
+    "nodes": {
+      "nodes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "node_holes": [],
+      "edge_property": "undirected",
+      "edges": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          2,
+          0
+        ],
+        [
+          1,
+          3,
+          0
+        ],
+        [
+          2,
+          4,
+          0
+        ],
+        [
+          4,
+          5,
+          0
+        ],
+        [
+          4,
+          6,
+          0
+        ],
+        [
+          4,
+          7,
+          0
+        ],
+        [
+          7,
+          8,
+          0
+        ]
+      ]
+    },
+    "rooms": {
+      "1": {
+        "enemy": null,
+        "is_exit": false,
+        "item": {
+          "type": "Armor"
+        }
+      },
+      "5": {
+        "enemy": null,
+        "is_exit": false,
+        "item": null
+      },
+      "2": {
+        "enemy": {
+          "type": "Daemon",
+          "health": 4
+        },
+        "is_exit": false,
+        "item": null
+      },
+      "7": {
+        "enemy": null,
+        "is_exit": true,
+        "item": null
+      },
+      "4": {
+        "enemy": null,
+        "is_exit": false,
+        "item": null
+      },
+      "0": {
+        "enemy": null,
+        "is_exit": false,
+        "item": null
+      },
+      "3": {
+        "enemy": null,
+        "is_exit": false,
+        "item": null
+      },
+      "6": {
+        "enemy": null,
+        "is_exit": false,
+        "item": null
+      },
+      "8": {
+        "enemy": null,
+        "is_exit": false,
+        "item": null
+      }
+    },
+    "player": 0,
+    "seed": "test"
+  },
+  "last_room": null,
+  "player": {
+    "inventory": {
+      "items": {}
+    },
+    "health": 5,
+    "max_health": 5,
+    "state": "Explore",
+    "sleep_counter": 0
+  },
+  "stats": {
+    "damage_inflicted": 0,
+    "damage_suffered": 0,
+    "enemies_killed": 0,
+    "fights_escaped": 0,
+    "items_used": 0,
+    "last_turn": "2022-10-20T18:24:40.433089+02:00",
+    "rooms_explored": 1,
+    "slept_for_turns": 0,
+    "turn": 0
+  },
+  "version": "V010",
+  "won": false
+}

@@ -115,12 +115,10 @@ impl Session {
         debug!("playing turn {}...", self.stats.turn);
         let mut effect = Effect::default();
         ActionReplay::new(self).play(action, &mut effect);
-        // Check whether player has won
+        // Check whether player has won; otherwise play cpu turn
         if action == Action::Explore(ExploreAction::LeaveMaze) {
             self.won = true;
-        }
-        // if player has won, doon't play turn for cpu
-        if !self.has_won() {
+        } else {
             Cpu::new(self).play(&mut effect);
         }
         effect
@@ -175,13 +173,119 @@ impl Session {
 
     #[cfg(test)]
     pub fn mock() -> Self {
+        Self::mock_with_maze(Maze::mocked())
+    }
+
+    #[cfg(test)]
+    pub fn mock_with_maze(maze: Maze) -> Self {
         Self {
-            maze: Maze::mocked(),
+            maze,
             last_room: None,
             player: Player::default(),
             stats: Stats::default(),
             version: Version::V010,
             won: false,
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn should_tell_whether_version_is_compatible() {
+        let session = Session::mock();
+        assert!(session.is_version_compatible());
+    }
+
+    #[test]
+    fn should_tell_whether_last_room_is_set() {
+        let mut session = Session::mock();
+        assert_eq!(session.is_previous_room_set(), false);
+        session.last_room = Some(4);
+        assert_eq!(session.is_previous_room_set(), true);
+    }
+
+    #[test]
+    fn should_tell_maze_seed() {
+        let session = Session::mock();
+        assert_eq!(session.maze_seed(), "test");
+    }
+
+    #[test]
+    fn should_return_player_inventory() {
+        let session = Session::mock();
+        assert_eq!(session.player_inventory().items().count(), 0);
+    }
+
+    #[test]
+    fn should_return_game_stats() {
+        let session = Session::mock();
+        assert_eq!(session.stats().damage_inflicted, 0);
+    }
+
+    #[test]
+    fn should_return_fighting_enemy() {
+        let mut session = Session::mock();
+        assert!(session.get_fighting_enemy().is_none());
+        session.maze.player = 2;
+        assert!(session.get_fighting_enemy().is_some());
+    }
+
+    #[test]
+    fn should_return_item_in_the_room() {
+        let mut session = Session::mock();
+        assert!(session.get_item_in_the_room().is_none());
+        session.maze.player = 1;
+        assert!(session.get_item_in_the_room().is_some());
+    }
+
+    #[test]
+    fn should_return_available_actions() {
+        let mut session = Session::mock();
+        assert_eq!(
+            session.available_actions(),
+            vec![
+                Action::Explore(ExploreAction::ChangeRoom(2)),
+                Action::Explore(ExploreAction::ChangeRoom(1)),
+            ]
+        );
+        // go to room 1
+        session.last_room = Some(0);
+        session.maze.player = 1;
+        assert_eq!(
+            session.available_actions(),
+            vec![
+                Action::Explore(ExploreAction::GoToPreviousRoom),
+                Action::Explore(ExploreAction::CollectItem),
+                Action::Explore(ExploreAction::ChangeRoom(3)),
+            ]
+        );
+        // set asleep
+        session.player.start_sleeping(1);
+        assert_eq!(session.available_actions(), vec![Action::Sleep]);
+        // start fight
+        session.maze.player = 2;
+        session.player.decr_sleep_counter();
+        session.player.start_fighting();
+        assert_eq!(
+            session.available_actions(),
+            vec![
+                Action::Fight(FightAction::Escape),
+                Action::Fight(FightAction::Fight),
+            ]
+        );
+        // win
+        session.player.inventory.add(Item::MazeKey);
+        session.player.start_exploring();
+        session.maze.player = 7;
+        assert_eq!(
+            session.available_actions(),
+            vec![Action::Explore(ExploreAction::LeaveMaze)]
+        );
     }
 }
