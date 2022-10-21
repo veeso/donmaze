@@ -25,7 +25,7 @@ impl Metadata {
                         session.stats().last_turn.to_rfc2822()
                     )),
                     TextSpan::from(format!("turn: {}", session.stats().turn)),
-                    TextSpan::from("♥".repeat(session.player().health() as usize)),
+                    TextSpan::from(" ♥ ".repeat(session.player().health() as usize)),
                 ])
                 .wrap(true),
         }

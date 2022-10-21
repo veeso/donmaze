@@ -19,11 +19,12 @@ mod error;
 
 pub use error::UiError;
 
-use components::{game, load_game, menu};
+use components::{game, load_game, menu, victory};
 pub use components::{
     game::{GameId, GameMsg},
     load_game::{LoadGameId, LoadGameMsg},
     menu::{MenuId, MenuMsg},
+    victory::{VictoryId, VictoryMsg},
 };
 
 /// UI module result
@@ -35,6 +36,7 @@ pub enum Id {
     Game(GameId),
     LoadGame(LoadGameId),
     Menu(MenuId),
+    Victory(VictoryId),
 }
 
 /// Application MSG
@@ -43,6 +45,7 @@ pub enum Msg {
     Game(GameMsg),
     LoadGame(LoadGameMsg),
     Menu(MenuMsg),
+    Victory(VictoryMsg),
     None,
 }
 
@@ -142,8 +145,8 @@ impl Ui {
                 .horizontal_margin(30)
                 .constraints(
                     [
-                        Constraint::Percentage(70), // List
-                        Constraint::Percentage(30), // List
+                        Constraint::Percentage(60), // List
+                        Constraint::Percentage(40), // metadata
                     ]
                     .as_ref(),
                 )
@@ -207,14 +210,39 @@ impl Ui {
     }
 
     fn view_victory(&mut self) -> UiResult<()> {
-        todo!()
+        self.terminal.raw_mut().draw(|f| {
+            // Prepare chunks
+            let body = Layout::default()
+                .direction(Direction::Vertical)
+                .horizontal_margin(30)
+                .constraints(
+                    [
+                        Constraint::Length(7),  // Title
+                        Constraint::Length(10), // stats
+                        Constraint::Length(3),  // menu
+                        Constraint::Length(1),  // footer
+                    ]
+                    .as_ref(),
+                )
+                .split(f.size());
+            self.application
+                .view(&Id::Victory(VictoryId::Title), f, body[0]);
+            self.application
+                .view(&Id::Victory(VictoryId::Stats), f, body[1]);
+            self.application
+                .view(&Id::Victory(VictoryId::GoToMenu), f, body[2]);
+        })?;
+        Ok(())
     }
 
     // -- @! view loaders
 
     pub fn load_game(&mut self) -> UiResult<()> {
+        self.application.umount_all();
         todo!();
         self.view = View::Game;
+
+        Ok(())
     }
 
     /// load game loader
@@ -238,6 +266,7 @@ impl Ui {
     }
 
     pub fn load_game_over(&mut self) -> UiResult<()> {
+        self.application.umount_all();
         todo!();
         self.view = View::GameOver;
     }
@@ -245,9 +274,11 @@ impl Ui {
     /// Load menu view
     pub fn load_menu(&mut self) -> UiResult<()> {
         self.application.umount_all();
+        let (width, _) = self.sizes()?;
+        let width = (width as u16) - 30;
         self.application.mount(
             Id::Menu(MenuId::Title),
-            Box::new(menu::Title::default()),
+            Box::new(menu::Title::new(width)),
             vec![],
         )?;
         self.application.mount(
@@ -275,9 +306,30 @@ impl Ui {
         Ok(())
     }
 
-    pub fn load_victory(&mut self) -> UiResult<()> {
-        todo!();
+    pub fn load_victory(&mut self, session: &Session) -> UiResult<()> {
+        self.application.umount_all();
+        let (width, _) = self.sizes()?;
+        let width = (width as u16) - 30;
+        self.application.mount(
+            Id::Victory(VictoryId::Title),
+            Box::new(victory::Title::new(width)),
+            vec![],
+        )?;
+        self.application.mount(
+            Id::Victory(VictoryId::Stats),
+            Box::new(victory::Stats::new(session)),
+            vec![],
+        )?;
+        self.application.mount(
+            Id::Victory(VictoryId::GoToMenu),
+            Box::new(victory::GoToMenu::default()),
+            vec![],
+        )?;
+
+        self.application.active(&Id::Victory(VictoryId::GoToMenu))?;
         self.view = View::Victory;
+
+        Ok(())
     }
 
     // @! component update

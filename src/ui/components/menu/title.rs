@@ -12,19 +12,35 @@ pub struct Title {
     component: Paragraph,
 }
 
-impl Default for Title {
-    fn default() -> Self {
+impl Title {
+    pub fn new(area_width: u16) -> Self {
+        let margin_left = " ".repeat(area_width as usize);
         Self {
             component: Paragraph::default()
                 .borders(Borders::default().sides(BorderSides::NONE))
                 .foreground(Color::Red)
                 .alignment(Alignment::Left)
                 .text(&[
-                    TextSpan::from("                              ███    █████  █▅   █     █    █  ███   █████  █████"),
-                    TextSpan::from("                              █  █   █   █  █ █  █     ██  ██ █   █     █   █    "),
-                    TextSpan::from("                              █   █  █   █  █  █ █     █ ██ █ █████    █    █████"),
-                    TextSpan::from("                              █  █   █   █  █   ██     █    █ █   █   █     █    "),
-                    TextSpan::from("                              ███    █████  █    █     █    █ █   █  █████  █████"),
+                    TextSpan::from(format!(
+                        "{}███    █████  █▅   █     █    █  ███   █████  █████",
+                        margin_left
+                    )),
+                    TextSpan::from(format!(
+                        "{}█  █   █   █  █ █  █     ██  ██ █   █     █   █    ",
+                        margin_left
+                    )),
+                    TextSpan::from(format!(
+                        "{}█   █  █   █  █  █ █     █ ██ █ █████    █    █████",
+                        margin_left
+                    )),
+                    TextSpan::from(format!(
+                        "{}█  █   █   █  █   ██     █    █ █   █   █     █    ",
+                        margin_left
+                    )),
+                    TextSpan::from(format!(
+                        "{}███    █████  █    █     █    █ █   █  █████  █████",
+                        margin_left
+                    )),
                 ]),
         }
     }
