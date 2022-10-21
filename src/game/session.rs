@@ -29,7 +29,10 @@ use version::Version;
 /// It must be serializable since it is used to save and load games
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Session {
+    #[cfg(not(test))]
     maze: Maze,
+    #[cfg(test)]
+    pub maze: Maze,
     /// The last room the player's been
     last_room: Option<u32>,
     player: Player,
@@ -106,6 +109,25 @@ impl Session {
 
     pub fn get_item_in_the_room(&self) -> Option<&Item> {
         self.maze.item_in_room()
+    }
+
+    /// Returns whether current room is exit
+    pub fn is_exit(&self) -> bool {
+        self.maze.is_exit()
+    }
+
+    /// Get adjacent rooms ids for user
+    pub fn adjacent_rooms(&self) -> Vec<u32> {
+        self.maze
+            .adjacent_rooms(self.maze.player)
+            .into_iter()
+            .map(|(id, _)| id)
+            .collect()
+    }
+
+    /// Get player's room
+    pub fn room(&self) -> u32 {
+        self.maze.player
     }
 
     /// Play next turn
@@ -229,6 +251,12 @@ mod test {
     }
 
     #[test]
+    fn should_return_adjacent_rooms() {
+        let session = Session::mock();
+        assert_eq!(session.adjacent_rooms(), vec![2, 1]);
+    }
+
+    #[test]
     fn should_return_fighting_enemy() {
         let mut session = Session::mock();
         assert!(session.get_fighting_enemy().is_none());
@@ -262,6 +290,7 @@ mod test {
             vec![
                 Action::Explore(ExploreAction::GoToPreviousRoom),
                 Action::Explore(ExploreAction::CollectItem),
+                Action::Explore(ExploreAction::ChangeRoom(9)),
                 Action::Explore(ExploreAction::ChangeRoom(3)),
             ]
         );
@@ -283,6 +312,7 @@ mod test {
         session.player.inventory.add(Item::MazeKey);
         session.player.start_exploring();
         session.maze.player = 7;
+        assert_eq!(session.is_exit(), true);
         assert_eq!(
             session.available_actions(),
             vec![Action::Explore(ExploreAction::LeaveMaze)]

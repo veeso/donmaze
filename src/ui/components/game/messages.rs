@@ -4,6 +4,7 @@
 
 use crate::game::session::{Message, Reveal};
 use crate::game::Session;
+use crate::utils::room_resolver::{self, Direction as MazeDirection};
 
 use super::Msg;
 
@@ -58,7 +59,7 @@ impl Messages {
             Message::EscapeSucceeded(room) => {
                 format!(
                     "You escaped in the room {}",
-                    Self::room_direction(room, session)
+                    Self::room_direction(*room, session)
                 )
             }
             Message::FallAsleep => "You suddenly feel sleepy and you fall asleep".to_string(),
@@ -70,20 +71,24 @@ impl Messages {
             Message::Reveal(room, Reveal::Enemy(enemy)) => format!(
                 "the sonar revealed a {} in the room {}",
                 enemy.name(),
-                Self::room_direction(room, session)
+                Self::room_direction(*room, session)
             ),
             Message::Reveal(room, Reveal::Item(item)) => format!(
                 "the sonar revealed a {} in the room {}",
                 item.name(has_alchemy_book),
-                Self::room_direction(room, session)
+                Self::room_direction(*room, session)
             ),
             Message::Sleeping => "You're still sleeping like a baby...".to_string(),
             Message::WakeUp => "You finally woke up".to_string(),
         }
     }
 
-    fn room_direction(room: &u32, session: &Session) -> &'static str {
-        todo!()
+    fn room_direction(room: u32, session: &Session) -> &'static str {
+        match room_resolver::resolve_room_direction(room, session) {
+            MazeDirection::Ahead => "In front of you",
+            MazeDirection::Left => "On your left",
+            MazeDirection::Right => "On your right",
+        }
     }
 }
 

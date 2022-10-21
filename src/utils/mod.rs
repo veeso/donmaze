@@ -3,6 +3,7 @@
 pub mod dirs;
 pub mod graphq;
 pub mod random;
+pub mod room_resolver;
 pub mod saved_games;
 pub mod ui;
 

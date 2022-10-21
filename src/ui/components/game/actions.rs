@@ -2,6 +2,7 @@
 
 use super::{GameMsg, Msg};
 use crate::game::session::{Action, ExploreAction, FightAction, Session};
+use crate::utils::room_resolver::{self, Direction as MazeDirection};
 
 use tui_realm_stdlib::List;
 use tuirealm::command::{Cmd, Direction, Position};
@@ -42,7 +43,9 @@ impl AvailableActions {
         match action {
             Action::Die => "Game over",
             Action::UseItem(_) => panic!("ACCESS VIOLATION"),
-            Action::Explore(ExploreAction::ChangeRoom(room)) => Self::room_direction(room, session),
+            Action::Explore(ExploreAction::ChangeRoom(room)) => {
+                Self::room_direction(*room, session)
+            }
             Action::Explore(ExploreAction::CollectItem) => "Gather item",
             Action::Explore(ExploreAction::GoToPreviousRoom) => "Go back",
             Action::Explore(ExploreAction::LeaveMaze) => "Leave the labyrinth",
@@ -52,8 +55,12 @@ impl AvailableActions {
         }
     }
 
-    fn room_direction(room: &u32, session: &Session) -> &'static str {
-        todo!()
+    fn room_direction(room: u32, session: &Session) -> &'static str {
+        match room_resolver::resolve_room_direction(room, session) {
+            MazeDirection::Ahead => "Go ahead",
+            MazeDirection::Left => "Go left",
+            MazeDirection::Right => "Go right",
+        }
     }
 
     fn selected_action(&self) -> Option<Action> {

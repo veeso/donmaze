@@ -16,7 +16,7 @@ const Y_SIZE_SMALL: f64 = 3.0;
 
 /// Render room type.
 /// Back way is not rendered
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Room {
     /// One exit (front)
     Corridor,

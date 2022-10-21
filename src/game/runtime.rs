@@ -4,6 +4,7 @@ use super::{entity::Enemy, session::Action, GameResult, Options, Session};
 use crate::audio::{AudioEngine, Sound, Theme};
 use crate::gfx::{ascii_art, Render, Room as RoomToRender};
 use crate::ui::{GameMsg, GameOverMsg, Id, LoadGameMsg, MenuId, MenuMsg, Msg, Ui, VictoryMsg};
+use crate::utils::room_resolver;
 use crate::utils::saved_games::SavedGameFiles;
 
 use std::path::{Path, PathBuf};
@@ -197,10 +198,15 @@ impl Runtime {
         Ok(())
     }
 
+    /// Get room to render
     fn room_to_render(&self) -> RoomToRender {
-        todo!();
+        let session = self.session.as_ref().unwrap();
+        let edges = session.adjacent_rooms().len();
+        let is_exit = session.is_exit();
+        room_resolver::resolve_room_to_render(edges, is_exit)
     }
 
+    /// Render enemy
     fn render_enemy(&self, enemy: &Enemy) -> GameResult<Vec<Shape>> {
         todo!()
     }

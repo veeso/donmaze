@@ -181,7 +181,7 @@ mod test {
     #[test]
     fn should_get_rooms() {
         let maze = Maze::mocked();
-        assert_eq!(maze.rooms().len(), 9);
+        assert_eq!(maze.rooms().len(), 11);
     }
 
     #[test]
@@ -260,6 +260,7 @@ impl Maze {
              *  - 1
              *  \
              *   -> 3
+             *   -> 9
              *
              * - 2
              *  \
@@ -268,7 +269,7 @@ impl Maze {
              *    \ -> 6
              *    \ -> 7
              *         \
-             *          -> 8
+             *          -> 8 -> 10
              *          -> exit
              */
             let mut nodes: UnGraph<u32, u32> = UnGraph::default();
@@ -281,14 +282,18 @@ impl Maze {
             nodes.add_node(6);
             nodes.add_node(7);
             nodes.add_node(8);
+            nodes.add_node(9);
+            nodes.add_node(10);
             nodes.add_edge(0.into(), 1.into(), 0);
             nodes.add_edge(0.into(), 2.into(), 0);
             nodes.add_edge(1.into(), 3.into(), 0);
+            nodes.add_edge(1.into(), 9.into(), 0);
             nodes.add_edge(2.into(), 4.into(), 0);
             nodes.add_edge(4.into(), 5.into(), 0);
             nodes.add_edge(4.into(), 6.into(), 0);
             nodes.add_edge(4.into(), 7.into(), 0);
             nodes.add_edge(7.into(), 8.into(), 0);
+            nodes.add_edge(8.into(), 10.into(), 0);
             nodes
         }
         let nodes = fake_maze_graph();
@@ -312,6 +317,7 @@ impl Maze {
             },
         );
         rooms.insert(3, Room::default());
+        rooms.insert(9, Room::default());
         rooms.insert(4, Room::default());
         rooms.insert(5, Room::default());
         rooms.insert(6, Room::default());
@@ -324,6 +330,7 @@ impl Maze {
             },
         );
         rooms.insert(8, Room::default());
+        rooms.insert(10, Room::default());
 
         Maze {
             nodes,
