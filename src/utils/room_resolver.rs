@@ -31,9 +31,9 @@ pub fn resolve_room_to_render(edges: usize, is_exit: bool) -> RenderRoom {
     match (edges, is_exit) {
         (1, false) => RenderRoom::Corridor,
         (1, true) => RenderRoom::CorridorWithMazeExit,
-        (2, false) => RenderRoom::TwoExit,
-        (2, true) => RenderRoom::TwoExitWithMazeExit,
-        (3, false) => RenderRoom::ThreeExit,
+        (2 | 3, false) => RenderRoom::TwoExit,
+        (2 | 3, true) => RenderRoom::TwoExitWithMazeExit,
+        (4, _) => RenderRoom::ThreeExit,
         _ => panic!("unable to resolve room render"),
     }
 }
@@ -41,11 +41,10 @@ pub fn resolve_room_to_render(edges: usize, is_exit: bool) -> RenderRoom {
 /// Resolve room direction according to the direction rules
 pub fn resolve_room_direction(room: u32, session: &Session) -> Direction {
     let mut room_edges = session.adjacent_rooms();
-    let player_room = session.room();
     room_edges.sort();
     if room_edges.len() == 1 {
         Direction::Ahead
-    } else if room_edges.len() == 2 && player_room != 0 {
+    } else if room_edges.len() == 2 && session.is_previous_room_set() {
         Direction::Ahead
     } else if room_edges.len() == 2 {
         if room_edges[1] == room {
@@ -95,7 +94,8 @@ mod test {
             resolve_room_to_render(2, true),
             RenderRoom::TwoExitWithMazeExit
         );
-        assert_eq!(resolve_room_to_render(3, false), RenderRoom::ThreeExit);
+        assert_eq!(resolve_room_to_render(3, false), RenderRoom::TwoExit);
+        assert_eq!(resolve_room_to_render(4, false), RenderRoom::ThreeExit);
     }
 
     #[test]
@@ -112,6 +112,7 @@ mod test {
         assert_eq!(resolve_room_direction(2, &session), Direction::Right);
         // two edges, but previous room is SET
         session.maze.player = 8;
+        session.set_last_room(7);
         assert_eq!(resolve_room_direction(7, &session), Direction::Ahead);
         // one edge
         session.maze.player = 9;

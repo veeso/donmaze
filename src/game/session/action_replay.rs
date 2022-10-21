@@ -243,6 +243,7 @@ impl<'a> ActionReplay<'a> {
             self.session.last_room = Some(self.session.maze.player);
             self.session.maze.player = new_room;
             self.session.stats.fights_escaped += 1;
+            self.session.player.start_exploring();
             effect.message(Message::EscapeSucceeded(new_room));
             effect.sound(Sound::Rush);
         } else {

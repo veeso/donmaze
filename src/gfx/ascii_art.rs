@@ -4,7 +4,6 @@
 
 mod chest;
 mod enemies;
-mod hearth;
 
 pub use chest::CHEST;
-pub use hearth::HEARTH;
+pub use enemies::{DAEMON, DON_MAZE, SHADOW};

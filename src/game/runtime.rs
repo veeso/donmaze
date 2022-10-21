@@ -99,6 +99,7 @@ impl Runtime {
         self.ui.load_game(&session)?;
         self.play_theme(Theme::Maze)?;
         self.session = Some(session);
+        self.render_shapes()?;
 
         Ok(())
     }
@@ -160,6 +161,7 @@ impl Runtime {
             info!("player is dead; show game over");
             self.ui.show_game_gameover_popup()?;
             self.play_theme(Theme::GameOver)?;
+            return Ok(());
         }
         if self.session.as_ref().unwrap().has_won() {
             info!("player has won; show victory");
@@ -187,8 +189,8 @@ impl Runtime {
             self.render_enemy(enemy)?
         } else if let Some(item) = self.session.as_ref().unwrap().get_item_in_the_room() {
             debug!("rendering item {:?}", item);
-            self.render
-                .ascii_art(0.0, 0.0, ascii_art::CHEST, Color::Yellow)
+            let (x, y) = self.shape_position(ascii_art::CHEST)?;
+            self.render.ascii_art(x, y, ascii_art::CHEST, Color::Yellow)
         } else {
             vec![]
         };
@@ -207,7 +209,29 @@ impl Runtime {
 
     /// Render enemy
     fn render_enemy(&self, enemy: &Enemy) -> GameResult<Vec<Shape>> {
-        todo!()
+        let (art, color) = match enemy {
+            Enemy::Daemon(_) => (ascii_art::DAEMON, Color::Red),
+            Enemy::DonMaze => (ascii_art::DON_MAZE, Color::DarkGray),
+            Enemy::Shadow(_) => (ascii_art::SHADOW, Color::Magenta),
+        };
+
+        let (x, y) = self.shape_position(art)?;
+        Ok(self.render.ascii_art(x, y, art, color))
+    }
+
+    fn shape_position(&self, art: &str) -> GameResult<(f64, f64)> {
+        let (width, height) = self.ui.sizes()?;
+        let art_width = art.lines().map(|x| x.len()).max().unwrap_or_default();
+        debug!(
+            "width is {}; /2 is {}; art width is {}",
+            width,
+            width / 2.0,
+            art_width
+        );
+        let x = (width / 2.0) - 1.0 - (art_width as f64 * 2.0);
+        let y = height + 6.0 + 2.0 + 2.0;
+        debug!("shape positon {}x{}", x, y);
+        Ok((x, y))
     }
 
     fn switch_maze_theme(&mut self) -> GameResult<()> {
@@ -280,7 +304,6 @@ impl Runtime {
             GameMsg::GameOver => {
                 info!("game over; destroy session and show game over");
                 let session = self.session.take().unwrap();
-                self.play_theme(Theme::GameOver)?;
                 self.ui.load_game_over(&session)?;
             }
             GameMsg::Quit(save) => {
@@ -294,6 +317,7 @@ impl Runtime {
                     }
                 }
                 self.session = None;
+                self.play_theme(Theme::Menu)?;
                 self.ui.load_menu()?;
             }
             GameMsg::SaveGame(name) => {
@@ -322,6 +346,7 @@ impl Runtime {
             GameMsg::UseItem(item) => {
                 self.play_sound(Sound::Input);
                 self.play_action(Action::UseItem(item))?;
+                self.ui.close_game_inventory()?;
             }
         }
         Ok(())

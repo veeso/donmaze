@@ -125,11 +125,6 @@ impl Session {
             .collect()
     }
 
-    /// Get player's room
-    pub fn room(&self) -> u32 {
-        self.maze.player
-    }
-
     /// Play next turn
     pub fn play_turn(&mut self, action: Action) -> Effect {
         self.stats.turn += 1;
@@ -174,9 +169,6 @@ impl Session {
     /// Does not include actions related to victory or loss
     fn available_exploring_actions(&self) -> Vec<Action> {
         let mut actions = Vec::with_capacity(6);
-        if self.is_previous_room_set() {
-            actions.push(Action::Explore(ExploreAction::GoToPreviousRoom));
-        }
         if self.maze.has_item() {
             actions.push(Action::Explore(ExploreAction::CollectItem));
         }
@@ -189,8 +181,16 @@ impl Session {
         {
             actions.push(Action::Explore(ExploreAction::ChangeRoom(*node)));
         }
+        if self.is_previous_room_set() {
+            actions.push(Action::Explore(ExploreAction::GoToPreviousRoom));
+        }
 
         actions
+    }
+
+    #[cfg(test)]
+    pub fn set_last_room(&mut self, room: u32) {
+        self.last_room = Some(room);
     }
 
     #[cfg(test)]
@@ -288,10 +288,10 @@ mod test {
         assert_eq!(
             session.available_actions(),
             vec![
-                Action::Explore(ExploreAction::GoToPreviousRoom),
                 Action::Explore(ExploreAction::CollectItem),
                 Action::Explore(ExploreAction::ChangeRoom(9)),
                 Action::Explore(ExploreAction::ChangeRoom(3)),
+                Action::Explore(ExploreAction::GoToPreviousRoom),
             ]
         );
         // set asleep

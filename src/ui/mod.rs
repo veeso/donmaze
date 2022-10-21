@@ -137,7 +137,7 @@ impl Ui {
                 .direction(Direction::Vertical)
                 .constraints(
                     [
-                        Constraint::Length(2), // Enemy data
+                        Constraint::Length(1), // Enemy data
                         Constraint::Min(20),   // Canvas
                         Constraint::Length(6), // player's stats
                     ]
@@ -159,12 +159,11 @@ impl Ui {
             // player's states
             let player_states = Layout::default()
                 .direction(Direction::Horizontal)
-                .horizontal_margin(5)
                 .constraints(
                     [
-                        Constraint::Length(12),
+                        Constraint::Length(40),
                         Constraint::Min(30),
-                        Constraint::Length(20),
+                        Constraint::Length(40),
                     ]
                     .as_ref(),
                 )
@@ -175,6 +174,41 @@ impl Ui {
                 .view(&Id::Game(GameId::Messages), f, player_states[1]);
             self.application
                 .view(&Id::Game(GameId::PlayerHp), f, player_states[2]);
+            // popups
+            if self.application.mounted(&Id::Game(GameId::ErrorPopup)) {
+                let popup = draw_area_in(f.size(), 50, 10);
+                f.render_widget(Clear, popup);
+                // make popup
+                self.application
+                    .view(&Id::Game(GameId::ErrorPopup), f, popup);
+            } else if self.application.mounted(&Id::Game(GameId::Inventory)) {
+                let popup = draw_area_in(f.size(), 70, 80);
+                f.render_widget(Clear, popup);
+                // make popup
+                self.application
+                    .view(&Id::Game(GameId::Inventory), f, popup);
+            } else if self.application.mounted(&Id::Game(GameId::QuitPopup)) {
+                let popup = draw_area_in(f.size(), 50, 10);
+                f.render_widget(Clear, popup);
+                // make popup
+                self.application
+                    .view(&Id::Game(GameId::QuitPopup), f, popup);
+            } else if self
+                .application
+                .mounted(&Id::Game(GameId::SaveFileNamePopup))
+            {
+                let popup = draw_area_in(f.size(), 50, 10);
+                f.render_widget(Clear, popup);
+                // make popup
+                self.application
+                    .view(&Id::Game(GameId::SaveFileNamePopup), f, popup);
+            } else if self.application.mounted(&Id::Game(GameId::GameOverPopup)) {
+                let popup = draw_area_in(f.size(), 50, 10);
+                f.render_widget(Clear, popup);
+                // make popup
+                self.application
+                    .view(&Id::Game(GameId::GameOverPopup), f, popup);
+            }
         })?;
 
         Ok(())
@@ -328,6 +362,8 @@ impl Ui {
             Box::new(game::PlayerHp::new(session.player().health())),
             vec![],
         )?;
+        self.application
+            .active(&Id::Game(GameId::AvailableActions))?;
         self.view = View::Game;
 
         Ok(())
@@ -592,7 +628,7 @@ impl Ui {
     /// Update actions
     pub fn update_game_canvas(&mut self, shapes: &[Shape]) -> UiResult<()> {
         let (width, height) = self.sizes()?;
-        todo!("check height");
+        let height = height - 6.0 - 2.0 - 2.0;
         self.application.remount(
             Id::Game(GameId::Canvas),
             Box::new(game::Canvas::new(shapes, width - 2.0, height)),

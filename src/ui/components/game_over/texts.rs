@@ -24,7 +24,7 @@ impl Title {
                 .alignment(Alignment::Left)
                 .text(&[
                     TextSpan::from(format!(
-                        "{}████   ███   █   █  █████      ███   █   █  █████  ████ ",
+                        "{} ████   ███   █   █  █████      ███   █   █  █████  ████ ",
                         margin_left
                     )),
                     TextSpan::from(format!(

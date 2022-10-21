@@ -1,7 +1,6 @@
 //! # hp
 
 use crate::game::Hp;
-use crate::gfx::ascii_art::HEARTH;
 
 use super::Msg;
 
@@ -60,23 +59,15 @@ impl HealthPoints {
                 .borders(Borders::default().sides(sides))
                 .foreground(Color::Red)
                 .alignment(alignment)
-                .text(&Self::draw_hp(hp)),
+                .text(&[Self::hp_text(hp)]),
         }
     }
 
-    fn draw_hp(hp: Hp) -> Vec<TextSpan> {
-        // make text spans from ascii art
-        let lines: Vec<String> = HEARTH.lines().map(|x| x.to_string()).collect();
-        let mut spans: Vec<TextSpan> = Vec::with_capacity(hp as usize);
-        for line in lines {
-            let mut line_span = String::new();
-            for _ in 0..hp {
-                line_span.push_str(&line);
-                line_span.push_str(" ");
-            }
-            spans.push(TextSpan::from(line_span));
+    fn hp_text(hp: Hp) -> TextSpan {
+        if hp < 255 {
+            TextSpan::from(" ♥ ".repeat(hp as usize))
+        } else {
+            TextSpan::from("∞")
         }
-
-        spans
     }
 }
