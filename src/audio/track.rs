@@ -2,9 +2,11 @@
 //!
 //! Audio track
 
+mod note;
 mod sound;
 mod theme;
 
+use note::Note;
 pub use sound::Sound;
 pub use theme::Theme;
 

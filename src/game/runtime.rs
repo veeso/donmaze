@@ -96,9 +96,9 @@ impl Runtime {
 
     /// Start gameplay in the maze
     fn start_maze(&mut self, session: Session) -> GameResult<()> {
-        self.session = Some(session);
+        self.ui.load_game(&session)?;
         self.play_theme(Theme::Maze)?;
-        self.ui.load_game()?;
+        self.session = Some(session);
 
         Ok(())
     }
@@ -169,10 +169,9 @@ impl Runtime {
             return Ok(());
         }
         // update actions
-        let possible_actions = self.session.as_ref().unwrap().available_actions();
-        debug!("updating possible actions: {:?}", possible_actions);
+        debug!("updating possible actions");
         self.ui
-            .update_game_actions(possible_actions, self.session.as_ref().unwrap())?;
+            .update_game_actions(self.session.as_ref().unwrap())?;
         // update canvas
         self.render_shapes()?;
         Ok(())

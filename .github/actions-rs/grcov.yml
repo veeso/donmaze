@@ -7,4 +7,5 @@ ignore:
   - "C:/*"
   - "../*"
   - src/main.rs
+  - "src/audio/track/*"
   - "src/ui/components/*"

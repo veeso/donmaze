@@ -2,8 +2,7 @@
 //!
 //! Ui related things
 
-use crate::game::session::{Action, Message};
-use crate::game::{Hp, Session};
+use crate::game::{session::Message, Hp, Session};
 use crate::utils::ui::draw_area_in;
 
 use std::path::PathBuf;
@@ -133,7 +132,52 @@ impl Ui {
     }
 
     fn view_game(&mut self) -> UiResult<()> {
-        todo!()
+        self.terminal.raw_mut().draw(|f| {
+            let body = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints(
+                    [
+                        Constraint::Length(2), // Enemy data
+                        Constraint::Min(20),   // Canvas
+                        Constraint::Length(6), // player's stats
+                    ]
+                    .as_ref(),
+                )
+                .split(f.size());
+            // enemy chunks
+            let enemy_data_chunks = Layout::default()
+                .direction(Direction::Horizontal)
+                .horizontal_margin(10)
+                .constraints([Constraint::Percentage(40), Constraint::Percentage(60)].as_ref())
+                .split(body[0]);
+            self.application
+                .view(&Id::Game(GameId::EnemyName), f, enemy_data_chunks[0]);
+            self.application
+                .view(&Id::Game(GameId::EnemyHp), f, enemy_data_chunks[1]);
+            // canvas
+            self.application.view(&Id::Game(GameId::Canvas), f, body[1]);
+            // player's states
+            let player_states = Layout::default()
+                .direction(Direction::Horizontal)
+                .horizontal_margin(5)
+                .constraints(
+                    [
+                        Constraint::Length(12),
+                        Constraint::Min(30),
+                        Constraint::Length(20),
+                    ]
+                    .as_ref(),
+                )
+                .split(body[2]);
+            self.application
+                .view(&Id::Game(GameId::AvailableActions), f, player_states[0]);
+            self.application
+                .view(&Id::Game(GameId::Messages), f, player_states[1]);
+            self.application
+                .view(&Id::Game(GameId::PlayerHp), f, player_states[2]);
+        })?;
+
+        Ok(())
     }
 
     fn view_game_over(&mut self) -> UiResult<()> {
@@ -262,9 +306,28 @@ impl Ui {
 
     // -- @! view loaders
 
-    pub fn load_game(&mut self) -> UiResult<()> {
+    pub fn load_game(&mut self, session: &Session) -> UiResult<()> {
         self.application.umount_all();
-        todo!();
+        self.application.mount(
+            Id::Game(GameId::AvailableActions),
+            Box::new(game::AvailableActions::new(session)),
+            vec![],
+        )?;
+        self.application.mount(
+            Id::Game(GameId::Canvas),
+            Box::new(game::Canvas::new(&[], 0.0, 0.0)),
+            vec![],
+        )?;
+        self.application.mount(
+            Id::Game(GameId::Messages),
+            Box::new(game::Messages::new(&[], session)),
+            vec![],
+        )?;
+        self.application.mount(
+            Id::Game(GameId::PlayerHp),
+            Box::new(game::PlayerHp::new(session.player().health())),
+            vec![],
+        )?;
         self.view = View::Game;
 
         Ok(())
@@ -515,10 +578,10 @@ impl Ui {
     }
 
     /// Update actions
-    pub fn update_game_actions(&mut self, actions: Vec<Action>, session: &Session) -> UiResult<()> {
+    pub fn update_game_actions(&mut self, session: &Session) -> UiResult<()> {
         self.application.remount(
             Id::Game(GameId::AvailableActions),
-            Box::new(game::AvailableActions::new(actions, session)),
+            Box::new(game::AvailableActions::new(session)),
             vec![],
         )?;
         self.application

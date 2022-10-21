@@ -17,7 +17,8 @@ pub struct AvailableActions {
 }
 
 impl AvailableActions {
-    pub fn new(actions: Vec<Action>, session: &Session) -> Self {
+    pub fn new(session: &Session) -> Self {
+        let actions = session.available_actions();
         let rows = actions
             .iter()
             .map(|x| vec![TextSpan::from(Self::action_name(x, session))])
