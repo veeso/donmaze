@@ -14,7 +14,7 @@ pub struct Title {
 
 impl Title {
     pub fn new(area_width: u16) -> Self {
-        let margin_left = " ".repeat(area_width as usize);
+        let margin_left = " ".repeat((area_width as usize / 2) - 25);
         Self {
             component: Paragraph::default()
                 .borders(Borders::default().sides(BorderSides::NONE))

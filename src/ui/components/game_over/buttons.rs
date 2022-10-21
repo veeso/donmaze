@@ -1,5 +1,5 @@
 use super::super::Button;
-use super::{Msg, VictoryMsg};
+use super::{GameOverMsg, Msg};
 
 use tuirealm::props::{Alignment, BorderType, Borders, Color, TextSpan};
 use tuirealm::{
@@ -34,7 +34,7 @@ impl Component<Msg, NoUserEvent> for GoToMenu {
         match ev {
             Event::Keyboard(KeyEvent {
                 code: Key::Enter, ..
-            }) => Some(Msg::Victory(VictoryMsg::GoToMenu)),
+            }) => Some(Msg::GameOver(GameOverMsg::GoToMenu)),
             _ => None,
         }
     }

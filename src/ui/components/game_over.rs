@@ -1,4 +1,4 @@
-//! # Victory
+//! # Game over
 
 use super::Msg;
 
@@ -8,16 +8,16 @@ mod texts;
 pub use buttons::GoToMenu;
 pub use texts::{Stats, Title};
 
-/// Victory ids
+/// game over ids
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
-pub enum VictoryId {
+pub enum GameOverId {
     GoToMenu,
     Stats,
     Title,
 }
 
-/// Messages related to victory
+/// Messages related to game over
 #[derive(PartialEq, Eq)]
-pub enum VictoryMsg {
+pub enum GameOverMsg {
     GoToMenu,
 }

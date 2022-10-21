@@ -16,7 +16,7 @@ pub struct Title {
 
 impl Title {
     pub fn new(area_width: u16) -> Self {
-        let margin_left = " ".repeat((area_width as usize / 2) - 21);
+        let margin_left = " ".repeat((area_width as usize / 2) - 28);
         Self {
             component: Paragraph::default()
                 .borders(Borders::default().sides(BorderSides::NONE))
@@ -24,23 +24,23 @@ impl Title {
                 .alignment(Alignment::Left)
                 .text(&[
                     TextSpan::from(format!(
-                        "{}█   █  █   ████  █████   ███    ███  █   █",
+                        "{}████   ███   █   █  █████      ███   █   █  █████  ████ ",
                         margin_left
                     )),
                     TextSpan::from(format!(
-                        "{}█   █     █        █    █   █  █      █ █ ",
+                        "{}█      █   █  ██ ██  █         █   █  █   █  █      █   █",
                         margin_left
                     )),
                     TextSpan::from(format!(
-                        "{}█   █  █  █        █    █   █  █       █  ",
+                        "{}█      █████  █ █ █  █████     █   █   █ █   █████  ████ ",
                         margin_left
                     )),
                     TextSpan::from(format!(
-                        "{}█ █   █  █        █    █   █  █       █  ",
+                        "{}█   █  █   █  █   █  █         █   █   █ █   █      █  █",
                         margin_left
                     )),
                     TextSpan::from(format!(
-                        "{}█    █   ████    █     ███   █       █  ",
+                        "{} ███   █   █  █   █  █████      ███     █    █████  █   █",
                         margin_left
                     )),
                 ]),
@@ -67,7 +67,7 @@ impl Stats {
                 .foreground(Color::Reset)
                 .alignment(Alignment::Center)
                 .text(&[
-                    TextSpan::from("You escaped the maze!"),
+                    TextSpan::from("You died!"),
                     TextSpan::from(""),
                     TextSpan::from(format!(
                         "Damage inflicted: {} HP",
@@ -94,9 +94,9 @@ impl Stats {
                         "You've been asleep for {} turns",
                         session.stats().slept_for_turns
                     )),
-                    TextSpan::from(format!("You played for {} turns", session.stats().turn)),
+                    TextSpan::from(format!("You survived for {} turns", session.stats().turn)),
                     TextSpan::from(""),
-                    TextSpan::from("Thank you for playing!"),
+                    TextSpan::from("Try again?"),
                 ]),
         }
     }

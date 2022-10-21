@@ -3,7 +3,7 @@
 use super::{entity::Enemy, session::Action, GameResult, Options, Session};
 use crate::audio::{AudioEngine, Sound, Theme};
 use crate::gfx::{ascii_art, Render, Room as RoomToRender};
-use crate::ui::{GameMsg, Id, LoadGameMsg, MenuId, MenuMsg, Msg, Ui, VictoryMsg};
+use crate::ui::{GameMsg, GameOverMsg, Id, LoadGameMsg, MenuId, MenuMsg, Msg, Ui, VictoryMsg};
 use crate::utils::saved_games::SavedGameFiles;
 
 use std::path::{Path, PathBuf};
@@ -56,9 +56,9 @@ impl Runtime {
         self.ui.init_terminal();
         debug!("playing Menu theme...");
         self.play_theme(Theme::Menu)?;
+        let mut redraw = true;
         while self.running {
             // Run view
-            let mut redraw = true;
             let messages = self.ui.tick()?;
             for msg in messages.into_iter() {
                 self.update(msg)?;
@@ -66,6 +66,7 @@ impl Runtime {
             }
             if redraw {
                 self.ui.view()?;
+                redraw = false;
             }
         }
         // Finalize terminal and stop sound
@@ -242,6 +243,7 @@ impl Runtime {
         match msg {
             Msg::None => Ok(()),
             Msg::Game(msg) => self.update_game(msg),
+            Msg::GameOver(msg) => self.update_game_over(msg),
             Msg::LoadGame(msg) => self.update_load_game(msg),
             Msg::Menu(msg) => self.update_menu(msg),
             Msg::Victory(msg) => self.update_victory(msg),
@@ -272,8 +274,9 @@ impl Runtime {
             }
             GameMsg::GameOver => {
                 info!("game over; destroy session and show game over");
-                self.session = None;
-                self.ui.load_game_over()?;
+                let session = self.session.take().unwrap();
+                self.play_theme(Theme::GameOver)?;
+                self.ui.load_game_over(&session)?;
             }
             GameMsg::Quit(save) => {
                 self.play_sound(Sound::Input);
@@ -316,6 +319,18 @@ impl Runtime {
                 self.play_action(Action::UseItem(item))?;
             }
         }
+        Ok(())
+    }
+
+    fn update_game_over(&mut self, msg: GameOverMsg) -> GameResult<()> {
+        match msg {
+            GameOverMsg::GoToMenu => {
+                self.play_sound(Sound::Input);
+                self.play_theme(Theme::Menu)?;
+                self.ui.load_menu()?;
+            }
+        }
+
         Ok(())
     }
 
