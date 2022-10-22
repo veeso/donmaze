@@ -164,8 +164,8 @@ impl Session {
             PlayerState::Asleep => vec![Action::Sleep],
             PlayerState::Explore => self.available_exploring_actions(),
             PlayerState::Fight => vec![
-                Action::Fight(FightAction::Escape),
                 Action::Fight(FightAction::Fight),
+                Action::Fight(FightAction::Escape),
             ],
         }
     }
@@ -309,8 +309,8 @@ mod test {
         assert_eq!(
             session.available_actions(),
             vec![
-                Action::Fight(FightAction::Escape),
                 Action::Fight(FightAction::Fight),
+                Action::Fight(FightAction::Escape),
             ]
         );
         // win

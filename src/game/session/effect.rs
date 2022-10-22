@@ -35,6 +35,8 @@ pub enum Message {
     EnemyApproaching(Enemy),
     /// The enemy has been defeated
     EnemyDefeated,
+    /// Enemy missed attack
+    EnemyMissed,
     /// Enemy died or moved due to talisman
     EnemyVanished,
     /// Escape try failed

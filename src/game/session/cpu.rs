@@ -1,5 +1,3 @@
-use rand::rngs::ThreadRng;
-
 ///! # Cpu
 ///
 /// This module expose the CPU player
@@ -8,6 +6,14 @@ use crate::audio::Sound;
 use crate::game::session::Message;
 use crate::game::{entity::Enemy, Hp};
 use crate::utils::random;
+
+use rand::rngs::ThreadRng;
+
+struct EnemyHit {
+    damage: Hp,
+    missed: bool,
+    critical_hit: bool,
+}
 
 /// Cpu plays the CPU actions
 pub struct Cpu<'a> {
@@ -40,39 +46,46 @@ impl<'a> Cpu<'a> {
             return;
         }
         // calculate damage to deal, based on enemy type
-        let (damage_to_deal, critical_hit) = Self::deal_damage(enemy);
-        debug!(
-            "dealt {} HP to player (critical? {})",
-            damage_to_deal, critical_hit
-        );
-        self.session.player.damage(damage_to_deal);
-        self.session.stats.damage_suffered += damage_to_deal as u64;
-        // report damage
-        effect.message(Message::DamageSuffered(damage_to_deal, critical_hit));
-        effect.sound(Sound::EnemyAttack);
-        // check if player is dead
-        if self.session.player.is_dead() {
-            debug!("player is dead. Game over...");
-            effect.sound(Sound::PlayerDead);
-            effect.message(Message::PlayerDead);
+        let hit = Self::deal_damage(enemy);
+        if hit.missed {
+            debug!("enemy missed the hit");
+            effect.message(Message::EnemyMissed);
+        } else {
+            debug!(
+                "dealt {} HP to player (critical? {})",
+                hit.damage, hit.critical_hit
+            );
+            self.session.player.damage(hit.damage);
+            self.session.stats.damage_suffered += hit.damage as u64;
+            // report damage
+            effect.message(Message::DamageSuffered(hit.damage, hit.critical_hit));
+            effect.sound(Sound::EnemyAttack);
+            // check if player is dead
+            if self.session.player.is_dead() {
+                debug!("player is dead. Game over...");
+                effect.sound(Sound::PlayerDead);
+                effect.message(Message::PlayerDead);
+            }
         }
     }
 
     /// Calculate damage to deal based on random and enemy type
     /// The bool defines whether is critical hit
-    fn deal_damage(enemy: &Enemy) -> (Hp, bool) {
-        let critical_hit = random::happens(&mut random::rng(), 10);
-        let base_attack: Hp = match enemy {
-            Enemy::Daemon(_) => 1,
-            Enemy::DonMaze => 255,
-            Enemy::Shadow(_) => 2,
-        };
+    fn deal_damage(enemy: &Enemy) -> EnemyHit {
+        let mut rng = random::rng();
+        let critical_hit = random::happens(&mut rng, 10);
+        let will_hit = random::happens(&mut rng, enemy.accuracy());
+        let base_attack: Hp = enemy.base_attack();
         let damage_dealt = if critical_hit {
             base_attack.saturating_add(1)
         } else {
             base_attack
         };
-        (damage_dealt, critical_hit)
+        EnemyHit {
+            damage: damage_dealt,
+            missed: !will_hit,
+            critical_hit,
+        }
     }
 
     /// Move enemies which ARE not in fight

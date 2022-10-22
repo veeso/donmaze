@@ -42,11 +42,30 @@ impl Enemy {
             Self::DonMaze => {}
         }
     }
+
+    /// Accuracy 1-100 for enemy
+    pub fn accuracy(&self) -> u8 {
+        match self {
+            Self::Daemon(_) => 85,
+            Self::DonMaze => 50,
+            Self::Shadow(_) => 95,
+        }
+    }
+
+    /// Return base attack
+    pub fn base_attack(&self) -> u8 {
+        match self {
+            Self::Daemon(_) => 3,
+            Self::DonMaze => 255,
+            Self::Shadow(_) => 2,
+        }
+    }
 }
 
 /// A daemon is an enemy which deals 1HP damage to player.
 /// HP is between 2-10
 /// Base attack: 3
+/// Accuracy: 85
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Deserialize, Serialize, Hash)]
 pub struct Daemon {
     health: Hp,
@@ -61,6 +80,7 @@ impl Daemon {
 /// A shadow is an enemy which deals 1HP damage to player.
 /// HP is between 2-5
 /// Base attack: 2 (crit: 3)
+/// Accuracy: 95
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Deserialize, Serialize, Hash)]
 pub struct Shadow {
     health: Hp,

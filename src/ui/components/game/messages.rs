@@ -54,6 +54,7 @@ impl Messages {
             Message::DamageSuffered(hp, false) => format!("The enemy dealt {} HP to you.", hp),
             Message::EnemyApproaching(enemy) => format!("{} entered the room", enemy.name()),
             Message::EnemyDefeated => "Enemy defeated".to_string(),
+            Message::EnemyMissed => "Enemy missed".to_string(),
             Message::EnemyVanished => "The enemy vanished...".to_string(),
             Message::EscapeFailed => "You failed to escape the enemy".to_string(),
             Message::EscapeSucceeded(room) => {
