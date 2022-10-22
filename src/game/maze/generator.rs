@@ -29,7 +29,7 @@ pub struct Generator {
 impl Generator {
     /// Instantiate a new `Generator`
     pub fn new(seed: Option<String>) -> Self {
-        let seed = seed.unwrap_or(Self::random_seed());
+        let seed = seed.unwrap_or_else(Self::random_seed);
         let rand: Pcg64 = Seeder::from(&seed).make_rng();
         Self { rand, seed }
     }
@@ -117,13 +117,12 @@ impl Generator {
             rooms_to_connect, rooms_to_connect_chunks
         );
         // iter over new edges
-        for i in 0..edges_for_room {
-            nodes = self.connect_rooms(
-                nodes,
-                current_room,
-                &mut rooms_to_connect_chunks[i],
-                i != edges_for_room - 1,
-            );
+        for (i, item) in rooms_to_connect_chunks
+            .iter_mut()
+            .enumerate()
+            .take(edges_for_room)
+        {
+            nodes = self.connect_rooms(nodes, current_room, item, i != edges_for_room - 1);
         }
         nodes
     }
