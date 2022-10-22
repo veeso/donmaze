@@ -66,7 +66,7 @@ impl AvailableActions {
 
     fn selected_action(&self) -> Option<Action> {
         match self.state() {
-            State::One(StateValue::Usize(idx)) => Some(self.actions[idx].clone()),
+            State::One(StateValue::Usize(idx)) => Some(self.actions[idx]),
             _ => None,
         }
     }

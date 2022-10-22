@@ -13,7 +13,7 @@ pub fn choice<'a, T>(rng: &'a mut ThreadRng, choices: &'a [T]) -> &'a T {
 /// Panics if `probability` is out of range 1-100
 pub fn happens(rng: &mut ThreadRng, probability: u8) -> bool {
     assert!(probability <= 100);
-    rng.gen_range(0..100) + 1 <= probability
+    rng.gen_range(0..100) < probability
 }
 
 /// Generate a random alphanumeric string with provided length
@@ -45,7 +45,7 @@ mod tests {
 
     #[test]
     fn should_make_choice() {
-        assert!(&[1, 2, 3].contains(&choice(&mut rng(), &[1, 2, 3])));
+        assert!(&[1, 2, 3].contains(choice(&mut rng(), &[1, 2, 3])));
     }
 
     #[test]

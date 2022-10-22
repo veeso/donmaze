@@ -41,7 +41,7 @@ impl<'a> Cpu<'a> {
         };
         // if player state is NOT FIGHTING; it means the player has just joined; so no damage has to be dealt
         if self.session.player.state() != PlayerState::Fight {
-            let fighting_enemy = enemy.clone();
+            let fighting_enemy = *enemy;
             self.start_player_fight(fighting_enemy, effect);
             return;
         }

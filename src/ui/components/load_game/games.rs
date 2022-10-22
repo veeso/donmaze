@@ -23,7 +23,7 @@ pub struct Games {
 impl Games {
     pub fn new(saved_games: &[PathBuf]) -> Self {
         let game_files: Vec<PathBuf> = saved_games
-            .into_iter()
+            .iter()
             .filter(|x| x.file_name().is_some())
             .map(|x| x.to_path_buf())
             .collect();
@@ -112,7 +112,7 @@ impl Component<Msg, NoUserEvent> for Games {
             }) => self
                 .current_game_file()
                 .map(|x| Msg::LoadGame(LoadGameMsg::LoadGame(x))),
-            _ => return None,
+            _ => None,
         }
     }
 }

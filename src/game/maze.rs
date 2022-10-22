@@ -86,7 +86,7 @@ impl Maze {
 
     /// Get reference to item in the current room (if any)
     pub fn item_in_room(&self) -> Option<&Item> {
-        self.room(self.player).map(|x| x.item.as_ref()).flatten()
+        self.room(self.player).and_then(|x| x.item.as_ref())
     }
 
     /// Take the item from the player's room
@@ -101,14 +101,13 @@ impl Maze {
 
     /// Get reference to fighting enemy (if any)
     pub fn fighting_enemy(&self) -> Option<&Enemy> {
-        self.room(self.player).map(|x| x.enemy.as_ref()).flatten()
+        self.room(self.player).and_then(|x| x.enemy.as_ref())
     }
 
     /// Get mutable reference to fighting enemy
     pub fn fighting_enemy_mut(&mut self) -> Option<&mut Enemy> {
         self.room_mut(self.player)
-            .map(|x| x.enemy.as_mut())
-            .flatten()
+            .and_then(|x| x.enemy.as_mut())
     }
 }
 

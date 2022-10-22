@@ -169,7 +169,7 @@ impl Generator {
                     self.rand.gen_range(-one_tenth..one_tenth)
                 };
                 let chunks_rooms = if variadic < 0 {
-                    (total_rooms / chunks_count).saturating_sub(variadic.abs() as usize)
+                    (total_rooms / chunks_count).saturating_sub(variadic.unsigned_abs())
                 } else {
                     (total_rooms / chunks_count).saturating_add(variadic as usize)
                 };
@@ -363,14 +363,14 @@ mod test {
                 found += 1;
             }
         }
-        assert!(5 <= found && found <= 15);
+        assert!((5..=15).contains(&found));
         let mut found = 0;
         for (_, room) in maze.rooms() {
             if matches!(room.enemy, Some(Enemy::Shadow(_))) {
                 found += 1;
             }
         }
-        assert!(10 <= found && found <= 20);
+        assert!((10..=20).contains(&found));
         let mut found = 0;
         for (_, room) in maze.rooms() {
             if matches!(room.enemy, Some(Enemy::DonMaze)) {

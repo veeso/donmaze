@@ -72,7 +72,7 @@ impl Inventory {
         // Check if index is bigger than 0
         if self.item > 0 {
             self.item -= 1;
-        } else if rewind && self.inventory.len() > 0 {
+        } else if rewind && !self.inventory.is_empty() {
             self.item = self.inventory.len() - 1;
         }
     }
@@ -82,7 +82,7 @@ impl Inventory {
     }
 
     fn item_at_last(&mut self) {
-        if self.inventory.len() > 0 {
+        if !self.inventory.is_empty() {
             self.item = self.inventory.len() - 1;
         } else {
             self.item = 0;
@@ -140,7 +140,7 @@ impl MockComponent for Inventory {
                 let cols = if item.consumable {
                     Span::styled(format!("{} ({}x)", item.name, item.quantity), item_style)
                 } else {
-                    Span::styled(format!("{}", item.name), item_style)
+                    Span::styled(item.name.to_string(), item_style)
                 };
                 ListItem::new(Spans::from(cols))
             })

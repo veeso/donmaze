@@ -28,7 +28,7 @@ impl Runtime {
             None
         } else {
             debug!("configuring audio engine");
-            AudioEngine::new(Theme::None).map(|x| Some(x))?
+            AudioEngine::new(Theme::None).map(Some)?
         };
         info!("audio OK");
         debug!("initializing Ui");
@@ -128,7 +128,7 @@ impl Runtime {
     fn save_game(&mut self, name: &str) -> GameResult<()> {
         if let Some(session) = self.session.as_ref() {
             debug!("saving game as {}", name);
-            SavedGameFiles::save_game(name, &self.saved_games_dir, &session)?;
+            SavedGameFiles::save_game(name, &self.saved_games_dir, session)?;
         }
         Ok(())
     }
