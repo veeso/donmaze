@@ -213,7 +213,7 @@ impl Runtime {
     fn render_enemy(&self, enemy: &Enemy) -> GameResult<Vec<Shape>> {
         let (art, color) = match enemy {
             Enemy::Daemon(_) => (ascii_art::DAEMON, Color::Red),
-            Enemy::DonMaze => (ascii_art::DON_MAZE, Color::DarkGray),
+            Enemy::DonMaze => (ascii_art::DON_MAZE, Color::Blue),
             Enemy::Shadow(_) => (ascii_art::SHADOW, Color::Magenta),
         };
 
@@ -222,7 +222,7 @@ impl Runtime {
     }
 
     fn shape_position(&self, art: &str) -> GameResult<(f64, f64)> {
-        let (width, height) = self.ui.sizes()?;
+        let (width, _) = self.ui.sizes()?;
         let art_width = art.lines().map(|x| x.len()).max().unwrap_or_default();
         debug!(
             "width is {}; /2 is {}; art width is {}",
@@ -231,7 +231,7 @@ impl Runtime {
             art_width
         );
         let x = (width / 2.0) - 1.0 - (art_width as f64 * 2.0);
-        let y = height + 6.0 + 2.0 + 2.0;
+        let y = 0.0;
         debug!("shape positon {}x{}", x, y);
         Ok((x, y))
     }
@@ -306,6 +306,7 @@ impl Runtime {
             GameMsg::GameOver => {
                 info!("game over; destroy session and show game over");
                 let session = self.session.take().unwrap();
+                self.play_sound(Sound::Input);
                 self.ui.load_game_over(&session)?;
             }
             GameMsg::Quit(save) => {
@@ -334,7 +335,9 @@ impl Runtime {
             GameMsg::ShowInventory => {
                 self.play_sound(Sound::Input);
                 if let Some(session) = self.session.as_ref() {
-                    self.ui.show_game_inventory(session)?;
+                    if session.can_use_items() {
+                        self.ui.show_game_inventory(session)?;
+                    }
                 }
             }
             GameMsg::ShowQuitPopup => {

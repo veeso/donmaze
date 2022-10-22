@@ -116,6 +116,11 @@ impl Session {
         self.maze.is_exit()
     }
 
+    /// Returns whether player should be able to use items
+    pub fn can_use_items(&self) -> bool {
+        self.player.state() != PlayerState::Asleep
+    }
+
     /// Get adjacent rooms ids for user
     pub fn adjacent_rooms(&self) -> Vec<u32> {
         self.maze
@@ -317,5 +322,13 @@ mod test {
             session.available_actions(),
             vec![Action::Explore(ExploreAction::LeaveMaze)]
         );
+    }
+
+    #[test]
+    fn should_tell_whether_player_can_use_items() {
+        let mut session = Session::mock();
+        assert!(session.can_use_items());
+        session.player.start_sleeping(3);
+        assert!(!session.can_use_items());
     }
 }

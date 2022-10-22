@@ -68,7 +68,7 @@ impl Render {
     pub fn ascii_art(&self, mut x: f64, mut y: f64, data: &str, color: Color) -> Vec<Shape> {
         let newline_x = x;
         let mut shapes = Vec::new();
-        for line in data.lines() {
+        for line in data.lines().rev() {
             // reset x
             x = newline_x;
             // iter line chars
@@ -86,7 +86,7 @@ impl Render {
                 x += self.x_scale;
             }
             // incr y
-            y -= self.y_scale;
+            y += self.y_scale;
         }
         shapes
     }
