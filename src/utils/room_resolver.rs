@@ -101,7 +101,7 @@ mod test {
     #[test]
     #[should_panic]
     fn should_fail_resolving_room_to_render() {
-        resolve_room_to_render(3, true);
+        resolve_room_to_render(5, true);
     }
 
     #[test]
