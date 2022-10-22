@@ -207,7 +207,7 @@ impl Runtime {
         let session = self.session.as_ref().unwrap();
         let edges = session.adjacent_rooms().len();
         let is_exit = session.is_exit();
-        room_resolver::resolve_room_to_render(edges, is_exit)
+        room_resolver::resolve_room_to_render(edges, session.is_previous_room_set(), is_exit)
     }
 
     /// Render enemy

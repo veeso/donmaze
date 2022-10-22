@@ -18,6 +18,8 @@ const Y_SIZE_SMALL: f64 = 3.0;
 /// Back way is not rendered
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Room {
+    DeadEnd,
+    DeadEndWithMazeExit,
     /// One exit (front)
     Corridor,
     CorridorWithMazeExit,
@@ -94,6 +96,8 @@ impl Render {
     /// Render room
     pub fn render_room(&self, room: Room) -> Vec<Shape> {
         match room {
+            Room::DeadEnd => self.render_dead_end(),
+            Room::DeadEndWithMazeExit => self.render_dead_end_with_maze_exit(),
             Room::Corridor => self.render_room_corridor(),
             Room::CorridorWithMazeExit => self.render_room_corridor_with_maze_exit(),
             Room::ThreeExit => self.render_room_three_exit(),
@@ -110,6 +114,43 @@ impl Render {
             stack.push(Shape::Layer);
         }
         stack
+    }
+
+    fn render_dead_end(&self) -> Vec<Shape> {
+        let mut shapes = self.render_room_corridor();
+        let half_width = self.width / 2.0;
+
+        // @! wall
+        let front_wall_x = half_width - (half_width * 0.30);
+        let front_wall_x2 = self.width - half_width + (half_width * 0.30);
+        for i in 0..(self.height as i32) {
+            let y = i as f64 * self.y_scale;
+            shapes.push(Shape::Line(Line {
+                x1: front_wall_x,
+                x2: front_wall_x2,
+                y1: y,
+                y2: y,
+                color: Color::DarkGray,
+            }))
+        }
+
+        shapes
+    }
+
+    fn render_dead_end_with_maze_exit(&self) -> Vec<Shape> {
+        let mut shapes = self.render_dead_end();
+
+        shapes.push(Shape::Layer);
+        let half_width = self.width / 2.0;
+        let door_width = half_width - (half_width * 0.80);
+        shapes.push(Shape::Rectangle(Rectangle {
+            x: 2.0 * self.x_scale,
+            y: 0.0,
+            width: door_width,
+            height: 15.0 * self.y_scale,
+            color: Color::Red,
+        }));
+        shapes
     }
 
     fn render_room_corridor(&self) -> Vec<Shape> {

@@ -27,13 +27,16 @@ pub enum Direction {
 /// Resolve edges to room to render.
 ///
 /// Panics if params are invalid
-pub fn resolve_room_to_render(edges: usize, is_exit: bool) -> RenderRoom {
-    match (edges, is_exit) {
-        (1, false) => RenderRoom::Corridor,
-        (1, true) => RenderRoom::CorridorWithMazeExit,
-        (2 | 3, false) => RenderRoom::TwoExit,
-        (2 | 3, true) => RenderRoom::TwoExitWithMazeExit,
-        (4, _) => RenderRoom::ThreeExit,
+pub fn resolve_room_to_render(edges: usize, previous_room_set: bool, is_exit: bool) -> RenderRoom {
+    match (edges, previous_room_set, is_exit) {
+        (1, true, false) => RenderRoom::DeadEnd,
+        (1, true, true) => RenderRoom::DeadEndWithMazeExit,
+        (1, false, false) => RenderRoom::Corridor,
+        (1, false, true) => RenderRoom::CorridorWithMazeExit,
+        (3, false, false) => RenderRoom::ThreeExit,
+        (2 | 3, _, false) => RenderRoom::TwoExit,
+        (2 | 3, _, true) => RenderRoom::TwoExitWithMazeExit,
+        (4, _, _) => RenderRoom::ThreeExit,
         _ => panic!("unable to resolve room render"),
     }
 }
@@ -84,24 +87,39 @@ mod test {
 
     #[test]
     fn should_resolve_room_to_render() {
-        assert_eq!(resolve_room_to_render(1, false), RenderRoom::Corridor);
+        assert_eq!(resolve_room_to_render(1, true, false), RenderRoom::DeadEnd);
         assert_eq!(
-            resolve_room_to_render(1, true),
+            resolve_room_to_render(1, true, true),
+            RenderRoom::DeadEndWithMazeExit
+        );
+        assert_eq!(
+            resolve_room_to_render(1, false, false),
+            RenderRoom::Corridor
+        );
+        assert_eq!(
+            resolve_room_to_render(1, false, true),
             RenderRoom::CorridorWithMazeExit
         );
-        assert_eq!(resolve_room_to_render(2, false), RenderRoom::TwoExit);
+        assert_eq!(resolve_room_to_render(2, false, false), RenderRoom::TwoExit);
         assert_eq!(
-            resolve_room_to_render(2, true),
+            resolve_room_to_render(2, false, true),
             RenderRoom::TwoExitWithMazeExit
         );
-        assert_eq!(resolve_room_to_render(3, false), RenderRoom::TwoExit);
-        assert_eq!(resolve_room_to_render(4, false), RenderRoom::ThreeExit);
+        assert_eq!(
+            resolve_room_to_render(3, false, false),
+            RenderRoom::ThreeExit
+        );
+        assert_eq!(resolve_room_to_render(3, true, false), RenderRoom::TwoExit);
+        assert_eq!(
+            resolve_room_to_render(4, false, false),
+            RenderRoom::ThreeExit
+        );
     }
 
     #[test]
     #[should_panic]
     fn should_fail_resolving_room_to_render() {
-        resolve_room_to_render(5, true);
+        resolve_room_to_render(5, true, true);
     }
 
     #[test]
