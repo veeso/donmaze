@@ -47,7 +47,7 @@ impl Enemy {
     pub fn accuracy(&self) -> u8 {
         match self {
             Self::Daemon(_) => 85,
-            Self::DonMaze => 50,
+            Self::DonMaze => 25,
             Self::Shadow(_) => 95,
         }
     }

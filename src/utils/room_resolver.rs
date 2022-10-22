@@ -33,6 +33,8 @@ pub fn resolve_room_to_render(edges: usize, previous_room_set: bool, is_exit: bo
         (1, true, true) => RenderRoom::DeadEndWithMazeExit,
         (1, false, false) => RenderRoom::Corridor,
         (1, false, true) => RenderRoom::CorridorWithMazeExit,
+        (2, true, false) => RenderRoom::Corridor,
+        (2, true, true) => RenderRoom::CorridorWithMazeExit,
         (3, false, false) => RenderRoom::ThreeExit,
         (2 | 3, _, false) => RenderRoom::TwoExit,
         (2 | 3, _, true) => RenderRoom::TwoExitWithMazeExit,

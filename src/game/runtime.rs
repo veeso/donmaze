@@ -138,11 +138,11 @@ impl Runtime {
         debug!("playing action {:?}", action);
         let effect = self.session.as_mut().unwrap().play_turn(action);
         // change theme if state changed
-        self.switch_maze_theme()?;
         // play sounds
         for sound in effect.sounds {
             self.play_sound(sound);
         }
+        self.switch_maze_theme()?;
         // show messages
         debug!("updating messages: {:?}", effect.messages);
         self.ui
