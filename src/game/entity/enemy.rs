@@ -55,7 +55,7 @@ impl Enemy {
     /// Return base attack
     pub fn base_attack(&self) -> u8 {
         match self {
-            Self::Daemon(_) => 3,
+            Self::Daemon(_) => 1,
             Self::DonMaze => 255,
             Self::Shadow(_) => 2,
         }
@@ -63,8 +63,8 @@ impl Enemy {
 }
 
 /// A daemon is an enemy which deals 1HP damage to player.
-/// HP is between 2-10
-/// Base attack: 3
+/// HP is between 2-7
+/// Base attack: 1
 /// Accuracy: 85
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Deserialize, Serialize, Hash)]
 pub struct Daemon {

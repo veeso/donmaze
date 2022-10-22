@@ -274,7 +274,7 @@ impl Generator {
 
     /// Generate daemon
     fn generate_daemon(&mut self) -> Daemon {
-        let hp = self.rand.gen_range(2..11);
+        let hp = self.rand.gen_range(2..8);
         Daemon::new(hp)
     }
 

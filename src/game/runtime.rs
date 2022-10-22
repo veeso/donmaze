@@ -137,6 +137,8 @@ impl Runtime {
     fn play_action(&mut self, action: Action) -> GameResult<()> {
         debug!("playing action {:?}", action);
         let effect = self.session.as_mut().unwrap().play_turn(action);
+        // change theme if state changed
+        self.switch_maze_theme()?;
         // play sounds
         for sound in effect.sounds {
             self.play_sound(sound);
@@ -157,8 +159,7 @@ impl Runtime {
             debug!("hiding enemy data");
             self.ui.hide_game_enemy_data()?;
         }
-        // change theme if state changed
-        self.switch_maze_theme()?;
+
         if self.session.as_ref().unwrap().game_over() {
             info!("player is dead; show game over");
             self.ui.show_game_gameover_popup()?;

@@ -148,10 +148,10 @@ impl<'a> ActionReplay<'a> {
                 self.session.player.damage(255);
             }
             Potion::Mead => {
-                self.session.player.heal(1);
+                self.session.player.heal(2);
             }
             Potion::RedPotion => {
-                self.session.player.heal(3);
+                self.session.player.heal(5);
             }
             Potion::SnakePoison => {
                 self.session.player.damage(2);

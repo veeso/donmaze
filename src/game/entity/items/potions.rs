@@ -7,9 +7,9 @@
 #[serde(tag = "potion")]
 pub enum Potion {
     // -- bonus
-    /// Heals 1 HP
+    /// Heals 2 HP
     Mead,
-    /// Heals 3 HP
+    /// Heals 5 HP
     RedPotion,
     /// Heals all HP and increase max HP by 2; kinda rare though
     UnicornElixir,
@@ -42,8 +42,8 @@ impl Potion {
 
     pub fn description(&self) -> &str {
         match self {
-            Self::Mead => "Restores 1HP",
-            Self::RedPotion => "Restores 3HP",
+            Self::Mead => "Restores 2HP",
+            Self::RedPotion => "Restores 5HP",
             Self::UnicornElixir => "Restores all HP and increase max HP by 2",
             Self::Vinegar => "Decrease HP by 1",
             Self::DaemonsBlood => "Decrease HP and max HP by 1",
@@ -90,8 +90,8 @@ mod test {
 
     #[test]
     fn should_get_potion_description() {
-        assert_eq!(Potion::Mead.description(), "Restores 1HP");
-        assert_eq!(Potion::RedPotion.description(), "Restores 3HP");
+        assert_eq!(Potion::Mead.description(), "Restores 2HP");
+        assert_eq!(Potion::RedPotion.description(), "Restores 5HP");
         assert_eq!(
             Potion::UnicornElixir.description(),
             "Restores all HP and increase max HP by 2"

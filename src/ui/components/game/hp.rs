@@ -4,8 +4,8 @@ use crate::game::Hp;
 
 use super::Msg;
 
-use tui_realm_stdlib::Paragraph;
-use tuirealm::props::{Alignment, BorderSides, Borders, Color, TextSpan};
+use tui_realm_stdlib::Label;
+use tuirealm::props::{Alignment, Color};
 use tuirealm::NoUserEvent;
 use tuirealm::{Component, Event, MockComponent};
 
@@ -17,7 +17,7 @@ pub struct EnemyHp {
 impl EnemyHp {
     pub fn new(hp: Hp) -> Self {
         Self {
-            component: HealthPoints::new(hp, BorderSides::LEFT, Alignment::Left),
+            component: HealthPoints::new(hp, Alignment::Right),
         }
     }
 }
@@ -36,7 +36,7 @@ pub struct PlayerHp {
 impl PlayerHp {
     pub fn new(hp: Hp) -> Self {
         Self {
-            component: HealthPoints::new(hp, BorderSides::RIGHT, Alignment::Left),
+            component: HealthPoints::new(hp, Alignment::Left),
         }
     }
 }
@@ -49,25 +49,24 @@ impl Component<Msg, NoUserEvent> for PlayerHp {
 
 #[derive(MockComponent)]
 struct HealthPoints {
-    component: Paragraph,
+    component: Label,
 }
 
 impl HealthPoints {
-    pub fn new(hp: Hp, sides: BorderSides, alignment: Alignment) -> Self {
+    pub fn new(hp: Hp, alignment: Alignment) -> Self {
         Self {
-            component: Paragraph::default()
-                .borders(Borders::default().sides(sides))
+            component: Label::default()
                 .foreground(Color::Red)
                 .alignment(alignment)
-                .text(&[Self::hp_text(hp)]),
+                .text(Self::hp_text(hp)),
         }
     }
 
-    fn hp_text(hp: Hp) -> TextSpan {
+    fn hp_text(hp: Hp) -> String {
         if hp < 255 {
-            TextSpan::from(" ♥ ".repeat(hp as usize))
+            " ♥ ".repeat(hp as usize)
         } else {
-            TextSpan::from("∞")
+            "∞".to_string()
         }
     }
 }
