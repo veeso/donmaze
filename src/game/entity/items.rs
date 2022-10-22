@@ -56,6 +56,7 @@ impl Item {
     }
 
     /// Returns the effect string
+    #[allow(dead_code)]
     pub fn effect(&self) -> &str {
         match self {
             Self::AlchemyBook => "",

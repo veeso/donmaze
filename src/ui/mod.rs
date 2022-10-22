@@ -148,7 +148,6 @@ impl Ui {
             // enemy chunks
             let enemy_data_chunks = Layout::default()
                 .direction(Direction::Horizontal)
-                .horizontal_margin(10)
                 .constraints([Constraint::Percentage(40), Constraint::Percentage(60)].as_ref())
                 .split(body[0]);
             self.application

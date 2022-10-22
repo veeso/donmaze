@@ -17,7 +17,7 @@ pub struct EnemyHp {
 impl EnemyHp {
     pub fn new(hp: Hp) -> Self {
         Self {
-            component: HealthPoints::new(hp, BorderSides::LEFT, Alignment::Right),
+            component: HealthPoints::new(hp, BorderSides::LEFT, Alignment::Left),
         }
     }
 }

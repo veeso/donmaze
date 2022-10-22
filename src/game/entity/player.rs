@@ -4,7 +4,7 @@
 
 use crate::game::{inventory::Inventory, Hp};
 
-const BASE_PLAYER_HEALTH: Hp = 5;
+const BASE_PLAYER_HEALTH: Hp = 10;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Player {
