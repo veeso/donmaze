@@ -10,7 +10,12 @@
         5,
         6,
         7,
-        8
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
       ],
       "node_holes": [],
       "edge_property": "undirected",
@@ -53,6 +58,31 @@
         [
           7,
           8,
+          0
+        ],
+        [
+          8,
+          9,
+          0
+        ],
+        [
+          8,
+          10,
+          0
+        ],
+        [
+          8,
+          11,
+          0
+        ],
+        [
+          10,
+          12,
+          0
+        ],
+        [
+          11,
+          13,
           0
         ]
       ]
@@ -101,10 +131,49 @@
       "6": {
         "enemy": null,
         "is_exit": false,
-        "item": null
+        "item": {
+          "type": "MazeKey"
+        }
       },
       "8": {
+        "enemy": {
+          "type": "Shadow",
+          "health": 3
+        },
+        "is_exit": false,
+        "item": null
+      },
+      "9": {
         "enemy": null,
+        "is_exit": false,
+        "item": null
+      },
+      "10": {
+        "enemy": null,
+        "is_exit": false,
+        "item": {
+          "type": "Sonar"
+        }
+      },
+      "11": {
+        "enemy": null,
+        "is_exit": false,
+        "item": {
+          "type": "Talisman"
+        }
+      },
+      "12": {
+        "enemy": null,
+        "is_exit": false,
+        "item": {
+          "type": "Potion",
+          "potion": "Chamomille"
+        }
+      },
+      "13": {
+        "enemy": {
+          "type": "DonMaze"
+        },
         "is_exit": false,
         "item": null
       }

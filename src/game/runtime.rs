@@ -110,10 +110,12 @@ impl Runtime {
         let session = match SavedGameFiles::load_game(game_file) {
             Ok(s) if s.is_version_compatible() => s,
             Ok(_) => {
+                error!("failed to load game: incompatible game version");
                 self.ui.show_load_game_error("incompatible game version")?;
                 return Ok(());
             }
             Err(e) => {
+                error!("failed to load game: {}", e);
                 self.ui
                     .show_load_game_error(format!("failed to load game: {}", e))?;
                 return Ok(());
@@ -377,6 +379,7 @@ impl Runtime {
             LoadGameMsg::GameChanged(p) => match SavedGameFiles::load_game(&p) {
                 Err(e) => {
                     self.play_sound(Sound::Input);
+                    error!("failed to load game: {}", e);
                     self.ui
                         .show_load_game_error(format!("failed to load game: {}", e))?;
                 }

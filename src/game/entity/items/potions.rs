@@ -4,6 +4,7 @@
 
 /// Potion types
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Deserialize, Serialize, Hash)]
+#[serde(tag = "potion")]
 pub enum Potion {
     // -- bonus
     /// Heals 1 HP

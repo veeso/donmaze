@@ -269,7 +269,7 @@ impl Ui {
                 .application
                 .mounted(&Id::LoadGame(LoadGameId::ErrorPopup))
             {
-                let popup = draw_area_in(f.size(), 50, 10);
+                let popup = draw_area_in(f.size(), 50, 20);
                 f.render_widget(Clear, popup);
                 // make popup
                 self.application
