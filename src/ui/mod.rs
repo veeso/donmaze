@@ -10,8 +10,9 @@ use std::time::Duration;
 use tuirealm::tui::layout::{Constraint, Direction, Layout};
 use tuirealm::tui::widgets::Clear;
 use tuirealm::{
-    props::Shape, terminal::TerminalBridge, Application, Attribute, EventListenerCfg, NoUserEvent,
+    props::Shape, terminal::TerminalBridge, Application, EventListenerCfg, NoUserEvent,
 };
+use tuirealm::{State, StateValue};
 
 mod components;
 mod error;
@@ -482,11 +483,12 @@ impl Ui {
 
     /// Get seed from view if mounted
     pub fn get_menu_seed(&self) -> UiResult<Option<String>> {
-        let value = self
-            .application
-            .query(&Id::Menu(MenuId::Seed), Attribute::Value)?
-            .unwrap();
-        Ok(match value.unwrap_string() {
+        let value = match self.application.state(&Id::Menu(MenuId::Seed))? {
+            State::One(StateValue::String(value)) => value,
+            _ => String::new(),
+        };
+
+        Ok(match value {
             s if s.is_empty() => None,
             s => Some(s),
         })

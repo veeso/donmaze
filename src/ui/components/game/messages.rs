@@ -64,10 +64,12 @@ impl Messages {
             }
             Message::FallAsleep => "You suddenly feel sleepy and you fall asleep".to_string(),
             Message::ItemCollected(item) => format!("You found a {}", item.name(has_alchemy_book)),
-            Message::ItemUsed(item) => item.effect().to_string(),
+            Message::ItemUsed(item) => format!("you used the {}", item.name(has_alchemy_book)),
             Message::LeaveMaze => "You left the maze".to_string(),
             Message::PlayerDead => "You died".to_string(),
-            Message::PotionDrunk(potion) => format!("You drunk the potion: {}", potion.effect()),
+            Message::PotionDrunk(potion) => {
+                format!("You drunk the {}: {}", potion.name(), potion.effect())
+            }
             Message::Reveal(room, Reveal::Enemy(enemy)) => format!(
                 "the sonar revealed a {} in the room {}",
                 enemy.name(),

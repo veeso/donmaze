@@ -5,6 +5,7 @@
 use crate::game::entity::{Daemon, Enemy, Item, Potion, Shadow};
 use crate::utils::random;
 
+use petgraph::stable_graph::NodeIndex;
 use petgraph::{graph::UnGraph, stable_graph::DefaultIx};
 use rand::prelude::*;
 use rand::thread_rng;
@@ -51,31 +52,205 @@ impl Generator {
     /// Generate rooms from amount
     fn generate_rooms(&mut self, rooms_amount: usize) -> (UnGraph<u32, u32>, HashMap<u32, Room>) {
         let items_to_place = self.items_to_place();
-        let enemy_to_place = self.enemies_to_place();
+        let enemies_to_place = self.enemies_to_place();
         // generate room 0
         let mut nodes: UnGraph<u32, u32> = UnGraph::default();
         let mut rooms: HashMap<DefaultIx, Room> = HashMap::default();
-        nodes.add_node(0);
+        let room_0 = nodes.add_node(0);
         rooms.insert(0, Room::default());
+        let mut rooms_to_connect: Vec<NodeIndex> = Vec::with_capacity(rooms_amount);
         for i in 1..rooms_amount {
             debug!("generating room {}...", i);
             let index = nodes.add_node(i as u32);
             rooms.insert(index.index() as u32, Room::default());
+            rooms_to_connect.push(index);
         }
+        // Generate room iterator; NOTE: rev() because rooms are popped from tail
+        let mut rooms_to_connect: Vec<NodeIndex> = rooms_to_connect.into_iter().rev().collect();
         // connect rooms
-        todo!("connect rooms");
+        let nodes = self.connect_rooms(nodes, room_0, &mut rooms_to_connect, false);
+        // assert rooms to connect is empty
+        assert!(rooms_to_connect.is_empty());
         // place items in maze
-        todo!();
+        self.place_items_in_maze(&mut rooms, items_to_place);
         // place enemies in maze
-        todo!();
+        self.place_enemies_in_maze(&mut rooms, enemies_to_place);
         // place exit
-        todo!("EXIT MUST BE PLACED IN A ROOM WITH LESS THAN 4 ADJACENT NODES");
-        let exit = self.rand.gen_range(40..rooms_amount) as u32;
-        let exit_node = rooms.get_mut(&exit).unwrap();
-        exit_node.is_exit = true;
-        debug!("placed exit at node {}", exit);
+        self.place_maze_exit(&nodes, &mut rooms);
 
         (nodes, rooms)
+    }
+
+    /// Recursive function to connect rooms until rooms_to_connect is empty
+    fn connect_rooms(
+        &mut self,
+        mut nodes: UnGraph<u32, u32>,
+        previous_room: NodeIndex,
+        rooms_to_connect: &mut Vec<NodeIndex>,
+        can_be_dead_end: bool,
+    ) -> UnGraph<u32, u32> {
+        // @! base case
+        if rooms_to_connect.is_empty() {
+            debug!("rooms to connect is empty; returning nodes");
+            return nodes;
+        }
+        // @! recursive case
+        let current_room = rooms_to_connect.pop().unwrap();
+        debug!("connecting edges for {}...", current_room.index());
+        let edges_for_room = self.edges_for_room(can_be_dead_end);
+        debug!(
+            "room {} will have {} edges",
+            current_room.index(),
+            edges_for_room + 1
+        );
+        // connect previous room
+        nodes.add_edge(previous_room, current_room, 0);
+        debug!(
+            "connected previous room {} to {}",
+            previous_room.index(),
+            current_room.index()
+        );
+        let mut rooms_to_connect_chunks =
+            self.make_rooms_to_connect_chunks(rooms_to_connect, edges_for_room);
+        debug!(
+            "rooms to connect was {:?}; chunks are {:?}",
+            rooms_to_connect, rooms_to_connect_chunks
+        );
+        // iter over new edges
+        for i in 0..edges_for_room {
+            nodes = self.connect_rooms(
+                nodes,
+                current_room,
+                &mut rooms_to_connect_chunks[i],
+                i != edges_for_room - 1,
+            );
+        }
+        nodes
+    }
+
+    /// Randomize the amount of edges per room
+    ///
+    /// 25% -> 3 + 1
+    /// 45% -> 2 + 1
+    /// 20 % -> 1 + 1
+    /// 10 % -> dead-end (if can be dead end; 1 otherwise)
+    fn edges_for_room(&mut self, can_be_dead_end: bool) -> usize {
+        match self.rand.gen_range(0..100) {
+            x if x < 25 => 3,
+            x if x < 70 => 2,
+            x if x < 90 => 1,
+            _ if can_be_dead_end => 0, // dead end
+            _ => 1,
+        }
+    }
+
+    /// Starting from rooms to connect, returns `chunks` vector randomly distribuited to create different branches for the maze
+    fn make_rooms_to_connect_chunks(
+        &mut self,
+        rooms_to_connect: &mut Vec<NodeIndex>,
+        chunks_count: usize,
+    ) -> Vec<Vec<NodeIndex>> {
+        let mut chunks = Vec::with_capacity(chunks_count);
+        let total_rooms = rooms_to_connect.len();
+        for i in 0..chunks_count {
+            if i == chunks_count - 1 {
+                // push remaining rooms
+                let mut new_chunk = Vec::with_capacity(rooms_to_connect.len());
+                while let Some(room) = rooms_to_connect.pop() {
+                    new_chunk.push(room);
+                }
+                chunks.push(new_chunk);
+            } else {
+                // chunk
+                let one_tenth = ((chunks_count * 10) / 100) as isize;
+                let variadic = if one_tenth == 0 {
+                    0
+                } else {
+                    self.rand.gen_range(-one_tenth..one_tenth)
+                };
+                let chunks_rooms = if variadic < 0 {
+                    (total_rooms / chunks_count).saturating_sub(variadic.abs() as usize)
+                } else {
+                    (total_rooms / chunks_count).saturating_add(variadic as usize)
+                };
+                let mut new_chunk = Vec::with_capacity(chunks_rooms);
+                for _ in 0..chunks_rooms {
+                    if let Some(r) = rooms_to_connect.pop() {
+                        new_chunk.push(r);
+                    }
+                }
+                chunks.push(new_chunk);
+            }
+        }
+
+        chunks
+    }
+
+    /// place items in maze randomly
+    fn place_items_in_maze(
+        &mut self,
+        rooms: &mut HashMap<DefaultIx, Room>,
+        mut items_to_place: Vec<Item>,
+    ) {
+        // keep placing items, until all items have been placed
+        while let Some(item) = items_to_place.pop() {
+            // get rooms which are still without any item and NOT room 0
+            let mut rooms_without_items: Vec<u32> = rooms
+                .iter()
+                .filter(|(node, room)| room.item.is_none() && **node != 0u32)
+                .map(|(node, _)| *node)
+                .collect();
+            rooms_without_items.sort(); // NOTE: sorting is necessary, since otherwise rooms are randomly sorted based on hashmap order
+                                        // choose the room where the item should be placed
+            let room = rooms_without_items[self.rand.gen_range(0..rooms_without_items.len())];
+            let mut room_data = rooms.get_mut(&room).unwrap();
+            room_data.item = Some(item);
+            debug!("placed item {:?} in room {}", item, room);
+        }
+    }
+
+    /// place enemies in maze randomly
+    fn place_enemies_in_maze(
+        &mut self,
+        rooms: &mut HashMap<DefaultIx, Room>,
+        mut enemies_to_place: Vec<Enemy>,
+    ) {
+        // keep placing enemies, until all enemies have been placed
+        while let Some(enemy) = enemies_to_place.pop() {
+            // get rooms which are still without any ENEMY and NOT room 0
+            let mut rooms_without_enemies: Vec<u32> = rooms
+                .iter()
+                .filter(|(node, room)| room.enemy.is_none() && **node != 0u32)
+                .map(|(node, _)| *node)
+                .collect();
+            rooms_without_enemies.sort(); // NOTE: sorting is necessary, since otherwise rooms are randomly sorted based on hashmap order
+                                          // choose the room where the enemy should be placed
+            let room = rooms_without_enemies[self.rand.gen_range(0..rooms_without_enemies.len())];
+            let mut room_data = rooms.get_mut(&room).unwrap();
+            room_data.enemy = Some(enemy);
+            debug!("placed enemy {:?} in room {}", enemy, room);
+        }
+    }
+
+    /// Place maze exit.
+    /// Exit can be placed in ANY room WITH LESS THAN 4 EDGES and with ID > 40
+    fn place_maze_exit(
+        &mut self,
+        nodes: &UnGraph<DefaultIx, DefaultIx>,
+        rooms: &mut HashMap<DefaultIx, Room>,
+    ) {
+        let mut compatible_rooms: Vec<u32> = Vec::with_capacity(rooms.len());
+        for i in 40..rooms.len() as u32 {
+            if nodes.edges(i.into()).count() < 4 {
+                debug!("room {} is suitable for being chosen as exit", i);
+                compatible_rooms.push(i);
+            }
+        }
+        compatible_rooms.sort(); // NOTE: sorting is necessary, since otherwise rooms are randomly sorted based on hashmap order
+        let room = compatible_rooms[self.rand.gen_range(0..compatible_rooms.len())];
+        debug!("chosen room {} for exit", room);
+        let mut room_data = rooms.get_mut(&room).unwrap();
+        room_data.is_exit = true;
     }
 
     /// generate enemies to place in the maze
@@ -214,6 +389,7 @@ mod test {
         }
         assert_eq!(found, 1);
         assert!(exit.is_some());
+        assert!(exit.unwrap() >= 40);
         // verify that exit room has less than 4 edges
         assert!(
             maze.adjacent_rooms(exit.unwrap()).len() < 4
