@@ -159,16 +159,16 @@ mod test {
         player.heal(3);
         assert_eq!(player.health(), BASE_PLAYER_HEALTH);
         player.incr_max_health(3);
-        assert_eq!(player.health(), 6);
-        assert_eq!(player.max_health(), 8);
+        assert_eq!(player.health(), BASE_PLAYER_HEALTH + 1);
+        assert_eq!(player.max_health(), BASE_PLAYER_HEALTH + 3);
         player.damage(5);
-        assert_eq!(player.health(), 1);
-        assert_eq!(player.max_health(), 8);
+        assert_eq!(player.health(), BASE_PLAYER_HEALTH + 1 - 5);
+        assert_eq!(player.max_health(), BASE_PLAYER_HEALTH + 3);
         player.heal_max();
         assert_eq!(player.health(), player.max_health());
         player.decr_max_health(4);
-        assert_eq!(player.health(), 4);
-        assert_eq!(player.max_health(), 4);
+        assert_eq!(player.health(), BASE_PLAYER_HEALTH + 1 - 3 + 1);
+        assert_eq!(player.max_health(), BASE_PLAYER_HEALTH - 1);
         player.damage(9);
         assert_eq!(player.health(), 0);
     }

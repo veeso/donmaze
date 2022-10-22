@@ -67,6 +67,11 @@ impl Session {
         self.last_room.is_some()
     }
 
+    /// Get last room
+    pub fn get_last_room(&self) -> Option<u32> {
+        self.last_room
+    }
+
     /// Get maze seed
     pub fn maze_seed(&self) -> &str {
         self.maze.seed()
@@ -235,6 +240,7 @@ mod test {
         assert_eq!(session.is_previous_room_set(), false);
         session.last_room = Some(4);
         assert_eq!(session.is_previous_room_set(), true);
+        assert_eq!(session.get_last_room(), Some(4));
     }
 
     #[test]
