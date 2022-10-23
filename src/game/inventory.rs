@@ -46,7 +46,7 @@ impl Inventory {
     pub fn items(&self) -> Vec<(Item, u8)> {
         let mut items = Vec::with_capacity(self.items.len());
         for (key, qty) in self.items.iter() {
-            items.push((Item::from_key(*key), *qty));
+            items.push((Item::from(*key), *qty));
         }
         items
     }

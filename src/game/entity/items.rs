@@ -39,18 +39,6 @@ impl Item {
         }
     }
 
-    pub fn from_key(key: u32) -> Item {
-        match key {
-            0 => Self::AlchemyBook,
-            1 => Self::Armor,
-            2 => Self::MazeKey,
-            3 => Self::Sonar,
-            4 => Self::Talisman,
-            x if x > 255 => Item::Potion(Potion::from_key(x)),
-            _ => Self::Armor, // fallback item
-        }
-    }
-
     /// Return the item name
     pub fn name(&self, has_alchemy_book: bool) -> &str {
         match self {
@@ -121,6 +109,20 @@ impl Item {
             (Self::Sonar, PlayerState::Asleep | PlayerState::Fight) => false,
             (Self::Talisman, PlayerState::Fight) => true,
             (Self::Talisman, PlayerState::Asleep | PlayerState::Explore) => false,
+        }
+    }
+}
+
+impl From<u32> for Item {
+    fn from(key: u32) -> Self {
+        match key {
+            0 => Self::AlchemyBook,
+            1 => Self::Armor,
+            2 => Self::MazeKey,
+            3 => Self::Sonar,
+            4 => Self::Talisman,
+            x if x > 255 => Item::Potion(Potion::from(x)),
+            _ => Self::Armor, // fallback item
         }
     }
 }
@@ -250,5 +252,18 @@ mod test {
         let json = serde_json::to_string(&test).unwrap();
         let decoded: Test = serde_json::from_str(&json).unwrap();
         assert_eq!(test, decoded);
+    }
+
+    #[test]
+    fn should_convert_items_to_key() {
+        assert_eq!(Item::AlchemyBook, Item::from(Item::AlchemyBook.key()));
+        assert_eq!(Item::Armor, Item::from(Item::Armor.key()));
+        assert_eq!(Item::MazeKey, Item::from(Item::MazeKey.key()));
+        assert_eq!(
+            Item::Potion(Potion::Chamomille),
+            Item::from(Item::Potion(Potion::Chamomille).key())
+        );
+        assert_eq!(Item::Sonar, Item::from(Item::Sonar.key()));
+        assert_eq!(Item::Talisman, Item::from(Item::Talisman.key()));
     }
 }

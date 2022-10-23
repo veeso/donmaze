@@ -40,20 +40,6 @@ impl Potion {
         }
     }
 
-    pub fn from_key(key: u32) -> Potion {
-        match key {
-            256 => Self::Mead,
-            257 => Self::RedPotion,
-            258 => Self::UnicornElixir,
-            259 => Self::Vinegar,
-            260 => Self::DaemonsBlood,
-            261 => Self::Chamomille,
-            262 => Self::SnakePoison,
-            263 => Self::DeadlyPoison,
-            _ => Potion::Mead, // NOTE: default potion
-        }
-    }
-
     pub fn name(&self) -> &str {
         match self {
             Self::Mead => "Mead",
@@ -92,6 +78,22 @@ impl Potion {
             Self::SnakePoison => "The taste of evilness fills your mouth and you feel much worse now",
             Self::UnicornElixir => "That potion tastes like heaven. You feel invincible now",
             Self::Vinegar => "Uuugh, it's vinegar. Probably I should have smelled it before drinking it..."
+        }
+    }
+}
+
+impl From<u32> for Potion {
+    fn from(key: u32) -> Self {
+        match key {
+            256 => Self::Mead,
+            257 => Self::RedPotion,
+            258 => Self::UnicornElixir,
+            259 => Self::Vinegar,
+            260 => Self::DaemonsBlood,
+            261 => Self::Chamomille,
+            262 => Self::SnakePoison,
+            263 => Self::DeadlyPoison,
+            _ => Potion::Mead, // NOTE: default potion
         }
     }
 }
@@ -169,6 +171,27 @@ mod test {
         assert_eq!(
             Potion::Vinegar.effect(),
             "Uuugh, it's vinegar. Probably I should have smelled it before drinking it..."
+        );
+    }
+
+    #[test]
+    fn should_convert_to_key() {
+        assert_eq!(Potion::Mead, Potion::from(Potion::Mead.key()));
+        assert_eq!(Potion::RedPotion, Potion::from(Potion::RedPotion.key()));
+        assert_eq!(
+            Potion::UnicornElixir,
+            Potion::from(Potion::UnicornElixir.key())
+        );
+        assert_eq!(Potion::Vinegar, Potion::from(Potion::Vinegar.key()));
+        assert_eq!(
+            Potion::DaemonsBlood,
+            Potion::from(Potion::DaemonsBlood.key())
+        );
+        assert_eq!(Potion::Chamomille, Potion::from(Potion::Chamomille.key()));
+        assert_eq!(Potion::SnakePoison, Potion::from(Potion::SnakePoison.key()));
+        assert_eq!(
+            Potion::DeadlyPoison,
+            Potion::from(Potion::DeadlyPoison.key())
         );
     }
 }
