@@ -185,7 +185,8 @@ impl Runtime {
     /// render shapes in canvas
     fn render_shapes(&mut self) -> GameResult<()> {
         debug!("rendering shapes");
-        let room = self.render.render_room(self.room_to_render());
+        let room_to_render = self.room_to_render();
+        let room = self.render.render_room(room_to_render);
         debug!("room rendered");
         let entity = if let Some(enemy) = self.session.as_ref().unwrap().get_fighting_enemy() {
             debug!("rendering enemy {:?}", enemy);
@@ -197,7 +198,12 @@ impl Runtime {
         } else {
             vec![]
         };
-        let shapes = self.render.stack(vec![room, entity]);
+        debug!("rendering graffitis");
+        let graffiti = self
+            .render
+            .graffiti(self.session.as_ref().unwrap().player_room(), room_to_render);
+        debug!("stacking shapes and rendering canvas");
+        let shapes = self.render.stack(vec![room, graffiti, entity]);
         self.ui.update_game_canvas(&shapes)?;
         Ok(())
     }

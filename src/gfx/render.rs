@@ -6,6 +6,8 @@ use tuirealm::props::Color;
 use tuirealm::props::Shape;
 use tuirealm::tui::widgets::canvas::{Line, Rectangle};
 
+use super::ascii_art;
+
 // Viewports
 const X_SIZE_LARGE: f64 = 4.0;
 const Y_SIZE_LARGE: f64 = 6.0;
@@ -91,6 +93,22 @@ impl Render {
             y += self.y_scale;
         }
         shapes
+    }
+
+    pub fn graffiti(&self, room: u32, room_type: Room) -> Vec<Shape> {
+        let half_width = self.width / 2.0;
+        let (x, y) = match room_type {
+            Room::Corridor | Room::CorridorWithMazeExit => (3.0 * self.x_scale, 4.0 * self.y_scale),
+            Room::ThreeExit => return vec![],
+            Room::DeadEnd
+            | Room::DeadEndWithMazeExit
+            | Room::TwoExit
+            | Room::TwoExitWithMazeExit => (
+                half_width - (half_width * 0.30) + (1.0 * self.x_scale),
+                self.y_scale * 4.0,
+            ),
+        };
+        self.ascii_art(x, y, ascii_art::graffiti(room), Color::Rgb(150, 10, 5))
     }
 
     /// Render room

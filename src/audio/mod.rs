@@ -102,12 +102,14 @@ impl Drop for AudioEngine {
 #[cfg(test)]
 mod test {
 
+    #[cfg(not(feature = "github-actions"))]
     use super::*;
 
+    #[cfg(not(feature = "github-actions"))]
     use pretty_assertions::assert_eq;
 
     #[test]
-    #[cfg(not(feature = "gitub-actions"))]
+    #[cfg(not(feature = "github-actions"))]
     fn should_init_audio_without_theme() {
         let audio = AudioEngine::new(Theme::None).unwrap();
         assert_eq!(audio.theme_running.load(Ordering::Relaxed), false);
@@ -116,7 +118,7 @@ mod test {
     }
 
     #[test]
-    #[cfg(not(feature = "gitub-actions"))]
+    #[cfg(not(feature = "github-actions"))]
     fn should_init_audio_with_theme() {
         let audio = AudioEngine::new(Theme::Menu).unwrap();
         assert_eq!(audio.theme_running.load(Ordering::Relaxed), true);
@@ -125,14 +127,14 @@ mod test {
     }
 
     #[test]
-    #[cfg(not(feature = "gitub-actions"))]
+    #[cfg(not(feature = "github-actions"))]
     fn should_play_sound() {
         let audio = AudioEngine::new(Theme::None).unwrap();
         audio.play(Sound::ArmorEquipped.track());
     }
 
     #[test]
-    #[cfg(not(feature = "gitub-actions"))]
+    #[cfg(not(feature = "github-actions"))]
     fn should_play_theme() {
         let mut audio = AudioEngine::new(Theme::None).unwrap();
         audio.play_theme(Theme::Menu).unwrap();
@@ -142,7 +144,7 @@ mod test {
     }
 
     #[test]
-    #[cfg(not(feature = "gitub-actions"))]
+    #[cfg(not(feature = "github-actions"))]
     fn should_change_theme() {
         let mut audio = AudioEngine::new(Theme::Menu).unwrap();
         audio.play_theme(Theme::Maze).unwrap();

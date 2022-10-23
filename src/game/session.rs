@@ -102,6 +102,11 @@ impl Session {
         &self.player
     }
 
+    /// Return player's room
+    pub fn player_room(&self) -> u32 {
+        self.maze.player
+    }
+
     /// Get game stats
     pub fn stats(&self) -> &Stats {
         &self.stats
@@ -265,6 +270,13 @@ mod test {
     fn should_return_adjacent_rooms() {
         let session = Session::mock();
         assert_eq!(session.adjacent_rooms(), vec![2, 1]);
+    }
+
+    #[test]
+    fn should_return_player_room() {
+        let mut session = Session::mock();
+        session.maze.player = 2;
+        assert_eq!(session.player_room(), 2);
     }
 
     #[test]

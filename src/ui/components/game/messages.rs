@@ -46,8 +46,8 @@ impl Messages {
             .player_inventory()
             .has(crate::game::entity::Item::AlchemyBook);
         match message {
-            Message::ArmorEquipped => "armor equipped; HP increased by 1".to_string(),
-            Message::DamageDealt(hp) => format!("dealt {} HP to enemy", hp),
+            Message::ArmorEquipped => "Armor equipped; HP increased by 1".to_string(),
+            Message::DamageDealt(hp) => format!("Dealt {} HP to enemy", hp),
             Message::DamageSuffered(hp, true) => {
                 format!("Critical hit! The enemy dealt {} HP to you.", hp)
             }
@@ -65,22 +65,36 @@ impl Messages {
             }
             Message::FallAsleep => "You suddenly feel sleepy and you fall asleep".to_string(),
             Message::ItemCollected(item) => format!("You found a {}", item.name(has_alchemy_book)),
-            Message::ItemUsed(item) => format!("you used the {}", item.name(has_alchemy_book)),
+            Message::ItemUsed(item) => format!(
+                "You used {}: {}",
+                item.name(has_alchemy_book),
+                item.effect()
+            ),
             Message::LeaveMaze => "You left the maze".to_string(),
             Message::PlayerDead => "You died".to_string(),
             Message::PotionDrunk(potion) => {
                 format!("You drunk the {}: {}", potion.name(), potion.effect())
             }
             Message::Reveal(room, Reveal::Enemy(enemy)) => format!(
-                "the sonar revealed a {} in the room {}",
+                "The sonar revealed a {} in the room {}",
                 enemy.name(),
                 Self::room_direction(*room, session)
             ),
             Message::Reveal(room, Reveal::Item(item)) => format!(
-                "the sonar revealed a {} in the room {}",
+                "The sonar revealed a {} in the room {}",
                 item.name(has_alchemy_book),
                 Self::room_direction(*room, session)
             ),
+            Message::RevealNothing => "The sonar didn't reveal anything.".to_string(),
+            Message::RoomChanged(MazeDirection::Ahead) => {
+                "You entered the room in front of you".to_string()
+            }
+            Message::RoomChanged(MazeDirection::Left) => {
+                "You entered the room on your left".to_string()
+            }
+            Message::RoomChanged(MazeDirection::Right) => {
+                "You entered the room on your right".to_string()
+            }
             Message::Sleeping => "You're still sleeping like a baby...".to_string(),
             Message::WakeUp => "You finally woke up".to_string(),
         }
@@ -88,9 +102,9 @@ impl Messages {
 
     fn room_direction(room: u32, session: &Session) -> &'static str {
         match room_resolver::resolve_room_direction(room, session) {
-            MazeDirection::Ahead => "In front of you",
-            MazeDirection::Left => "On your left",
-            MazeDirection::Right => "On your right",
+            MazeDirection::Ahead => "in front of you",
+            MazeDirection::Left => "on your left",
+            MazeDirection::Right => "on your right",
         }
     }
 }

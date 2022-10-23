@@ -8,6 +8,7 @@ use crate::{
         entity::{Enemy, Item, Potion},
         Hp,
     },
+    utils::room_resolver::Direction,
 };
 
 /// Defines the effect of a turn
@@ -47,12 +48,16 @@ pub enum Message {
     FallAsleep,
     /// Leave maze and win
     LeaveMaze,
+    /// Room changed
+    RoomChanged(Direction),
     /// pleayer is dead
     PlayerDead,
     /// A potion has been drunk
     PotionDrunk(Potion),
     /// Sonar reveal
     Reveal(u32, Reveal),
+    /// Sonar revealed nothing
+    RevealNothing,
     Sleeping,
     /// Wake up from sleeping
     WakeUp,

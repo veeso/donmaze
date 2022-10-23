@@ -7,6 +7,7 @@ use super::{
 };
 use crate::game::entity::{Enemy, Item, Potion};
 use crate::utils::random;
+use crate::utils::room_resolver;
 
 const ESCAPE_PROBABILITY: u8 = 50;
 
@@ -68,6 +69,10 @@ impl<'a> ActionReplay<'a> {
             "going from room {} to room {}",
             self.session.maze.player, room
         );
+        effect.message(Message::RoomChanged(room_resolver::resolve_room_direction(
+            room,
+            &self.session,
+        )));
         self.session.last_room = Some(self.session.maze.player);
         self.session.maze.player = room;
         self.session.stats.rooms_explored += 1;
@@ -171,15 +176,22 @@ impl<'a> ActionReplay<'a> {
     /// Use sonar to detect enemies and items in adjacent rooms
     fn use_sonar(&mut self, effect: &mut Effect) {
         let adjacent_rooms = self.session.maze.adjacent_rooms(self.session.maze.player);
+        let mut revealed = false;
         for (node, room) in adjacent_rooms.into_iter() {
             if let Some(enemy) = room.enemy {
                 debug!("revealed enemy {:?} in room {}", enemy, node);
                 effect.message(Message::Reveal(node, Reveal::Enemy(enemy)));
+                revealed = true;
             }
             if let Some(item) = room.item {
                 debug!("revealed item {:?} in room {}", item, node);
                 effect.message(Message::Reveal(node, Reveal::Item(item)));
+                revealed = true;
             }
+        }
+        if !revealed {
+            debug!("the sonar didn't reveal anything");
+            effect.message(Message::RevealNothing);
         }
         effect.sound(Sound::Sonar);
     }
