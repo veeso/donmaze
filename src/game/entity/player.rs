@@ -6,7 +6,7 @@ use crate::game::{inventory::Inventory, Hp};
 
 const BASE_PLAYER_HEALTH: Hp = 10;
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Player {
     /// Player's inventory
     pub inventory: Inventory,
@@ -146,7 +146,7 @@ mod test {
     fn should_init_player() {
         let player = Player::default();
         assert_eq!(player.health(), BASE_PLAYER_HEALTH);
-        assert_eq!(player.inventory.items().count(), 0);
+        assert_eq!(player.inventory.items().len(), 0);
         assert_eq!(player.max_health(), BASE_PLAYER_HEALTH);
         assert_eq!(player.state(), State::Explore);
         assert_eq!(player.sleep_counter, 0);
@@ -197,5 +197,19 @@ mod test {
         player.decr_sleep_counter();
         assert_eq!(player.state(), State::Explore);
         assert_eq!(player.sleep_counter, 0);
+    }
+
+    #[test]
+    fn should_serialize() {
+        #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+        struct Test {
+            player: Player,
+        }
+        let test = Test {
+            player: Player::default(),
+        };
+        let json = serde_json::to_string(&test).unwrap();
+        let decoded: Test = serde_json::from_str(&json).unwrap();
+        assert_eq!(test, decoded);
     }
 }

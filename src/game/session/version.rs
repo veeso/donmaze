@@ -22,4 +22,18 @@ mod test {
     fn should_tell_whether_version_is_compatible() {
         assert_eq!(Version::V010.is_compatible(), true);
     }
+
+    #[test]
+    fn should_serialize() {
+        #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+        struct Test {
+            version: Version,
+        }
+        let test = Test {
+            version: Version::V010,
+        };
+        let json = serde_json::to_string(&test).unwrap();
+        let decoded: Test = serde_json::from_str(&json).unwrap();
+        assert_eq!(test, decoded);
+    }
 }

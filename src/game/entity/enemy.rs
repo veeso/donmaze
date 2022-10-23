@@ -136,4 +136,22 @@ mod test {
         don_maze.damage(255);
         assert_eq!(don_maze.health(), 255);
     }
+
+    #[test]
+    fn should_serialize_enemy() {
+        #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+        struct Test {
+            enemies: Vec<Enemy>,
+        }
+        let test = Test {
+            enemies: vec![
+                Enemy::DonMaze,
+                Enemy::Shadow(Shadow { health: 2 }),
+                Enemy::Daemon(Daemon { health: 3 }),
+            ],
+        };
+        let json = serde_json::to_string(&test).unwrap();
+        let decoded: Test = serde_json::from_str(&json).unwrap();
+        assert_eq!(test, decoded);
+    }
 }

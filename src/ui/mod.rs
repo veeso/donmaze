@@ -176,7 +176,7 @@ impl Ui {
                 .view(&Id::Game(GameId::PlayerHp), f, player_states[2]);
             // popups
             if self.application.mounted(&Id::Game(GameId::ErrorPopup)) {
-                let popup = draw_area_in(f.size(), 50, 10);
+                let popup = draw_area_in(f.size(), 50, 20);
                 f.render_widget(Clear, popup);
                 // make popup
                 self.application

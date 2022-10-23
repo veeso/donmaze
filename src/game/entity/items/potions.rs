@@ -27,6 +27,33 @@ pub enum Potion {
 }
 
 impl Potion {
+    pub fn key(&self) -> u32 {
+        match self {
+            Self::Mead => 256,
+            Self::RedPotion => 257,
+            Self::UnicornElixir => 258,
+            Self::Vinegar => 259,
+            Self::DaemonsBlood => 260,
+            Self::Chamomille => 261,
+            Self::SnakePoison => 262,
+            Self::DeadlyPoison => 263,
+        }
+    }
+
+    pub fn from_key(key: u32) -> Potion {
+        match key {
+            256 => Self::Mead,
+            257 => Self::RedPotion,
+            258 => Self::UnicornElixir,
+            259 => Self::Vinegar,
+            260 => Self::DaemonsBlood,
+            261 => Self::Chamomille,
+            262 => Self::SnakePoison,
+            263 => Self::DeadlyPoison,
+            _ => Potion::Mead, // NOTE: default potion
+        }
+    }
+
     pub fn name(&self) -> &str {
         match self {
             Self::Mead => "Mead",

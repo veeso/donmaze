@@ -5,7 +5,7 @@
 use chrono::{DateTime, Local};
 
 /// Game stats
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Stats {
     pub damage_inflicted: u64,
     pub damage_suffered: u64,
@@ -31,5 +31,27 @@ impl Default for Stats {
             slept_for_turns: 0,
             turn: 0,
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn should_serialize() {
+        #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+        struct Test {
+            stats: Stats,
+        }
+        let test = Test {
+            stats: Stats::default(),
+        };
+        let json = serde_json::to_string(&test).unwrap();
+        let decoded: Test = serde_json::from_str(&json).unwrap();
+        assert_eq!(test, decoded);
     }
 }

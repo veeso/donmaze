@@ -27,7 +27,7 @@ use version::Version;
 
 /// The session contains all the game states.
 /// It must be serializable since it is used to save and load games
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct Session {
     #[cfg(not(test))]
     maze: Maze,
@@ -257,7 +257,7 @@ mod test {
     #[test]
     fn should_return_player_inventory() {
         let session = Session::mock();
-        assert_eq!(session.player_inventory().items().count(), 0);
+        assert_eq!(session.player_inventory().items().len(), 0);
     }
 
     #[test]
@@ -348,5 +348,19 @@ mod test {
         assert!(session.can_use_items());
         session.player.start_sleeping(3);
         assert!(!session.can_use_items());
+    }
+
+    #[test]
+    fn should_serialize() {
+        #[derive(Serialize, Deserialize, Debug, PartialEq)]
+        struct Test {
+            session: Session,
+        }
+        let test = Test {
+            session: Session::new(None),
+        };
+        let json = serde_json::to_string(&test).unwrap();
+        let decoded: Test = serde_json::from_str(&json).unwrap();
+        assert_eq!(test, decoded);
     }
 }

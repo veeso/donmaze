@@ -4,7 +4,7 @@ pub fn graffiti(room: u32) -> &'static str {
     GRAFFITIS[room as usize % GRAFFITIS.len()]
 }
 
-const GRAFFITIS: &[&'static str] = &[
+const GRAFFITIS: &[&str] = &[
     GRAFFITI_A, GRAFFITI_B, GRAFFITI_C, GRAFFITI_D, GRAFFITI_E, GRAFFITI_F, GRAFFITI_G, GRAFFITI_H,
     GRAFFITI_I, GRAFFITI_J, GRAFFITI_K, GRAFFITI_L,
 ];

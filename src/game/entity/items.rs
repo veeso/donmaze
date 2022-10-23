@@ -27,6 +27,30 @@ pub enum Item {
 }
 
 impl Item {
+    /// Key to use in dictionaries
+    pub fn key(&self) -> u32 {
+        match self {
+            Self::AlchemyBook => 0,
+            Self::Armor => 1,
+            Self::MazeKey => 2,
+            Self::Potion(potion) => potion.key(),
+            Self::Sonar => 3,
+            Self::Talisman => 4,
+        }
+    }
+
+    pub fn from_key(key: u32) -> Item {
+        match key {
+            0 => Self::AlchemyBook,
+            1 => Self::Armor,
+            2 => Self::MazeKey,
+            3 => Self::Sonar,
+            4 => Self::Talisman,
+            x if x > 255 => Item::Potion(Potion::from_key(x)),
+            _ => Self::Armor, // fallback item
+        }
+    }
+
     /// Return the item name
     pub fn name(&self, has_alchemy_book: bool) -> &str {
         match self {
@@ -212,5 +236,19 @@ mod test {
         assert_eq!(Item::Talisman.usable(PlayerState::Asleep), false);
         assert_eq!(Item::Talisman.usable(PlayerState::Explore), false);
         assert_eq!(Item::Talisman.usable(PlayerState::Fight), true);
+    }
+
+    #[test]
+    fn should_serialize_items() {
+        #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+        struct Test {
+            objects: Vec<Item>,
+        }
+        let test = Test {
+            objects: vec![Item::AlchemyBook, Item::Potion(Potion::RedPotion)],
+        };
+        let json = serde_json::to_string(&test).unwrap();
+        let decoded: Test = serde_json::from_str(&json).unwrap();
+        assert_eq!(test, decoded);
     }
 }

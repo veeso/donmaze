@@ -71,7 +71,7 @@ impl<'a> ActionReplay<'a> {
         );
         effect.message(Message::RoomChanged(room_resolver::resolve_room_direction(
             room,
-            &self.session,
+            self.session,
         )));
         self.session.last_room = Some(self.session.maze.player);
         self.session.maze.player = room;

@@ -40,12 +40,13 @@ impl Inventory {
         let mut inventory: Vec<ItemState> = session
             .player_inventory()
             .items()
+            .into_iter()
             .map(|(i, q)| ItemState {
-                item: *i,
+                item: i,
                 consumable: i.consumable(),
                 description: i.description(has_alchemy_book).to_string(),
                 name: i.name(has_alchemy_book).to_string(),
-                quantity: *q,
+                quantity: q,
                 usable: i.usable(session.player().state()),
             })
             .collect();

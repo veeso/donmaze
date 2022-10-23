@@ -106,8 +106,7 @@ impl Maze {
 
     /// Get mutable reference to fighting enemy
     pub fn fighting_enemy_mut(&mut self) -> Option<&mut Enemy> {
-        self.room_mut(self.player)
-            .and_then(|x| x.enemy.as_mut())
+        self.room_mut(self.player).and_then(|x| x.enemy.as_mut())
     }
 }
 
@@ -247,6 +246,20 @@ mod test {
             maze.fighting_enemy(),
             Some(&Enemy::Daemon(crate::game::entity::Daemon::new(3)))
         );
+    }
+
+    #[test]
+    fn should_serialize() {
+        #[derive(Serialize, Deserialize, Debug, PartialEq)]
+        struct Test {
+            maze: Maze,
+        }
+        let test = Test {
+            maze: Generator::new(None).generate(),
+        };
+        let json = serde_json::to_string(&test).unwrap();
+        let decoded: Test = serde_json::from_str(&json).unwrap();
+        assert_eq!(test, decoded);
     }
 }
 
