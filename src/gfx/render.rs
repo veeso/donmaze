@@ -97,8 +97,15 @@ impl Render {
 
     pub fn graffiti(&self, room: u32, room_type: Room) -> Vec<Shape> {
         let half_width = self.width / 2.0;
+        let right_wall_x = self.width - half_width + (half_width * 0.30);
+        let place_on_right = room % 2 == 1;
         let (x, y) = match room_type {
-            Room::Corridor | Room::CorridorWithMazeExit => (3.0 * self.x_scale, 4.0 * self.y_scale),
+            Room::Corridor | Room::CorridorWithMazeExit if !place_on_right => {
+                (3.0 * self.x_scale, 4.0 * self.y_scale)
+            }
+            Room::Corridor | Room::CorridorWithMazeExit => {
+                (3.0 * self.x_scale + right_wall_x, 4.0 * self.y_scale)
+            }
             Room::ThreeExit => return vec![],
             Room::DeadEnd
             | Room::DeadEndWithMazeExit
