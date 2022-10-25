@@ -286,7 +286,7 @@ impl Generator {
     fn items_to_place(&mut self) -> Vec<Item> {
         debug!("generating items to place...");
         let mut items = vec![Item::MazeKey, Item::AlchemyBook];
-        let potions_amount = self.rand.gen_range(12..31);
+        let potions_amount = self.rand.gen_range(12..41);
         let armors_amount = self.rand.gen_range(4..9);
         let sonars_amount = self.rand.gen_range(5..8);
         let talismans_amount = self.rand.gen_range(2..5);
@@ -315,14 +315,15 @@ impl Generator {
     /// Generate random potion to place
     fn generate_potion(&mut self) -> Item {
         Item::Potion(match self.rand.gen_range(0..100) {
-            value if value < 25 => Potion::Mead,         // 25%
-            value if value < 45 => Potion::Vinegar,      // 20%
-            value if value < 60 => Potion::RedPotion,    // 15%
-            value if value < 70 => Potion::SnakePoison,  // 10%
-            value if value < 80 => Potion::DaemonsBlood, // 10%
-            value if value < 95 => Potion::Chamomille,   // 15%
-            95 | 96 | 97 => Potion::UnicornElixir,       // 3%
-            98 | 99 => Potion::DeadlyPoison,             // 2%
+            value if value < 25 => Potion::Mead,           // 25%
+            value if value < 35 => Potion::FairyInABottle, // 15%
+            value if value < 50 => Potion::Vinegar,        // 15%
+            value if value < 60 => Potion::RedPotion,      // 10%
+            value if value < 70 => Potion::SnakePoison,    // 10%
+            value if value < 80 => Potion::DaemonsBlood,   // 10%
+            value if value < 95 => Potion::Chamomille,     // 15%
+            95 | 96 | 97 => Potion::UnicornElixir,         // 3%
+            98 | 99 => Potion::DeadlyPoison,               // 2%
             _ => panic!("out of range"),
         })
     }
@@ -352,7 +353,7 @@ mod test {
         assert_item_in_maze(&maze, Item::MazeKey, 1, 1);
         assert_item_in_maze(&maze, Item::Sonar, 5, 7);
         assert_item_in_maze(&maze, Item::Talisman, 2, 4);
-        assert_potion_in_maze(&maze, 12, 30);
+        assert_potion_in_maze(&maze, 12, 40);
         assert_item_in_maze(&maze, Item::AlchemyBook, 1, 1);
         assert_item_in_maze(&maze, Item::AlchemyBook, 1, 1);
         // should have enemies

@@ -11,7 +11,9 @@ pub enum Potion {
     Mead,
     /// Heals 5 HP
     RedPotion,
-    /// Heals all HP and increase max HP by 2; kinda rare though
+    /// A fairy in a bottle; restores all HP
+    FairyInABottle,
+    /// Heals all HP and increase max HP by 5; kinda rare though
     UnicornElixir,
     // -- malus
     /// Decrease HP by 1
@@ -37,6 +39,7 @@ impl Potion {
             Self::Chamomille => 261,
             Self::SnakePoison => 262,
             Self::DeadlyPoison => 263,
+            Self::FairyInABottle => 264,
         }
     }
 
@@ -45,6 +48,7 @@ impl Potion {
             Self::Mead => "Mead",
             Self::RedPotion => "Red potion",
             Self::UnicornElixir => "Unicorn elixir",
+            Self::FairyInABottle => "Fairy in a bottle",
             Self::Vinegar => "Vinegar",
             Self::DaemonsBlood => "Daemon's blood",
             Self::Chamomille => "Chamomille",
@@ -57,7 +61,8 @@ impl Potion {
         match self {
             Self::Mead => "Restores 2HP",
             Self::RedPotion => "Restores 5HP",
-            Self::UnicornElixir => "Restores all HP and increase max HP by 2",
+            Self::FairyInABottle => "Restores all HP",
+            Self::UnicornElixir => "Restores all HP and increase max HP by 5",
             Self::Vinegar => "Decrease HP by 1",
             Self::DaemonsBlood => "Decrease HP and max HP by 1",
             Self::Chamomille => "Put you asleep for 3 turns, but restores 1HP",
@@ -76,6 +81,7 @@ impl Potion {
             Self::Mead => "Slightly alcoholic, but you feel immediately better",
             Self::RedPotion => "Suddenly some legends about a sword and time fill your mind. You immediately feel much better",
             Self::SnakePoison => "The taste of evilness fills your mouth and you feel much worse now",
+            Self::FairyInABottle => "The fairy flies around you giving you a heavenly sensation",
             Self::UnicornElixir => "That potion tastes like heaven. You feel invincible now",
             Self::Vinegar => "Uuugh, it's vinegar. Probably I should have smelled it before drinking it..."
         }
@@ -93,6 +99,7 @@ impl From<u32> for Potion {
             261 => Self::Chamomille,
             262 => Self::SnakePoison,
             263 => Self::DeadlyPoison,
+            264 => Self::FairyInABottle,
             _ => Potion::Mead, // NOTE: default potion
         }
     }
@@ -115,6 +122,7 @@ mod test {
         assert_eq!(Potion::Chamomille.name(), "Chamomille");
         assert_eq!(Potion::SnakePoison.name(), "Snake poison");
         assert_eq!(Potion::DeadlyPoison.name(), "Deadly poison");
+        assert_eq!(Potion::FairyInABottle.name(), "Fairy in a bottle");
     }
 
     #[test]
@@ -125,6 +133,7 @@ mod test {
             Potion::UnicornElixir.description(),
             "Restores all HP and increase max HP by 2"
         );
+        assert_eq!(Potion::FairyInABottle.description(), "Restores all HP");
         assert_eq!(Potion::Vinegar.description(), "Decrease HP by 1");
         assert_eq!(
             Potion::DaemonsBlood.description(),
@@ -172,6 +181,10 @@ mod test {
             Potion::Vinegar.effect(),
             "Uuugh, it's vinegar. Probably I should have smelled it before drinking it..."
         );
+        assert_eq!(
+            Potion::FairyInABottle.effect(),
+            "The fairy flies around you giving you a heavenly sensation"
+        );
     }
 
     #[test]
@@ -192,6 +205,10 @@ mod test {
         assert_eq!(
             Potion::DeadlyPoison,
             Potion::from(Potion::DeadlyPoison.key())
+        );
+        assert_eq!(
+            Potion::FairyInABottle,
+            Potion::from(Potion::FairyInABottle.key())
         );
     }
 }

@@ -152,6 +152,9 @@ impl<'a> ActionReplay<'a> {
             Potion::DeadlyPoison => {
                 self.session.player.damage(255);
             }
+            Potion::FairyInABottle => {
+                self.session.player.heal_max();
+            }
             Potion::Mead => {
                 self.session.player.heal(2);
             }
@@ -162,7 +165,7 @@ impl<'a> ActionReplay<'a> {
                 self.session.player.damage(2);
             }
             Potion::UnicornElixir => {
-                self.session.player.incr_max_health(2);
+                self.session.player.incr_max_health(5);
                 self.session.player.heal_max();
             }
             Potion::Vinegar => {
