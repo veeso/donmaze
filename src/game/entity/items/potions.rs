@@ -131,7 +131,7 @@ mod test {
         assert_eq!(Potion::RedPotion.description(), "Restores 5HP");
         assert_eq!(
             Potion::UnicornElixir.description(),
-            "Restores all HP and increase max HP by 2"
+            "Restores all HP and increase max HP by 5"
         );
         assert_eq!(Potion::FairyInABottle.description(), "Restores all HP");
         assert_eq!(Potion::Vinegar.description(), "Decrease HP by 1");
