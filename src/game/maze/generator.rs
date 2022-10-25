@@ -285,7 +285,7 @@ impl Generator {
     /// generate items to place in the maze; the amount is variable, exception made for some items which are always there
     fn items_to_place(&mut self) -> Vec<Item> {
         debug!("generating items to place...");
-        let mut items = vec![Item::MazeKey, Item::AlchemyBook];
+        let mut items = vec![Item::MazeKey, Item::AlchemyBook, Item::PaintCan];
         let potions_amount = self.rand.gen_range(12..41);
         let armors_amount = self.rand.gen_range(4..9);
         let sonars_amount = self.rand.gen_range(5..8);
@@ -354,8 +354,8 @@ mod test {
         assert_item_in_maze(&maze, Item::Sonar, 5, 7);
         assert_item_in_maze(&maze, Item::Talisman, 2, 4);
         assert_potion_in_maze(&maze, 12, 40);
-        assert_item_in_maze(&maze, Item::AlchemyBook, 1, 1);
-        assert_item_in_maze(&maze, Item::AlchemyBook, 1, 1);
+        assert_item_in_maze(&maze, Item::PaintCan, 1, 1);
+        assert_item_in_maze(&maze, Item::MazeKey, 1, 1);
         // should have enemies
         let mut found = 0;
         for (_, room) in maze.rooms() {

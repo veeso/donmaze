@@ -95,6 +95,26 @@ impl Render {
         shapes
     }
 
+    /// Place wall mark in the room
+    pub fn wall_mark(&self, room_type: Room) -> Vec<Shape> {
+        let half_width = self.width / 2.0;
+        let (x, y) = match room_type {
+            Room::Corridor | Room::CorridorWithMazeExit => (2.0 * self.x_scale, 1.0 * self.y_scale),
+            Room::ThreeExit => (
+                half_width - (half_width * 0.30) + (1.0 * self.x_scale),
+                self.y_scale * 1.0,
+            ),
+            Room::DeadEnd
+            | Room::DeadEndWithMazeExit
+            | Room::TwoExit
+            | Room::TwoExitWithMazeExit => (
+                half_width - (half_width * 0.30) + (1.0 * self.x_scale),
+                self.y_scale * 1.0,
+            ),
+        };
+        self.ascii_art(x, y, ascii_art::WALL_MARK, Color::LightCyan)
+    }
+
     pub fn graffiti(&self, room: u32, room_type: Room) -> Vec<Shape> {
         let half_width = self.width / 2.0;
         let right_wall_x = self.width - half_width + (half_width * 0.30);

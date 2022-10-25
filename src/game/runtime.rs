@@ -2,6 +2,7 @@
 
 use super::{entity::Enemy, session::Action, GameResult, Options, Session};
 use crate::audio::{AudioEngine, Sound, Theme};
+use crate::game::entity::Item;
 use crate::gfx::{ascii_art, Render, Room as RoomToRender};
 use crate::ui::{GameMsg, GameOverMsg, Id, LoadGameMsg, MenuId, MenuMsg, Msg, Ui, VictoryMsg};
 use crate::utils::room_resolver;
@@ -206,8 +207,10 @@ impl Runtime {
         let graffiti = self
             .render
             .graffiti(self.session.as_ref().unwrap().player_room(), room_to_render);
+        // Rendering wall mark
+        let wall_mark = self.render_wall_mark(room_to_render);
         debug!("stacking shapes and rendering canvas");
-        let shapes = self.render.stack(vec![room, graffiti, entity]);
+        let shapes = self.render.stack(vec![room, graffiti, wall_mark, entity]);
         self.ui.update_game_canvas(&shapes)?;
         Ok(())
     }
@@ -218,6 +221,19 @@ impl Runtime {
         let edges = session.adjacent_rooms().len();
         let is_exit = session.is_exit();
         room_resolver::resolve_room_to_render(edges, session.is_previous_room_set(), is_exit)
+    }
+
+    /// Render wall mark if has paint can and room has been visited; nothing otherwise
+    fn render_wall_mark(&self, room_to_render: RoomToRender) -> Vec<Shape> {
+        let session = self.session.as_ref().unwrap();
+        if session.player_inventory().has(Item::PaintCan)
+            && session.room_visited(session.player_room())
+        {
+            debug!("rendering wall mark");
+            self.render.wall_mark(room_to_render)
+        } else {
+            vec![]
+        }
     }
 
     /// Render enemy

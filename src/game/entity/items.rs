@@ -18,6 +18,8 @@ pub enum Item {
     Armor,
     /// Required to leave the maze
     MazeKey,
+    /// Used to mark visited rooms
+    PaintCan,
     /// A potion with an effect, but you cannot know what it does until you drink it
     Potion(Potion),
     /// Sonar: tells you if there are items or enemies in the adjacent rooms
@@ -33,6 +35,7 @@ impl Item {
             Self::AlchemyBook => 0,
             Self::Armor => 1,
             Self::MazeKey => 2,
+            Self::PaintCan => 5,
             Self::Potion(potion) => potion.key(),
             Self::Sonar => 3,
             Self::Talisman => 4,
@@ -45,6 +48,7 @@ impl Item {
             Self::AlchemyBook => "Alchemy book",
             Self::Armor => "Armor",
             Self::MazeKey => "Maze key",
+            Self::PaintCan => "Paint can",
             Self::Potion(_) if !has_alchemy_book => "Potion (???)",
             Self::Potion(potion) => potion.name(),
             Self::Sonar => "Sonar",
@@ -58,6 +62,7 @@ impl Item {
             Self::AlchemyBook => "Makes you able to know the content of a potion",
             Self::Armor => "Increase max HP by 1",
             Self::MazeKey => "Allows you to leave the maze... once you'll find the exit",
+            Self::PaintCan => "Used to mark visited rooms",
             Self::Potion(_) if !has_alchemy_book => {
                 "If only I had an alchemy book or something like that..."
             }
@@ -73,6 +78,7 @@ impl Item {
             Self::AlchemyBook => "",
             Self::Armor => "You worn the armor. Your max HP has been increased by 1",
             Self::MazeKey => "",
+            Self::PaintCan => "",
             Self::Potion(potion) => potion.effect(),
             Self::Sonar => "The content of the adjacent rooms is revealed",
             Self::Talisman => "You used the ancient power beneath the talisman",
@@ -85,6 +91,7 @@ impl Item {
             Self::AlchemyBook => false,
             Self::Armor => true,
             Self::MazeKey => false,
+            Self::PaintCan => false,
             Self::Potion(_) => true,
             Self::Sonar => true,
             Self::Talisman => true,
@@ -101,6 +108,9 @@ impl Item {
             (Self::Armor, PlayerState::Explore | PlayerState::Fight) => true,
             (Self::Armor, PlayerState::Asleep) => false,
             (Self::MazeKey, PlayerState::Explore | PlayerState::Fight | PlayerState::Asleep) => {
+                false
+            }
+            (Self::PaintCan, PlayerState::Explore | PlayerState::Fight | PlayerState::Asleep) => {
                 false
             }
             (Self::Potion(_), PlayerState::Explore | PlayerState::Fight) => true,
@@ -121,6 +131,7 @@ impl From<u32> for Item {
             2 => Self::MazeKey,
             3 => Self::Sonar,
             4 => Self::Talisman,
+            5 => Self::PaintCan,
             x if x > 255 => Item::Potion(Potion::from(x)),
             _ => Self::Armor, // fallback item
         }
@@ -139,6 +150,7 @@ mod test {
         assert_eq!(Item::AlchemyBook.name(false), "Alchemy book");
         assert_eq!(Item::Armor.name(false), "Armor");
         assert_eq!(Item::MazeKey.name(false), "Maze key");
+        assert_eq!(Item::PaintCan.name(false), "Paint can");
         assert_eq!(Item::Potion(Potion::Chamomille).name(false), "Potion (???)");
         assert_eq!(
             Item::Potion(Potion::Chamomille).name(true),
@@ -153,6 +165,10 @@ mod test {
         assert_eq!(
             Item::AlchemyBook.description(false),
             "Makes you able to know the content of a potion"
+        );
+        assert_eq!(
+            Item::PaintCan.description(false),
+            "Used to mark visited rooms"
         );
         assert_eq!(Item::Armor.description(false), "Increase max HP by 1");
         assert_eq!(
@@ -180,6 +196,7 @@ mod test {
     #[test]
     fn should_get_item_effect() {
         assert_eq!(Item::AlchemyBook.effect(), "");
+        assert_eq!(Item::PaintCan.effect(), "");
         assert_eq!(
             Item::Armor.effect(),
             "You worn the armor. Your max HP has been increased by 1"
@@ -204,6 +221,7 @@ mod test {
         assert_eq!(Item::AlchemyBook.consumable(), false);
         assert_eq!(Item::Armor.consumable(), true);
         assert_eq!(Item::MazeKey.consumable(), false);
+        assert_eq!(Item::PaintCan.consumable(), false);
         assert_eq!(Item::Potion(Potion::Chamomille).consumable(), true);
         assert_eq!(Item::Sonar.consumable(), true);
         assert_eq!(Item::Talisman.consumable(), true);
@@ -220,6 +238,9 @@ mod test {
         assert_eq!(Item::MazeKey.usable(PlayerState::Asleep), false);
         assert_eq!(Item::MazeKey.usable(PlayerState::Explore), false);
         assert_eq!(Item::MazeKey.usable(PlayerState::Fight), false);
+        assert_eq!(Item::PaintCan.usable(PlayerState::Asleep), false);
+        assert_eq!(Item::PaintCan.usable(PlayerState::Explore), false);
+        assert_eq!(Item::PaintCan.usable(PlayerState::Fight), false);
         assert_eq!(
             Item::Potion(Potion::Chamomille).usable(PlayerState::Asleep),
             false
@@ -259,6 +280,7 @@ mod test {
         assert_eq!(Item::AlchemyBook, Item::from(Item::AlchemyBook.key()));
         assert_eq!(Item::Armor, Item::from(Item::Armor.key()));
         assert_eq!(Item::MazeKey, Item::from(Item::MazeKey.key()));
+        assert_eq!(Item::PaintCan, Item::from(Item::PaintCan.key()));
         assert_eq!(
             Item::Potion(Potion::Chamomille),
             Item::from(Item::Potion(Potion::Chamomille).key())

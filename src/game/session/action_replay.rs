@@ -113,7 +113,7 @@ impl<'a> ActionReplay<'a> {
             Item::Potion(potion) => self.drink_potion(potion, effect),
             Item::Sonar => self.use_sonar(effect),
             Item::Talisman => self.use_talisman(effect),
-            Item::AlchemyBook | Item::MazeKey => {}
+            Item::AlchemyBook | Item::PaintCan | Item::MazeKey => {}
         }
         if item.consumable() {
             debug!("item {:?} is consumable; decrease quantity", item);
