@@ -14,6 +14,8 @@ pub struct Args {
     pub debug: bool,
     #[argh(switch, short = 'm', description = "play donmaze without audio")]
     pub muted: bool,
+    #[argh(switch, short = 'M', description = "disable music")]
+    pub no_music: bool,
     #[argh(option, short = 'T', description = "UI refresh rate (ms)")]
     pub ticks: Option<u64>,
     #[argh(switch, short = 'v', description = "verbose mode")]

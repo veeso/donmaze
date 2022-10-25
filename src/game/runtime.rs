@@ -13,6 +13,7 @@ use tuirealm::props::{Color, Shape};
 /// Game runtime
 pub struct Runtime {
     audio: Option<AudioEngine>,
+    music: bool,
     saved_games_dir: PathBuf,
     render: Render,
     running: bool,
@@ -24,7 +25,7 @@ impl Runtime {
     /// Setup game runtime
     pub fn setup(options: Options) -> GameResult<Self> {
         debug!("setting up game runtime");
-        let audio = if options.muted {
+        let audio = if !options.music && !options.sound {
             None
         } else {
             debug!("configuring audio engine");
@@ -43,6 +44,7 @@ impl Runtime {
         info!("menu loaded");
         Ok(Self {
             audio,
+            music: options.music,
             saved_games_dir: options.saved_games_dir,
             render,
             running: true,
@@ -88,8 +90,10 @@ impl Runtime {
 
     /// Play theme
     fn play_theme(&mut self, theme: Theme) -> GameResult<()> {
-        if let Some(audio) = self.audio.as_mut() {
-            audio.play_theme(theme)?;
+        if self.music {
+            if let Some(audio) = self.audio.as_mut() {
+                audio.play_theme(theme)?;
+            }
         }
         Ok(())
     }

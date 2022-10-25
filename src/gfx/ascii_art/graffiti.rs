@@ -6,7 +6,7 @@ pub fn graffiti(room: u32) -> &'static str {
 
 const GRAFFITIS: &[&str] = &[
     GRAFFITI_A, GRAFFITI_B, GRAFFITI_C, GRAFFITI_D, GRAFFITI_E, GRAFFITI_F, GRAFFITI_G, GRAFFITI_H,
-    GRAFFITI_I, GRAFFITI_J, GRAFFITI_K, GRAFFITI_L,
+    GRAFFITI_I, GRAFFITI_J, GRAFFITI_K, GRAFFITI_L, GRAFFITI_M,
 ];
 
 const GRAFFITI_A: &str = r#"*   *
@@ -79,6 +79,12 @@ const GRAFFITI_J: &str = r#" ****
 ******    *
  ****"#;
 
-const GRAFFITI_K: &str = r#""#;
+const GRAFFITI_K: &str = r#"****
+   *****
+       ****"#;
 
-const GRAFFITI_L: &str = r#""#;
+const GRAFFITI_L: &str = r#"    **
+  **  **
+**"#;
+
+const GRAFFITI_M: &str = r#""#;

@@ -46,7 +46,8 @@ fn main() -> anyhow::Result<()> {
     // run Game
     Runtime::setup(
         Options::default()
-            .muted(args.muted)
+            .music(!args.no_music && !args.muted)
+            .sound(!args.muted)
             .saved_games_dir(game_saves_dir)
             .ticks(args.ticks.unwrap_or(10)),
     )?
