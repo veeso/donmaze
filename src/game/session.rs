@@ -10,6 +10,7 @@ use super::{
 use crate::audio::Sound;
 
 use chrono::Local;
+use std::collections::HashSet;
 
 mod action;
 mod action_replay;
@@ -40,6 +41,8 @@ pub struct Session {
     stats: Stats,
     /// Game version; used to check whether this version loaded is compatible
     version: Version,
+    /// List of visited rooms
+    visited_rooms: HashSet<u32>,
     /// has the player won
     won: bool,
 }
@@ -53,6 +56,7 @@ impl Session {
             player: Player::default(),
             stats: Stats::default(),
             version: Version::V010,
+            visited_rooms: HashSet::default(),
             won: false,
         }
     }
@@ -110,6 +114,21 @@ impl Session {
     /// Get game stats
     pub fn stats(&self) -> &Stats {
         &self.stats
+    }
+
+    /// Add room to visited rooms
+    pub fn visit_room(&mut self, room: u32) {
+        self.visited_rooms.insert(room);
+    }
+
+    /// Returns whether room has been visited
+    pub fn room_visited(&self, room: u32) -> bool {
+        self.visited_rooms.contains(&room)
+    }
+
+    /// Returns amount of visited rooms
+    pub fn visited_rooms(&self) -> usize {
+        self.visited_rooms.len()
     }
 
     /// Get fighting enemy
@@ -221,6 +240,7 @@ impl Session {
             player: Player::default(),
             stats: Stats::default(),
             version: Version::V010,
+            visited_rooms: HashSet::default(),
             won: false,
         }
     }
@@ -264,6 +284,17 @@ mod test {
     fn should_return_game_stats() {
         let session = Session::mock();
         assert_eq!(session.stats().damage_inflicted, 0);
+    }
+
+    #[test]
+    fn should_tell_visited_rooms() {
+        let mut session = Session::mock();
+        session.visit_room(20);
+        assert_eq!(session.visited_rooms(), 1);
+        assert_eq!(session.room_visited(20), true);
+        assert_eq!(session.room_visited(21), false);
+        session.visit_room(20);
+        assert_eq!(session.visited_rooms(), 1);
     }
 
     #[test]
@@ -356,9 +387,10 @@ mod test {
         struct Test {
             session: Session,
         }
-        let test = Test {
-            session: Session::new(None),
-        };
+        let mut session = Session::new(None);
+        session.visit_room(1);
+        session.last_room = Some(0);
+        let test = Test { session };
         let json = serde_json::to_string(&test).unwrap();
         let decoded: Test = serde_json::from_str(&json).unwrap();
         assert_eq!(test, decoded);

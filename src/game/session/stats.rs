@@ -13,7 +13,6 @@ pub struct Stats {
     pub fights_escaped: u64,
     pub items_used: u64,
     pub last_turn: DateTime<Local>,
-    pub rooms_explored: u64,
     pub slept_for_turns: u64,
     pub turn: u64,
 }
@@ -27,7 +26,6 @@ impl Default for Stats {
             fights_escaped: 0,
             items_used: 0,
             last_turn: Local::now(),
-            rooms_explored: 1,
             slept_for_turns: 0,
             turn: 0,
         }

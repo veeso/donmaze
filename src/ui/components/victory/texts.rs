@@ -86,10 +86,7 @@ impl Stats {
                         session.stats().fights_escaped
                     )),
                     TextSpan::from(format!("Items used: {}", session.stats().items_used)),
-                    TextSpan::from(format!(
-                        "Rooms explored: {}",
-                        session.stats().rooms_explored
-                    )),
+                    TextSpan::from(format!("Rooms explored: {}", session.visited_rooms())),
                     TextSpan::from(format!(
                         "You've been asleep for {} turns",
                         session.stats().slept_for_turns
