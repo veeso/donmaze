@@ -200,7 +200,10 @@
     "last_turn": "2022-10-20T18:24:40.433089+02:00",
     "rooms_explored": 1,
     "slept_for_turns": 0,
-    "turn": 0
+    "turn": 0,
+    "visited_rooms": [
+      0
+    ]
   },
   "version": "V010",
   "won": false
