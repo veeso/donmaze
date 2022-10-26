@@ -73,9 +73,10 @@ impl<'a> ActionReplay<'a> {
             room,
             self.session,
         )));
+        // put previous room to visited rooms
+        self.session.visit_room(self.session.maze.player);
         self.session.last_room = Some(self.session.maze.player);
         self.session.maze.player = room;
-        self.session.visit_room(room);
         effect.sound(Sound::Steps);
     }
 

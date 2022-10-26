@@ -9,6 +9,8 @@ use crate::utils::room_resolver;
 use crate::utils::saved_games::SavedGameFiles;
 
 use std::path::{Path, PathBuf};
+use std::thread::sleep;
+use std::time::Duration;
 use tuirealm::props::{Color, Shape};
 
 /// Game runtime
@@ -184,6 +186,7 @@ impl Runtime {
             .update_game_actions(self.session.as_ref().unwrap())?;
         // update canvas
         self.render_shapes()?;
+        sleep(Duration::from_millis(300));
         Ok(())
     }
 
