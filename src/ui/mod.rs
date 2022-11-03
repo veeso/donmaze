@@ -321,7 +321,7 @@ impl Ui {
                 .constraints(
                     [
                         Constraint::Length(7),  // Title
-                        Constraint::Length(10), // stats
+                        Constraint::Length(15), // stats
                         Constraint::Length(3),  // menu
                         Constraint::Length(1),  // footer
                     ]

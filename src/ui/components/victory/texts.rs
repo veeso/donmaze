@@ -36,11 +36,11 @@ impl Title {
                         margin_left
                     )),
                     TextSpan::from(format!(
-                        "{}█ █   █  █        █    █   █  █       █  ",
+                        "{} █ █   █  █        █    █   █  █       █  ",
                         margin_left
                     )),
                     TextSpan::from(format!(
-                        "{}█    █   ████    █     ███   █       █  ",
+                        "{}  █    █   ████    █     ███   █       █  ",
                         margin_left
                     )),
                 ]),
