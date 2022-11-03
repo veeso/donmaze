@@ -6,7 +6,7 @@ use crate::game::Hp;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Deserialize, Serialize, Hash)]
 #[serde(tag = "type")]
 pub enum Enemy {
-    /// The boss; OHKO
+    /// The boss
     DonMaze,
     Daemon(Daemon),
     Shadow(Shadow),
@@ -47,7 +47,7 @@ impl Enemy {
     pub fn accuracy(&self) -> u8 {
         match self {
             Self::Daemon(_) => 85,
-            Self::DonMaze => 25,
+            Self::DonMaze => 10,
             Self::Shadow(_) => 95,
         }
     }
@@ -56,7 +56,7 @@ impl Enemy {
     pub fn base_attack(&self) -> u8 {
         match self {
             Self::Daemon(_) => 1,
-            Self::DonMaze => 255,
+            Self::DonMaze => 10,
             Self::Shadow(_) => 2,
         }
     }
@@ -110,6 +110,20 @@ mod test {
         assert_eq!(Enemy::Daemon(Daemon { health: 2 }).health(), 2);
         assert_eq!(Enemy::DonMaze.health(), 255);
         assert_eq!(Enemy::Shadow(Shadow { health: 3 }).health(), 3);
+    }
+
+    #[test]
+    fn should_get_base_attack() {
+        assert_eq!(Enemy::Daemon(Daemon { health: 2 }).base_attack(), 1);
+        assert_eq!(Enemy::DonMaze.base_attack(), 10);
+        assert_eq!(Enemy::Shadow(Shadow { health: 3 }).base_attack(), 2);
+    }
+
+    #[test]
+    fn should_get_accuracy() {
+        assert_eq!(Enemy::Daemon(Daemon { health: 2 }).accuracy(), 85);
+        assert_eq!(Enemy::DonMaze.accuracy(), 10);
+        assert_eq!(Enemy::Shadow(Shadow { health: 3 }).accuracy(), 95);
     }
 
     #[test]
