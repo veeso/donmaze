@@ -13,6 +13,8 @@ pub enum Action {
     Fight(FightAction),
     /// Use item
     UseItem(Item),
+    /// Game has been saved; consume turn
+    SaveGame,
     /// Sleep, don't do anything. Can be used only when state is `Sleep`
     Sleep,
     /// Ends game

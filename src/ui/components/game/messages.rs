@@ -64,6 +64,7 @@ impl Messages {
                 )
             }
             Message::FallAsleep => "You suddenly feel sleepy and you fall asleep".to_string(),
+            Message::GameSaved => "Game has been saved".to_string(),
             Message::ItemCollected(item) => format!("You found a {}", item.name(has_alchemy_book)),
             Message::ItemUsed(item) => format!(
                 "You used {}: {}",

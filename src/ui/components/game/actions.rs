@@ -52,6 +52,7 @@ impl AvailableActions {
             Action::Explore(ExploreAction::LeaveMaze) => "Leave the labyrinth",
             Action::Fight(FightAction::Escape) => "Escape fight",
             Action::Fight(FightAction::Fight) => "Fight",
+            Action::SaveGame => "Save game",
             Action::Sleep => "Sleep",
         }
     }

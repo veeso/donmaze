@@ -46,6 +46,8 @@ pub enum Message {
     EscapeSucceeded(u32),
     /// Player falls asleep
     FallAsleep,
+    /// Game saved
+    GameSaved,
     /// Leave maze and win
     LeaveMaze,
     /// Room changed

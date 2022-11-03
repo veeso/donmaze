@@ -15,6 +15,7 @@ pub enum Sound {
     Error,
     Input,
     ItemCollected,
+    GameSaved,
     LeaveMaze,
     PlayerAttack,
     PlayerDead,
@@ -33,6 +34,7 @@ impl Sound {
             Sound::EnemyAttack => Self::enemy_attack(),
             Sound::EnemyScream => Self::enemy_scream(),
             Sound::Error => Self::error(),
+            Sound::GameSaved => Self::game_saved(),
             Sound::Input => Self::input(),
             Sound::ItemCollected => Self::item_collected(),
             Sound::LeaveMaze => Self::leave_maze(),
@@ -108,6 +110,10 @@ impl Sound {
             .tone(150.0, 25, 1.0)
             .tone(0.0, 20, 1.0)
             .tone(200.0, 50, 1.0)
+    }
+
+    fn game_saved() -> Track {
+        Track::default().tone(4000.0, 40, 0.2)
     }
 
     fn input() -> Track {

@@ -28,6 +28,7 @@ impl<'a> ActionReplay<'a> {
             Action::Die => self.die(effect),
             Action::Explore(explore) => self.play_explore_action(explore, effect),
             Action::Fight(fight) => self.play_fight_action(fight, effect),
+            Action::SaveGame => self.save_game(effect),
             Action::Sleep => self.sleep(effect),
             Action::UseItem(item) => self.use_item(item, effect),
         }
@@ -38,6 +39,12 @@ impl<'a> ActionReplay<'a> {
         debug!("ho-ho. You're dead.");
         effect.message(Message::PlayerDead);
         effect.sound(Sound::PlayerDead);
+    }
+
+    fn save_game(&self, effect: &mut Effect) {
+        debug!("game saved");
+        effect.message(Message::GameSaved);
+        effect.sound(Sound::GameSaved);
     }
 
     /// Play explore action

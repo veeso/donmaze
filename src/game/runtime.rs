@@ -361,6 +361,7 @@ impl Runtime {
                     self.ui
                         .show_game_error_popup(format!("failed to save game: {}", err))?;
                 }
+                self.play_action(Action::SaveGame)?;
             }
             GameMsg::ShowInventory => {
                 self.play_sound(Sound::Input);
