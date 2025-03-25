@@ -71,14 +71,14 @@ pub struct Ui {
 impl Ui {
     /// Instantiate a new Ui
     pub fn new() -> UiResult<Self> {
-        let crossterm_adapter = CrosstermTerminalAdapter::new()?;
+        let terminal = TerminalBridge::init_crossterm()?;
 
         let application = Application::init(
             EventListenerCfg::default().crossterm_input_listener(Duration::from_millis(10), 100),
         );
         let ui = Self {
             application,
-            terminal: TerminalBridge::new(crossterm_adapter),
+            terminal,
             view: View::None,
         };
         Ok(ui)
@@ -88,20 +88,6 @@ impl Ui {
     pub fn tick(&mut self) -> UiResult<Vec<Msg>> {
         let msg = self.application.tick(tuirealm::PollStrategy::UpTo(3))?;
         Ok(msg)
-    }
-
-    /// Init terminal
-    pub fn init_terminal(&mut self) {
-        let _ = self.terminal.enable_raw_mode();
-        let _ = self.terminal.enter_alternate_screen();
-        let _ = self.terminal.clear_screen();
-    }
-
-    /// Finalize terminal
-    pub fn finalize_terminal(&mut self) {
-        let _ = self.terminal.disable_raw_mode();
-        let _ = self.terminal.leave_alternate_screen();
-        let _ = self.terminal.clear_screen();
     }
 
     /// Get sizes (wxh)
@@ -668,11 +654,5 @@ impl Ui {
             self.application.umount(&Id::Game(GameId::EnemyHp))?;
         }
         Ok(())
-    }
-}
-
-impl Drop for Ui {
-    fn drop(&mut self) {
-        self.finalize_terminal();
     }
 }

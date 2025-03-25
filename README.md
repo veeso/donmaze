@@ -42,9 +42,24 @@ The game is really hard to finish and it's quite boring tbh, but it was a fun pr
 
 **I highly suggest you to mute the volume** running it with `-m` flag, because the sound effects are done directly with frequencies and they are quite annoying and loud.
 
+## Controls
+
+| Key                              | Description                                         |
+|----------------------------------|-----------------------------------------------------|
+| Enter                            | Select                                              |
+| Up, Down,                        | Move menu                                           |
+| E                                | Open inventory                                      |
+| Esc                              | Quit tuifeed                                        |
+
 ---
 
 ## Gallery 🎬
+
+![daemon](./docs/images/daemon.webp)
+
+![chest](./docs/images/chest.webp)
+
+![maze](./docs//images/maze.webp)
 
 ---
 

@@ -61,8 +61,6 @@ impl Runtime {
 
     /// Run game
     pub fn run(mut self) -> GameResult<()> {
-        debug!("initializing terminal...");
-        self.ui.init_terminal();
         debug!("playing Menu theme...");
         self.play_theme(Theme::Menu)?;
         let mut redraw = true;
@@ -79,8 +77,6 @@ impl Runtime {
             }
         }
         // Finalize terminal and stop sound
-        debug!("finalizing terminal...");
-        self.ui.finalize_terminal();
         debug!("stopping theme...");
         self.play_theme(Theme::None)?;
 
