@@ -2,9 +2,8 @@
 //!
 //! This module exposes the render engine
 
-use tuirealm::props::Color;
-use tuirealm::props::Shape;
-use tuirealm::tui::widgets::canvas::{Line, Rectangle};
+use tuirealm::props::{Color, Shape};
+use tuirealm::ratatui::widgets::canvas::{Line, Rectangle};
 
 use super::ascii_art;
 

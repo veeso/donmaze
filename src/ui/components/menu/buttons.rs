@@ -1,13 +1,11 @@
 //! # Buttons
 
+use tuirealm::event::{Key, KeyEvent};
+use tuirealm::props::{Alignment, BorderType, Borders, Color, TextSpan};
+use tuirealm::{Component, Event, MockComponent, NoUserEvent};
+
 use super::super::Button;
 use super::{MenuMsg, Msg};
-
-use tuirealm::props::{Alignment, BorderType, Borders, Color, TextSpan};
-use tuirealm::{
-    event::{Key, KeyEvent},
-    Component, Event, MockComponent, NoUserEvent,
-};
 
 #[derive(MockComponent)]
 pub struct NewGame {

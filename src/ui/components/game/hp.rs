@@ -1,13 +1,11 @@
 //! # hp
 
-use crate::game::Hp;
-
-use super::Msg;
-
 use tui_realm_stdlib::Label;
 use tuirealm::props::{Alignment, Color};
-use tuirealm::NoUserEvent;
-use tuirealm::{Component, Event, MockComponent};
+use tuirealm::{Component, Event, MockComponent, NoUserEvent};
+
+use super::Msg;
+use crate::game::Hp;
 
 #[derive(MockComponent)]
 pub struct EnemyHp {

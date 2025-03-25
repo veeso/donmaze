@@ -2,9 +2,10 @@
 //!
 //! Utilities to save and load game files
 
-use serde_json::Error as JsonError;
 use std::fs::OpenOptions;
 use std::path::{Path, PathBuf};
+
+use serde_json::Error as JsonError;
 use thiserror::Error;
 
 use crate::game::Session;
@@ -67,7 +68,6 @@ impl SavedGameFiles {
         debug!("scanning content of {}", games_dir.display());
         let files = std::fs::read_dir(games_dir)?
             .flatten()
-            .into_iter()
             .filter(|x| x.path().is_file())
             .map(|x| x.path())
             .collect();
@@ -78,10 +78,10 @@ impl SavedGameFiles {
 #[cfg(test)]
 mod test {
 
-    use super::*;
-
     use pretty_assertions::assert_eq;
     use tempfile::TempDir;
+
+    use super::*;
 
     #[test]
     fn should_save_game() {

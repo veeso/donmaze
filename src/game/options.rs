@@ -52,9 +52,9 @@ mod test {
 
     use std::path::Path;
 
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn should_create_options() {

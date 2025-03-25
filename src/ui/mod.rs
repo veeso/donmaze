@@ -2,31 +2,29 @@
 //!
 //! Ui related things
 
-use crate::game::{session::Message, Hp, Session};
-use crate::utils::ui::draw_area_in;
-
 use std::path::PathBuf;
 use std::time::Duration;
-use tuirealm::tui::layout::{Constraint, Direction, Layout};
-use tuirealm::tui::widgets::Clear;
-use tuirealm::{
-    props::Shape, terminal::TerminalBridge, Application, EventListenerCfg, NoUserEvent,
-};
-use tuirealm::{State, StateValue};
+
+use tuirealm::props::Shape;
+use tuirealm::ratatui::layout::{Constraint, Direction, Layout};
+use tuirealm::ratatui::widgets::Clear;
+use tuirealm::terminal::{CrosstermTerminalAdapter, TerminalBridge};
+use tuirealm::{Application, EventListenerCfg, NoUserEvent, State, StateValue};
+
+use crate::game::session::Message;
+use crate::game::{Hp, Session};
+use crate::utils::ui::draw_area_in;
 
 mod components;
 mod error;
 
-pub use error::UiError;
-
+pub use components::game::{GameId, GameMsg};
+pub use components::game_over::{GameOverId, GameOverMsg};
+pub use components::load_game::{LoadGameId, LoadGameMsg};
+pub use components::menu::{MenuId, MenuMsg};
+pub use components::victory::{VictoryId, VictoryMsg};
 use components::{game, game_over, load_game, menu, victory};
-pub use components::{
-    game::{GameId, GameMsg},
-    game_over::{GameOverId, GameOverMsg},
-    load_game::{LoadGameId, LoadGameMsg},
-    menu::{MenuId, MenuMsg},
-    victory::{VictoryId, VictoryMsg},
-};
+pub use error::UiError;
 
 /// UI module result
 pub type UiResult<T> = Result<T, UiError>;
@@ -66,19 +64,21 @@ enum View {
 /// Donmaze UI
 pub struct Ui {
     application: Application<Id, Msg, NoUserEvent>,
-    terminal: TerminalBridge,
+    terminal: TerminalBridge<CrosstermTerminalAdapter>,
     view: View,
 }
 
 impl Ui {
     /// Instantiate a new Ui
     pub fn new() -> UiResult<Self> {
+        let crossterm_adapter = CrosstermTerminalAdapter::new()?;
+
         let application = Application::init(
-            EventListenerCfg::default().default_input_listener(Duration::from_millis(10)),
+            EventListenerCfg::default().crossterm_input_listener(Duration::from_millis(10), 100),
         );
         let ui = Self {
             application,
-            terminal: TerminalBridge::new()?,
+            terminal: TerminalBridge::new(crossterm_adapter),
             view: View::None,
         };
         Ok(ui)
@@ -144,7 +144,7 @@ impl Ui {
                     ]
                     .as_ref(),
                 )
-                .split(f.size());
+                .split(f.area());
             // enemy chunks
             let enemy_data_chunks = Layout::default()
                 .direction(Direction::Horizontal)
@@ -176,19 +176,19 @@ impl Ui {
                 .view(&Id::Game(GameId::PlayerHp), f, player_states[2]);
             // popups
             if self.application.mounted(&Id::Game(GameId::ErrorPopup)) {
-                let popup = draw_area_in(f.size(), 50, 20);
+                let popup = draw_area_in(f.area(), 50, 20);
                 f.render_widget(Clear, popup);
                 // make popup
                 self.application
                     .view(&Id::Game(GameId::ErrorPopup), f, popup);
             } else if self.application.mounted(&Id::Game(GameId::Inventory)) {
-                let popup = draw_area_in(f.size(), 70, 80);
+                let popup = draw_area_in(f.area(), 70, 80);
                 f.render_widget(Clear, popup);
                 // make popup
                 self.application
                     .view(&Id::Game(GameId::Inventory), f, popup);
             } else if self.application.mounted(&Id::Game(GameId::QuitPopup)) {
-                let popup = draw_area_in(f.size(), 50, 10);
+                let popup = draw_area_in(f.area(), 50, 10);
                 f.render_widget(Clear, popup);
                 // make popup
                 self.application
@@ -197,13 +197,13 @@ impl Ui {
                 .application
                 .mounted(&Id::Game(GameId::SaveFileNamePopup))
             {
-                let popup = draw_area_in(f.size(), 50, 10);
+                let popup = draw_area_in(f.area(), 50, 10);
                 f.render_widget(Clear, popup);
                 // make popup
                 self.application
                     .view(&Id::Game(GameId::SaveFileNamePopup), f, popup);
             } else if self.application.mounted(&Id::Game(GameId::GameOverPopup)) {
-                let popup = draw_area_in(f.size(), 50, 10);
+                let popup = draw_area_in(f.area(), 50, 10);
                 f.render_widget(Clear, popup);
                 // make popup
                 self.application
@@ -229,7 +229,7 @@ impl Ui {
                     ]
                     .as_ref(),
                 )
-                .split(f.size());
+                .split(f.area());
             self.application
                 .view(&Id::GameOver(GameOverId::Title), f, body[0]);
             self.application
@@ -253,7 +253,7 @@ impl Ui {
                     ]
                     .as_ref(),
                 )
-                .split(f.size());
+                .split(f.area());
             let metadata_chunks = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints([
@@ -269,7 +269,7 @@ impl Ui {
                 .application
                 .mounted(&Id::LoadGame(LoadGameId::ErrorPopup))
             {
-                let popup = draw_area_in(f.size(), 50, 20);
+                let popup = draw_area_in(f.area(), 50, 20);
                 f.render_widget(Clear, popup);
                 // make popup
                 self.application
@@ -295,7 +295,7 @@ impl Ui {
                     ]
                     .as_ref(),
                 )
-                .split(f.size());
+                .split(f.area());
             let new_game_chunks = Layout::default()
                 .direction(Direction::Horizontal)
                 .constraints([Constraint::Percentage(30), Constraint::Percentage(70)].as_ref())
@@ -327,7 +327,7 @@ impl Ui {
                     ]
                     .as_ref(),
                 )
-                .split(f.size());
+                .split(f.area());
             self.application
                 .view(&Id::Victory(VictoryId::Title), f, body[0]);
             self.application

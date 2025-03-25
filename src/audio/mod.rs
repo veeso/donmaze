@@ -6,17 +6,15 @@ mod error;
 mod theme_thread;
 mod track;
 
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use std::thread::{self, JoinHandle};
+
 pub use error::AudioError;
+use rodio::{OutputStream, Sink};
 use theme_thread::ThemeThread;
 use track::Track;
 pub use track::{Sound, Theme};
-
-use rodio::{OutputStream, Sink};
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
-use std::thread::{self, JoinHandle};
 
 pub type AudioResult<T> = Result<T, AudioError>;
 
@@ -103,10 +101,10 @@ impl Drop for AudioEngine {
 mod test {
 
     #[cfg(not(feature = "github-actions"))]
-    use super::*;
+    use pretty_assertions::assert_eq;
 
     #[cfg(not(feature = "github-actions"))]
-    use pretty_assertions::assert_eq;
+    use super::*;
 
     #[test]
     #[cfg(not(feature = "github-actions"))]

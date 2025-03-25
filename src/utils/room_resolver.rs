@@ -2,7 +2,8 @@
 //!
 //! This utils module provides function to resolve directions and room type from edges
 
-use crate::{game::Session, gfx::Room as RenderRoom};
+use crate::game::Session;
+use crate::gfx::Room as RenderRoom;
 
 /// Get direction for room.
 /// Direction is JUST A VIRTUAL CONCEPT, which is resolved with the following rules:
@@ -78,9 +79,9 @@ pub fn resolve_room_direction(room: u32, session: &Session) -> Direction {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn should_resolve_room_to_render() {

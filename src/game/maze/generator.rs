@@ -2,19 +2,19 @@
 //!
 //! Random maze generator
 
-use crate::game::entity::{Daemon, Enemy, Item, Potion, Shadow};
-use crate::utils::random;
+use std::collections::HashMap;
 
-use petgraph::stable_graph::NodeIndex;
-use petgraph::{graph::UnGraph, stable_graph::DefaultIx};
+use petgraph::graph::UnGraph;
+use petgraph::stable_graph::{DefaultIx, NodeIndex};
 use rand::prelude::*;
-use rand::thread_rng;
+use rand::rng;
 use rand_pcg::Pcg64;
 use rand_seeder::Seeder;
-use std::collections::HashMap;
 
 use super::room::Room;
 use super::Maze;
+use crate::game::entity::{Daemon, Enemy, Item, Potion, Shadow};
+use crate::utils::random;
 
 const MIN_ROOMS: usize = 96;
 const MAX_ROOMS: usize = 128;
@@ -30,14 +30,14 @@ impl Generator {
     /// Instantiate a new `Generator`
     pub fn new(seed: Option<String>) -> Self {
         let seed = seed.unwrap_or_else(Self::random_seed);
-        let rand: Pcg64 = Seeder::from(&seed).make_rng();
+        let rand: Pcg64 = Seeder::from(&seed).into_rng();
         Self { rand, seed }
     }
 
     /// Generate a maze and all the entities in it using generator's seed
     pub fn generate(mut self) -> Maze {
         debug!("generating a maze from seed '{}'", self.seed);
-        let rooms_amount = self.rand.gen_range(MIN_ROOMS..(MAX_ROOMS + 1));
+        let rooms_amount = self.rand.random_range(MIN_ROOMS..(MAX_ROOMS + 1));
         debug!("generating a maze with {} rooms", rooms_amount);
         let (nodes, rooms) = self.generate_rooms(rooms_amount);
 
@@ -134,7 +134,7 @@ impl Generator {
     /// 20 % -> 1 + 1
     /// 10 % -> dead-end (if can be dead end; 1 otherwise)
     fn edges_for_room(&mut self, can_be_dead_end: bool) -> usize {
-        match self.rand.gen_range(0..100) {
+        match self.rand.random_range(0..100) {
             x if x < 25 => 3,
             x if x < 70 => 2,
             x if x < 90 => 1,
@@ -161,12 +161,12 @@ impl Generator {
                 chunks.push(new_chunk);
             } else {
                 // chunk
-                let one_tenth = ((chunks_count * 10) / 100) as isize;
+                let one_tenth = ((chunks_count * 10) / 100) as i64;
                 let variadic = if one_tenth == 0 {
                     0
                 } else {
-                    self.rand.gen_range(-one_tenth..one_tenth)
-                };
+                    self.rand.random_range(-one_tenth..one_tenth)
+                } as isize;
                 let chunks_rooms = if variadic < 0 {
                     (total_rooms / chunks_count).saturating_sub(variadic.unsigned_abs())
                 } else {
@@ -201,8 +201,8 @@ impl Generator {
                 .collect();
             rooms_without_items.sort(); // NOTE: sorting is necessary, since otherwise rooms are randomly sorted based on hashmap order
                                         // choose the room where the item should be placed
-            let room = rooms_without_items[self.rand.gen_range(0..rooms_without_items.len())];
-            let mut room_data = rooms.get_mut(&room).unwrap();
+            let room = rooms_without_items[self.rand.random_range(0..rooms_without_items.len())];
+            let room_data = rooms.get_mut(&room).unwrap();
             room_data.item = Some(item);
             debug!("placed item {:?} in room {}", item, room);
         }
@@ -224,8 +224,9 @@ impl Generator {
                 .collect();
             rooms_without_enemies.sort(); // NOTE: sorting is necessary, since otherwise rooms are randomly sorted based on hashmap order
                                           // choose the room where the enemy should be placed
-            let room = rooms_without_enemies[self.rand.gen_range(0..rooms_without_enemies.len())];
-            let mut room_data = rooms.get_mut(&room).unwrap();
+            let room =
+                rooms_without_enemies[self.rand.random_range(0..rooms_without_enemies.len())];
+            let room_data = rooms.get_mut(&room).unwrap();
             room_data.enemy = Some(enemy);
             debug!("placed enemy {:?} in room {}", enemy, room);
         }
@@ -246,9 +247,9 @@ impl Generator {
             }
         }
         compatible_rooms.sort(); // NOTE: sorting is necessary, since otherwise rooms are randomly sorted based on hashmap order
-        let room = compatible_rooms[self.rand.gen_range(0..compatible_rooms.len())];
+        let room = compatible_rooms[self.rand.random_range(0..compatible_rooms.len())];
         debug!("chosen room {} for exit", room);
-        let mut room_data = rooms.get_mut(&room).unwrap();
+        let room_data = rooms.get_mut(&room).unwrap();
         room_data.is_exit = true;
     }
 
@@ -256,12 +257,12 @@ impl Generator {
     fn enemies_to_place(&mut self) -> Vec<Enemy> {
         debug!("generating enemies to place...");
         let mut enemies = vec![Enemy::DonMaze];
-        let daemons_to_place = self.rand.gen_range(5..16);
+        let daemons_to_place = self.rand.random_range(5..16);
         debug!("generating {} daemons...", daemons_to_place);
         for _ in 0..daemons_to_place {
             enemies.push(Enemy::Daemon(self.generate_daemon()));
         }
-        let shadows_to_place = self.rand.gen_range(10..21);
+        let shadows_to_place = self.rand.random_range(10..21);
         debug!("generating {} shadows...", shadows_to_place);
         for _ in 0..shadows_to_place {
             enemies.push(Enemy::Shadow(self.generate_shadow()));
@@ -273,12 +274,12 @@ impl Generator {
 
     /// Generate daemon
     fn generate_daemon(&mut self) -> Daemon {
-        let hp = self.rand.gen_range(2..8);
+        let hp = self.rand.random_range(2..8);
         Daemon::new(hp)
     }
 
     fn generate_shadow(&mut self) -> Shadow {
-        let hp = self.rand.gen_range(2..6);
+        let hp = self.rand.random_range(2..6);
         Shadow::new(hp)
     }
 
@@ -286,10 +287,10 @@ impl Generator {
     fn items_to_place(&mut self) -> Vec<Item> {
         debug!("generating items to place...");
         let mut items = vec![Item::MazeKey, Item::AlchemyBook, Item::PaintCan];
-        let potions_amount = self.rand.gen_range(12..41);
-        let armors_amount = self.rand.gen_range(4..9);
-        let sonars_amount = self.rand.gen_range(5..8);
-        let talismans_amount = self.rand.gen_range(2..5);
+        let potions_amount = self.rand.random_range(12..41);
+        let armors_amount = self.rand.random_range(4..9);
+        let sonars_amount = self.rand.random_range(5..8);
+        let talismans_amount = self.rand.random_range(2..5);
         // gen potions
         debug!("generating {} potions...", potions_amount);
         for _ in 0..potions_amount {
@@ -314,15 +315,15 @@ impl Generator {
 
     /// Generate random potion to place
     fn generate_potion(&mut self) -> Item {
-        Item::Potion(match self.rand.gen_range(0..100) {
+        Item::Potion(match self.rand.random_range(0..100) {
             value if value < 25 => Potion::Mead,           // 25%
             value if value < 35 => Potion::FairyInABottle, // 15%
             value if value < 50 => Potion::Vinegar,        // 15%
-            value if value < 60 => Potion::RedPotion,      // 10%
+            value if value < 60 => Potion::Red,            // 10%
             value if value < 70 => Potion::SnakePoison,    // 10%
             value if value < 80 => Potion::DaemonsBlood,   // 10%
             value if value < 95 => Potion::Chamomille,     // 15%
-            95 | 96 | 97 => Potion::UnicornElixir,         // 3%
+            95..=97 => Potion::UnicornElixir,              // 3%
             98 | 99 => Potion::DeadlyPoison,               // 2%
             _ => panic!("out of range"),
         })
@@ -330,7 +331,7 @@ impl Generator {
 
     /// Generate a random seed
     fn random_seed() -> String {
-        let mut rng = thread_rng();
+        let mut rng = rng();
         random::random_alphanumeric_with_len(&mut rng, 32)
     }
 }
@@ -338,9 +339,9 @@ impl Generator {
 #[cfg(test)]
 mod test {
 
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn should_generate_a_valid_maze() {
@@ -399,7 +400,7 @@ mod test {
 
     #[test]
     fn should_generate_two_equal_mazes_with_same_seed() {
-        let mut rng = random::rng();
+        let mut rng = rng();
         let seed = random::random_alphanumeric_with_len(&mut rng, 32);
         let maze_a = Generator::new(Some(seed.clone())).generate();
         let maze_b = Generator::new(Some(seed.clone())).generate();

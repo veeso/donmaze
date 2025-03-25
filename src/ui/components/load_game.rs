@@ -8,10 +8,11 @@ mod popup;
 
 use std::path::PathBuf;
 
-use super::Msg;
 pub use games::Games;
 pub use metadata::Metadata;
 pub use popup::ErrorPopup;
+
+use super::Msg;
 
 /// Menu ids
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]

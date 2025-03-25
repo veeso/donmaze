@@ -1,12 +1,12 @@
 //! # Popup
 
-use super::{GameMsg, Msg};
-
 use tui_realm_stdlib::{Input, Paragraph, Radio};
 use tuirealm::command::{Cmd, CmdResult, Direction, Position};
 use tuirealm::event::{Key, KeyEvent};
 use tuirealm::props::{Alignment, BorderType, Borders, Color, Style, TextSpan};
 use tuirealm::{Component, Event, MockComponent, NoUserEvent, State, StateValue};
+
+use super::{GameMsg, Msg};
 
 // -- error popup
 

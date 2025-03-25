@@ -1,18 +1,14 @@
 //! # Button
 
+use tuirealm::command::{Cmd, CmdResult};
 use tuirealm::props::{
     Alignment, AttrValue, Attribute, Borders, Color, PropPayload, PropValue, Props, Style,
     TextModifiers, TextSpan,
 };
-use tuirealm::tui::{
-    layout::Rect,
-    text::{Span, Spans},
-    widgets::{Paragraph as TuiParagraph, Wrap},
-};
-use tuirealm::{
-    command::{Cmd, CmdResult},
-    Frame, MockComponent, State,
-};
+use tuirealm::ratatui::layout::Rect;
+use tuirealm::ratatui::text::{Line, Span};
+use tuirealm::ratatui::widgets::{Paragraph as TuiParagraph, Wrap};
+use tuirealm::{Frame, MockComponent, State};
 /// Button mock component
 #[derive(Default)]
 pub struct Button {
@@ -60,7 +56,7 @@ impl MockComponent for Button {
                 .props
                 .get_or(Attribute::Focus, AttrValue::Flag(false))
                 .unwrap_flag();
-            let text: Vec<Spans> = match self.props.get(Attribute::Text).map(|x| x.unwrap_payload())
+            let text: Vec<Line> = match self.props.get(Attribute::Text).map(|x| x.unwrap_payload())
             {
                 Some(PropPayload::Vec(spans)) => spans
                     .iter()
@@ -69,7 +65,7 @@ impl MockComponent for Button {
                     .map(|x| {
                         let (fg, bg, modifiers) =
                             tui_realm_stdlib::utils::use_or_default_styles(&self.props, &x);
-                        Spans::from(vec![Span::styled(
+                        Line::from(vec![Span::styled(
                             x.content,
                             if focus {
                                 Style::default().add_modifier(modifiers).fg(fg).bg(bg)

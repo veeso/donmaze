@@ -1,7 +1,6 @@
 //! # Room
 
-use crate::game::entity::Enemy;
-use crate::game::entity::Item;
+use crate::game::entity::{Enemy, Item};
 
 /// room stores the information related to a node in the maze graph
 #[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
@@ -14,9 +13,9 @@ pub struct Room {
 #[cfg(test)]
 mod test {
 
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn should_serialize() {

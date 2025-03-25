@@ -1,6 +1,6 @@
 //! # ui utils
 
-use tuirealm::tui::layout::{Constraint, Direction, Layout, Rect};
+use tuirealm::ratatui::layout::{Constraint, Direction, Layout, Rect};
 
 /// Draw an area (WxH / 3) in the middle of the parent area
 pub fn draw_area_in(parent: Rect, width: u16, height: u16) -> Rect {
@@ -31,9 +31,9 @@ pub fn draw_area_in(parent: Rect, width: u16, height: u16) -> Rect {
 #[cfg(test)]
 mod tests {
 
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn test_utils_ui_draw_area_in() {

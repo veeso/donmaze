@@ -2,15 +2,14 @@
 //!
 //! Available messages
 
-use crate::game::session::{Message, Reveal};
-use crate::game::Session;
-use crate::utils::room_resolver::{self, Direction as MazeDirection};
-
-use super::Msg;
-
 use tui_realm_stdlib::List;
 use tuirealm::props::{BorderType, Borders, Color, TextSpan};
 use tuirealm::{Component, Event, MockComponent, NoUserEvent};
+
+use super::Msg;
+use crate::game::session::{Message, Reveal};
+use crate::game::Session;
+use crate::utils::room_resolver::{self, Direction as MazeDirection};
 
 #[derive(MockComponent)]
 pub struct Messages {

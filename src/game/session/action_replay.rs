@@ -6,8 +6,7 @@ use super::{
     Action, Effect, ExploreAction, FightAction, Message, PlayerState, Reveal, Session, Sound,
 };
 use crate::game::entity::{Enemy, Item, Potion};
-use crate::utils::random;
-use crate::utils::room_resolver;
+use crate::utils::{random, room_resolver};
 
 const ESCAPE_PROBABILITY: u8 = 50;
 
@@ -166,7 +165,7 @@ impl<'a> ActionReplay<'a> {
             Potion::Mead => {
                 self.session.player.heal(2);
             }
-            Potion::RedPotion => {
+            Potion::Red => {
                 self.session.player.heal(5);
             }
             Potion::SnakePoison => {
@@ -225,7 +224,7 @@ impl<'a> ActionReplay<'a> {
                 .filter(|(_, room)| room.enemy.is_none())
                 .map(|(node, _)| node)
                 .collect();
-            let mut rng = random::rng();
+            let mut rng = rand::rng();
             let new_enemy_room = *random::choice(&mut rng, &rooms_without_enemies);
             debug!(
                 "moved donmaze {:?} from room {} to {}",
@@ -245,7 +244,7 @@ impl<'a> ActionReplay<'a> {
     /// Try to escape (50% chance) to the first adjacent room, but not previous room.
     /// If there's no adjacent room, but previous room; escape to previous room
     fn escape(&mut self, effect: &mut Effect) {
-        let mut rng = random::rng();
+        let mut rng = rand::rng();
         if random::happens(&mut rng, ESCAPE_PROBABILITY) {
             // find room to escape to
             let adjacent_rooms_but_not_last: Vec<u32> = self
@@ -283,8 +282,8 @@ impl<'a> ActionReplay<'a> {
             debug!("you can't deal with donmaze");
             0
         } else {
-            let mut rng = random::rng();
-            match rng.gen_range(0..100) {
+            let mut rng = rand::rng();
+            match rng.random_range(0..100) {
                 x if x < 30 => 1,
                 x if x < 60 => 2,
                 x if x < 80 => 3,

@@ -1,11 +1,10 @@
 //! # Title
 
-use super::Msg;
-
 use tui_realm_stdlib::Paragraph;
 use tuirealm::props::{Alignment, BorderSides, Borders, Color, TextSpan};
-use tuirealm::NoUserEvent;
-use tuirealm::{Component, Event, MockComponent};
+use tuirealm::{Component, Event, MockComponent, NoUserEvent};
+
+use super::Msg;
 
 #[derive(MockComponent)]
 pub struct Title {

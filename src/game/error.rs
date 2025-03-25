@@ -2,9 +2,11 @@
 //!
 //! Game error types
 
-use crate::utils::saved_games::SavedGameError;
-use crate::{audio::AudioError, ui::UiError};
 use thiserror::Error;
+
+use crate::audio::AudioError;
+use crate::ui::UiError;
+use crate::utils::saved_games::SavedGameError;
 
 /// Game error
 #[derive(Debug, Error)]

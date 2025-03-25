@@ -1,13 +1,12 @@
 //! # Theme thread
 
-use super::track::Track;
-use super::Theme;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 use rodio::{OutputStream, Sink};
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
+
+use super::track::Track;
+use super::Theme;
 
 pub struct ThemeThread {
     running: Arc<AtomicBool>,

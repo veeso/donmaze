@@ -31,10 +31,10 @@ where
 
 #[cfg(test)]
 mod test {
-    use super::*;
-
     use petgraph::graph::UnGraph;
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn should_tell_whether_two_graphs_are_equal() {

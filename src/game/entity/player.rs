@@ -2,7 +2,8 @@
 //!
 //! Player entity
 
-use crate::game::{inventory::Inventory, Hp};
+use crate::game::inventory::Inventory;
+use crate::game::Hp;
 
 const BASE_PLAYER_HEALTH: Hp = 10;
 
@@ -138,9 +139,9 @@ impl Player {
 #[cfg(test)]
 mod test {
 
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn should_init_player() {

@@ -10,7 +10,7 @@ pub enum Potion {
     /// Heals 2 HP
     Mead,
     /// Heals 5 HP
-    RedPotion,
+    Red,
     /// A fairy in a bottle; restores all HP
     FairyInABottle,
     /// Heals all HP and increase max HP by 5; kinda rare though
@@ -32,7 +32,7 @@ impl Potion {
     pub fn key(&self) -> u32 {
         match self {
             Self::Mead => 256,
-            Self::RedPotion => 257,
+            Self::Red => 257,
             Self::UnicornElixir => 258,
             Self::Vinegar => 259,
             Self::DaemonsBlood => 260,
@@ -46,7 +46,7 @@ impl Potion {
     pub fn name(&self) -> &str {
         match self {
             Self::Mead => "Mead",
-            Self::RedPotion => "Red potion",
+            Self::Red => "Red potion",
             Self::UnicornElixir => "Unicorn elixir",
             Self::FairyInABottle => "Fairy in a bottle",
             Self::Vinegar => "Vinegar",
@@ -60,7 +60,7 @@ impl Potion {
     pub fn description(&self) -> &str {
         match self {
             Self::Mead => "Restores 2HP",
-            Self::RedPotion => "Restores 5HP",
+            Self::Red => "Restores 5HP",
             Self::FairyInABottle => "Restores all HP",
             Self::UnicornElixir => "Restores all HP and increase max HP by 5",
             Self::Vinegar => "Decrease HP by 1",
@@ -79,7 +79,7 @@ impl Potion {
                 "That tastes weirdly..............suddenly you feel a terrible chest pain. You fall on the ground. You start to spit blood from your mouth. And you're dead now"
             }
             Self::Mead => "Slightly alcoholic, but you feel immediately better",
-            Self::RedPotion => "Suddenly some legends about a sword and time fill your mind. You immediately feel much better",
+            Self::Red => "Suddenly some legends about a sword and time fill your mind. You immediately feel much better",
             Self::SnakePoison => "The taste of evilness fills your mouth and you feel much worse now",
             Self::FairyInABottle => "The fairy flies around you giving you a heavenly sensation",
             Self::UnicornElixir => "That potion tastes like heaven. You feel invincible now",
@@ -92,7 +92,7 @@ impl From<u32> for Potion {
     fn from(key: u32) -> Self {
         match key {
             256 => Self::Mead,
-            257 => Self::RedPotion,
+            257 => Self::Red,
             258 => Self::UnicornElixir,
             259 => Self::Vinegar,
             260 => Self::DaemonsBlood,
@@ -108,14 +108,14 @@ impl From<u32> for Potion {
 #[cfg(test)]
 mod test {
 
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn should_get_potion_name() {
         assert_eq!(Potion::Mead.name(), "Mead");
-        assert_eq!(Potion::RedPotion.name(), "Red potion");
+        assert_eq!(Potion::Red.name(), "Red potion");
         assert_eq!(Potion::UnicornElixir.name(), "Unicorn elixir");
         assert_eq!(Potion::Vinegar.name(), "Vinegar");
         assert_eq!(Potion::DaemonsBlood.name(), "Daemon's blood");
@@ -128,7 +128,7 @@ mod test {
     #[test]
     fn should_get_potion_description() {
         assert_eq!(Potion::Mead.description(), "Restores 2HP");
-        assert_eq!(Potion::RedPotion.description(), "Restores 5HP");
+        assert_eq!(Potion::Red.description(), "Restores 5HP");
         assert_eq!(
             Potion::UnicornElixir.description(),
             "Restores all HP and increase max HP by 5"
@@ -168,7 +168,7 @@ mod test {
             Potion::Mead.effect(),
             "Slightly alcoholic, but you feel immediately better"
         );
-        assert_eq!(Potion::RedPotion.effect(), "Suddenly some legends about a sword and time fill your mind. You immediately feel much better");
+        assert_eq!(Potion::Red.effect(), "Suddenly some legends about a sword and time fill your mind. You immediately feel much better");
         assert_eq!(
             Potion::SnakePoison.effect(),
             "The taste of evilness fills your mouth and you feel much worse now"
@@ -190,7 +190,7 @@ mod test {
     #[test]
     fn should_convert_to_key() {
         assert_eq!(Potion::Mead, Potion::from(Potion::Mead.key()));
-        assert_eq!(Potion::RedPotion, Potion::from(Potion::RedPotion.key()));
+        assert_eq!(Potion::Red, Potion::from(Potion::Red.key()));
         assert_eq!(
             Potion::UnicornElixir,
             Potion::from(Potion::UnicornElixir.key())

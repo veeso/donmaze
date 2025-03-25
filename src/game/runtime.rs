@@ -1,17 +1,20 @@
 //! # Game runtime
 
-use super::{entity::Enemy, session::Action, GameResult, Options, Session};
+use std::path::{Path, PathBuf};
+use std::thread::sleep;
+use std::time::Duration;
+
+use tuirealm::props::{Color, Shape};
+
+use super::entity::Enemy;
+use super::session::Action;
+use super::{GameResult, Options, Session};
 use crate::audio::{AudioEngine, Sound, Theme};
 use crate::game::entity::Item;
 use crate::gfx::{ascii_art, Render, Room as RoomToRender};
 use crate::ui::{GameMsg, GameOverMsg, Id, LoadGameMsg, MenuId, MenuMsg, Msg, Ui, VictoryMsg};
 use crate::utils::room_resolver;
 use crate::utils::saved_games::SavedGameFiles;
-
-use std::path::{Path, PathBuf};
-use std::thread::sleep;
-use std::time::Duration;
-use tuirealm::props::{Color, Shape};
 
 /// Game runtime
 pub struct Runtime {
@@ -454,7 +457,7 @@ impl Runtime {
                     self.play_sound(Sound::Error);
                     self.play_sound(Sound::Input);
                 } else {
-                    let game_0 = match saved_games.get(0) {
+                    let game_0 = match saved_games.first() {
                         None => None,
                         Some(p) => SavedGameFiles::load_game(p).ok(),
                     };

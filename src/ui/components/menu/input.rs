@@ -2,18 +2,13 @@
 //!
 //! Input components for menu
 
-use super::{MenuMsg, Msg};
-
 use tui_realm_stdlib::Input;
+use tuirealm::command::{Cmd, Position};
+use tuirealm::event::{Key, KeyEvent, KeyModifiers};
 use tuirealm::props::{Alignment, BorderType, Borders, Color, Style};
-use tuirealm::{
-    command::{Cmd, Position},
-    NoUserEvent,
-};
-use tuirealm::{
-    event::{Key, KeyEvent, KeyModifiers},
-    Component, Event, MockComponent,
-};
+use tuirealm::{Component, Event, MockComponent, NoUserEvent};
+
+use super::{MenuMsg, Msg};
 
 #[derive(MockComponent)]
 pub struct Seed {

@@ -1,11 +1,11 @@
 //! # Metadata
 
-use super::Msg;
-use crate::game::Session;
-
 use tui_realm_stdlib::Paragraph;
 use tuirealm::props::{Alignment, BorderSides, Borders, TextSpan};
 use tuirealm::{Component, Event, MockComponent, NoUserEvent};
+
+use super::Msg;
+use crate::game::Session;
 
 #[derive(MockComponent)]
 pub struct Metadata {

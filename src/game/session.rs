@@ -2,15 +2,14 @@
 //!
 //! A game session. Contains all the current states for the game
 
-use super::{
-    entity::{Enemy, Item, Player, PlayerState},
-    inventory::Inventory,
-    maze::Maze,
-};
-use crate::audio::Sound;
+use std::collections::HashSet;
 
 use chrono::Local;
-use std::collections::HashSet;
+
+use super::entity::{Enemy, Item, Player, PlayerState};
+use super::inventory::Inventory;
+use super::maze::Maze;
+use crate::audio::Sound;
 
 mod action;
 mod action_replay;
@@ -249,9 +248,9 @@ impl Session {
 #[cfg(test)]
 mod test {
 
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn should_tell_whether_version_is_compatible() {

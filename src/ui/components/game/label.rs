@@ -1,12 +1,10 @@
 //! # labels
 
-use super::Msg;
-
 use tui_realm_stdlib::Label;
-use tuirealm::{
-    props::{Alignment, Color},
-    Component, Event, MockComponent, NoUserEvent,
-};
+use tuirealm::props::{Alignment, Color};
+use tuirealm::{Component, Event, MockComponent, NoUserEvent};
+
+use super::Msg;
 
 #[derive(MockComponent)]
 pub struct EnemyName {

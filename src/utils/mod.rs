@@ -7,9 +7,11 @@ pub mod room_resolver;
 pub mod saved_games;
 pub mod ui;
 
+use std::fs::OpenOptions;
+use std::path::Path;
+
 use log::LevelFilter;
 use simplelog::{ConfigBuilder, WriteLogger};
-use std::{fs::OpenOptions, path::Path};
 
 /// Setup logger
 pub fn setup_logger(log_level: LevelFilter, path: &Path) -> anyhow::Result<()> {

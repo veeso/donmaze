@@ -2,14 +2,10 @@
 //!
 //! The effect defines the outcome for a turn played
 
-use crate::{
-    audio::Sound,
-    game::{
-        entity::{Enemy, Item, Potion},
-        Hp,
-    },
-    utils::room_resolver::Direction,
-};
+use crate::audio::Sound;
+use crate::game::entity::{Enemy, Item, Potion};
+use crate::game::Hp;
+use crate::utils::room_resolver::Direction;
 
 /// Defines the effect of a turn
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
@@ -87,9 +83,9 @@ pub enum Reveal {
 #[cfg(test)]
 mod test {
 
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn should_make_effect() {

@@ -2,21 +2,21 @@
 //!
 //! player's inventory
 
-use super::{GameMsg, Msg};
-use crate::game::entity::Item;
-use crate::game::Session;
-
 use tuirealm::command::{Cmd, CmdResult, Direction, Position};
 use tuirealm::event::{Key, KeyEvent};
 use tuirealm::props::{
     Alignment, AttrValue, Attribute, BorderType, Borders, Color, Props, Style, TextModifiers,
 };
-use tuirealm::tui::{
-    layout::{Constraint, Corner, Direction as LayoutDirection, Layout},
-    text::{Span, Spans},
-    widgets::{List as TuiList, ListItem, ListState, Paragraph as TuiParagraph, Wrap},
+use tuirealm::ratatui::layout::{Constraint, Direction as LayoutDirection, Layout};
+use tuirealm::ratatui::text::{Line, Span};
+use tuirealm::ratatui::widgets::{
+    List as TuiList, ListDirection, ListItem, ListState, Paragraph as TuiParagraph, Wrap,
 };
 use tuirealm::{Component, Event, MockComponent, NoUserEvent, State};
+
+use super::{GameMsg, Msg};
+use crate::game::entity::Item;
+use crate::game::Session;
 
 struct ItemState {
     item: Item,
@@ -114,7 +114,7 @@ impl Inventory {
 }
 
 impl MockComponent for Inventory {
-    fn view(&mut self, frame: &mut tuirealm::Frame, area: tuirealm::tui::layout::Rect) {
+    fn view(&mut self, frame: &mut tuirealm::Frame, area: tuirealm::ratatui::layout::Rect) {
         let focus = self
             .props
             .get_or(Attribute::Focus, AttrValue::Flag(false))
@@ -143,7 +143,7 @@ impl MockComponent for Inventory {
                 } else {
                     Span::styled(item.name.to_string(), item_style)
                 };
-                ListItem::new(Spans::from(cols))
+                ListItem::new(Line::from(cols))
             })
             .collect();
 
@@ -157,7 +157,7 @@ impl MockComponent for Inventory {
         let list = TuiList::new(list_items)
             .block(list_block)
             .style(Style::default().fg(Color::LightRed))
-            .start_corner(Corner::TopLeft)
+            .direction(ListDirection::TopToBottom)
             .highlight_style(Style::default().fg(Color::LightRed))
             .highlight_symbol("➤	 ");
         let mut state: ListState = ListState::default();

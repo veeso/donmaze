@@ -2,12 +2,12 @@
 //!
 //! Donmaze canvas component
 
-use super::Msg;
-
 use tui_realm_stdlib::Canvas as TuiCanvas;
 use tuirealm::props::Shape;
-use tuirealm::tui::symbols::Marker;
+use tuirealm::ratatui::symbols::Marker;
 use tuirealm::{Component, Event, MockComponent, NoUserEvent};
+
+use super::Msg;
 
 /// Main game canvas
 #[derive(MockComponent)]

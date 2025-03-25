@@ -1,14 +1,14 @@
 //! # Actions
 
-use super::{GameMsg, Msg};
-use crate::game::session::{Action, ExploreAction, FightAction, Session};
-use crate::utils::room_resolver::{self, Direction as MazeDirection};
-
 use tui_realm_stdlib::List;
 use tuirealm::command::{Cmd, Direction, Position};
 use tuirealm::event::{Key, KeyEvent, KeyModifiers};
 use tuirealm::props::{Alignment, BorderType, Borders, Color, TextSpan};
 use tuirealm::{Component, Event, MockComponent, NoUserEvent, State, StateValue};
+
+use super::{GameMsg, Msg};
+use crate::game::session::{Action, ExploreAction, FightAction, Session};
+use crate::utils::room_resolver::{self, Direction as MazeDirection};
 
 #[derive(MockComponent)]
 pub struct AvailableActions {

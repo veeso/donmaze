@@ -14,7 +14,6 @@ mod utils;
 
 use args::Args;
 use game::{Options, Runtime};
-
 use log::LevelFilter;
 
 const APP_VERSION: &str = env!("CARGO_PKG_VERSION");

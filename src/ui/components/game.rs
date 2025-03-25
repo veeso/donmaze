@@ -18,9 +18,9 @@ pub use label::EnemyName;
 pub use messages::Messages;
 pub use popup::{ErrorPopup, GameOverPopup, QuitPopup, SaveFileNamePopup};
 
-use crate::game::{entity::Item, session::Action};
-
 use super::Msg;
+use crate::game::entity::Item;
+use crate::game::session::Action;
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum GameId {

@@ -3,7 +3,8 @@
 //! Ui error
 
 use thiserror::Error;
-use tuirealm::{terminal::TerminalError, ApplicationError};
+use tuirealm::terminal::TerminalError;
+use tuirealm::ApplicationError;
 
 /// Ui error
 #[derive(Debug, Error)]

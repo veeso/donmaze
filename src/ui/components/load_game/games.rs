@@ -4,15 +4,13 @@
 
 use std::path::PathBuf;
 
-use super::{LoadGameMsg, Msg};
-
 use tui_realm_stdlib::List;
+use tuirealm::command::{Cmd, Direction, Position};
+use tuirealm::event::{Key, KeyEvent};
 use tuirealm::props::{Alignment, BorderType, Borders, Color, TextSpan};
-use tuirealm::{
-    command::{Cmd, Direction, Position},
-    event::{Key, KeyEvent},
-    Component, Event, MockComponent, NoUserEvent, State, StateValue,
-};
+use tuirealm::{Component, Event, MockComponent, NoUserEvent, State, StateValue};
+
+use super::{LoadGameMsg, Msg};
 
 #[derive(MockComponent)]
 pub struct Games {

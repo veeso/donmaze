@@ -1,13 +1,15 @@
-///! # Cpu
-///
-/// This module expose the CPU player
-use super::{Effect, PlayerState, Session};
-use crate::audio::Sound;
-use crate::game::session::Message;
-use crate::game::{entity::Enemy, Hp};
-use crate::utils::random;
+//! # Cpu
+//!
+//! This module expose the CPU player
 
 use rand::rngs::ThreadRng;
+
+use super::{Effect, PlayerState, Session};
+use crate::audio::Sound;
+use crate::game::entity::Enemy;
+use crate::game::session::Message;
+use crate::game::Hp;
+use crate::utils::random;
 
 struct EnemyHit {
     damage: Hp,
@@ -72,7 +74,7 @@ impl<'a> Cpu<'a> {
     /// Calculate damage to deal based on random and enemy type
     /// The bool defines whether is critical hit
     fn deal_damage(enemy: &Enemy) -> EnemyHit {
-        let mut rng = random::rng();
+        let mut rng = rand::rng();
         let critical_hit = random::happens(&mut rng, 10);
         let will_hit = random::happens(&mut rng, enemy.accuracy());
         let base_attack: Hp = enemy.base_attack();
@@ -104,7 +106,7 @@ impl<'a> Cpu<'a> {
             rooms_with_exploring_enemies.len()
         );
         // iter rooms
-        let mut rng = random::rng();
+        let mut rng = rand::rng();
         for room in rooms_with_exploring_enemies.into_iter() {
             self.move_enemy_at(&mut rng, room, effect);
         }

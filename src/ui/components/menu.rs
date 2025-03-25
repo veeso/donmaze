@@ -6,10 +6,11 @@ mod buttons;
 mod input;
 mod title;
 
-use super::Msg;
 pub use buttons::{Exit, LoadGame, NewGame};
 pub use input::Seed;
 pub use title::Title;
+
+use super::Msg;
 
 /// Menu ids
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]

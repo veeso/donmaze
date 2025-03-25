@@ -6,12 +6,12 @@ mod note;
 mod sound;
 mod theme;
 
+use std::time::Duration;
+
 use note::Note;
+use rodio::source::{Amplify, SineWave, Source, TakeDuration};
 pub use sound::Sound;
 pub use theme::Theme;
-
-use rodio::source::{Amplify, SineWave, Source, TakeDuration};
-use std::time::Duration;
 
 type Tone = Amplify<TakeDuration<SineWave>>;
 
@@ -36,9 +36,9 @@ impl Track {
 #[cfg(test)]
 mod test {
 
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn should_make_track() {

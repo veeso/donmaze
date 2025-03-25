@@ -2,12 +2,12 @@
 //!
 //! Menu popup
 
-use super::{LoadGameMsg, Msg};
-
 use tui_realm_stdlib::Paragraph;
 use tuirealm::event::{Key, KeyEvent};
 use tuirealm::props::{Alignment, BorderType, Borders, Color, TextSpan};
 use tuirealm::{Component, Event, MockComponent, NoUserEvent};
+
+use super::{LoadGameMsg, Msg};
 
 #[derive(MockComponent)]
 pub struct ErrorPopup {

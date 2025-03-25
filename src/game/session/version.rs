@@ -14,9 +14,9 @@ impl Version {
 #[cfg(test)]
 mod test {
 
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn should_tell_whether_version_is_compatible() {

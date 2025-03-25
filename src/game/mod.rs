@@ -1,6 +1,7 @@
-///! # Game
-///
-/// Main game core engine and logics
+//! # Game
+//!
+//! Main game core engine and logics
+
 pub mod entity;
 mod error;
 pub mod inventory;

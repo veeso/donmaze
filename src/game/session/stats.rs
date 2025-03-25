@@ -35,9 +35,9 @@ impl Default for Stats {
 #[cfg(test)]
 mod test {
 
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn should_serialize() {

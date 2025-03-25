@@ -5,14 +5,16 @@
 mod generator;
 mod room;
 
-use crate::utils::graphq;
-use generator::Generator;
+use std::collections::HashMap;
 
-use super::entity::{Enemy, Item};
+use generator::Generator;
+use petgraph::graph::UnGraph;
+use petgraph::stable_graph::DefaultIx;
+use petgraph::visit::EdgeRef;
 use room::Room;
 
-use petgraph::{graph::UnGraph, stable_graph::DefaultIx, visit::EdgeRef};
-use std::collections::HashMap;
+use super::entity::{Enemy, Item};
+use crate::utils::graphq;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 /// Game maze
@@ -131,10 +133,10 @@ impl PartialEq for Maze {
 #[cfg(test)]
 mod test {
 
+    use pretty_assertions::assert_eq;
+
     use super::*;
     use crate::game::entity::{Enemy, Item};
-
-    use pretty_assertions::assert_eq;
 
     #[test]
     fn should_tell_whether_room_is_adjacent() {

@@ -141,9 +141,9 @@ impl From<u32> for Item {
 #[cfg(test)]
 mod test {
 
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn should_get_item_name() {
@@ -268,7 +268,7 @@ mod test {
             objects: Vec<Item>,
         }
         let test = Test {
-            objects: vec![Item::AlchemyBook, Item::Potion(Potion::RedPotion)],
+            objects: vec![Item::AlchemyBook, Item::Potion(Potion::Red)],
         };
         let json = serde_json::to_string(&test).unwrap();
         let decoded: Test = serde_json::from_str(&json).unwrap();
